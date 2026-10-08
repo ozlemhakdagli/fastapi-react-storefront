@@ -1,0 +1,16 @@
+{
+  "title": "Profilim",
+  "info_title": "Kişisel bilgiler",
+  "email": "E-posta",
+  "full_name": "Ad soyad",
+  "phone": "Telefon",
+  "address": "Adres",
+  "saved": "Bilgileriniz kaydedildi.",
+  "password_title": "Şifre değiştir",
+  "current_password": "Mevcut şifre",
+  "new_password": "Yeni şifre",
+  "new_password_confirm": "Yeni şifre (tekrar)",
+  "password_submit": "Şifreyi güncelle",
+  "password_changed": "Şifreniz güncellendi.",
+  "password_mismatch": "Yeni şifreler birbiriyle eşleşmiyor."
+}
