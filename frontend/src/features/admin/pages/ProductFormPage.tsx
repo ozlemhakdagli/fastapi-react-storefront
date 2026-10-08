@@ -86,10 +86,10 @@ function validate(values: FormValues): FieldErrors {
   if (sku === '') errors.sku = t('adminproducts.error_required')
   else if (!SKU_PATTERN.test(sku)) errors.sku = t('adminproducts.error_sku_format')
   if (values.name.trim() === '') errors.name = t('adminproducts.error_required')
-  const price = values.price.trim()
+  const price = normalizeMoney(values.price)
   if (price === '') errors.price = t('adminproducts.error_required')
   else if (!MONEY_PATTERN.test(price)) errors.price = t('adminproducts.error_money')
-  const cost = values.cost_price.trim()
+  const cost = normalizeMoney(values.cost_price)
   if (cost !== '' && !MONEY_PATTERN.test(cost)) errors.cost_price = t('adminproducts.error_money')
   const stock = values.stock.trim()
   if (!/^\d+$/.test(stock) || Number(stock) > MAX_STOCK) {
@@ -98,9 +98,14 @@ function validate(values: FormValues): FieldErrors {
   return errors
 }
 
+/** Trim a typed amount and accept the Turkish decimal comma ("1299,90") as a dot. */
+function normalizeMoney(text: string): string {
+  return text.trim().replace(',', '.')
+}
+
 /** The request body of POST and PUT: every ProductIn field. Money stays a string. */
 function toInput(values: FormValues): ProductInput {
-  const cost = values.cost_price.trim()
+  const cost = normalizeMoney(values.cost_price)
   return {
     sku: values.sku.trim(),
     name: values.name.trim(),
@@ -108,7 +113,7 @@ function toInput(values: FormValues): ProductInput {
     category_id: values.category_id === '' ? null : Number(values.category_id),
     short_description: values.short_description.trim(),
     description: values.description.trim(),
-    price: values.price.trim(),
+    price: normalizeMoney(values.price),
     cost_price: cost === '' ? null : cost,
     stock: Number(values.stock.trim()),
     is_new: values.is_new,

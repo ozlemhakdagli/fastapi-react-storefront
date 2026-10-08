@@ -143,6 +143,20 @@ describe('ProductFormPage', () => {
     )
   })
 
+  it('accepts a Turkish decimal comma and sends the amounts with a dot', async () => {
+    mockGet({ '/admin/categories': categories, '/admin/brands': brands })
+    const post = vi.spyOn(api, 'post').mockResolvedValue({ ...product, id: 42 })
+    renderNew()
+    await screen.findByRole('option', { name: 'Logitech' })
+    await userEvent.type(screen.getByLabelText(t('adminproducts.field_sku')), 'KL-100')
+    await userEvent.type(screen.getByLabelText(t('adminproducts.field_name')), 'Mekanik Klavye')
+    await userEvent.type(screen.getByLabelText(t('adminproducts.field_price')), '1299,90')
+    await userEvent.type(screen.getByLabelText(t('adminproducts.field_cost_price')), '800,5')
+    await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1))
+    expect(post.mock.calls[0][1]).toMatchObject({ price: '1299.90', cost_price: '800.5' })
+  })
+
   it('sends an empty cost price and no brand or category as null', async () => {
     mockGet({ '/admin/categories': categories, '/admin/brands': brands })
     const post = vi.spyOn(api, 'post').mockResolvedValue({ ...product, id: 42 })
