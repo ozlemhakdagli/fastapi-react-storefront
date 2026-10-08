@@ -2,6 +2,7 @@
 
 from psycopg import Connection
 from psycopg.errors import UniqueViolation
+from psycopg_pool import ConnectionPool
 
 from app.errors import ApiError
 from app.repositories import users
@@ -10,21 +11,29 @@ from app.schemas.users import AdminUserCreateIn, AdminUserUpdateIn
 from app.security import DUMMY_HASH, hash_password, verify_password
 
 
-def register(conn: Connection, data: RegisterIn) -> dict:
-    return _insert(
-        conn,
-        email=data.email,
-        password=data.password,
-        full_name=data.full_name,
-        role="customer",
-        phone=data.phone,
-        address=data.address,
-    )
+def register(pool: ConnectionPool, data: RegisterIn) -> dict:
+    """Create a customer. The password is hashed before a connection is borrowed."""
+    password_hash = hash_password(data.password)
+    with pool.connection() as conn:
+        return _insert(
+            conn,
+            email=data.email,
+            password_hash=password_hash,
+            full_name=data.full_name,
+            role="customer",
+            phone=data.phone,
+            address=data.address,
+        )
 
 
-def authenticate(conn: Connection, email: str, password: str) -> dict:
-    """Return the active user with this email and password, without its hash."""
-    user = users.get_by_email(conn, email)
+def authenticate(pool: ConnectionPool, email: str, password: str) -> dict:
+    """Return the active user with this email and password, without its hash.
+
+    The connection is returned to the pool before the slow Argon2 check, so a flood of login
+    attempts cannot use up the connections that every other request needs.
+    """
+    with pool.connection() as conn:
+        user = users.get_by_email(conn, email)
     if user is None or not user["is_active"]:
         # Spend one Argon2 check too, so that unknown or inactive accounts are not faster.
         verify_password(password, DUMMY_HASH)
@@ -47,7 +56,7 @@ def admin_create_user(conn: Connection, data: AdminUserCreateIn) -> dict:
     return _insert(
         conn,
         email=data.email,
-        password=data.password,
+        password_hash=hash_password(data.password),
         full_name=data.full_name,
         role=data.role,
         phone=data.phone,
@@ -83,13 +92,12 @@ def _insert(
     conn: Connection,
     *,
     email: str,
-    password: str,
+    password_hash: str,
     full_name: str,
     role: str,
     phone: str | None,
     address: str | None,
 ) -> dict:
-    password_hash = hash_password(password)
     try:
         return users.create(
             conn,

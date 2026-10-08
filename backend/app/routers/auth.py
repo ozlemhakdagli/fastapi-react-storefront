@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Request, Response
 
 from app.deps import Conn, CurrentUser, require_admin
 from app.repositories import users
@@ -14,13 +14,14 @@ admin_router = APIRouter(dependencies=[Depends(require_admin)])
 
 
 @router.post("/auth/register", status_code=201, response_model=UserOut)
-def register(data: RegisterIn, conn: Conn) -> dict:
-    return auth_service.register(conn, data)
+def register(data: RegisterIn, request: Request) -> dict:
+    # No Conn dependency: the service borrows a connection only for the insert, not for hashing.
+    return auth_service.register(request.app.state.pool, data)
 
 
 @router.post("/auth/login", response_model=TokenOut)
-def login(data: LoginIn, conn: Conn) -> TokenOut:
-    user = auth_service.authenticate(conn, data.email, data.password)
+def login(data: LoginIn, request: Request) -> TokenOut:
+    user = auth_service.authenticate(request.app.state.pool, data.email, data.password)
     return TokenOut(access_token=create_access_token(user["id"]), user=user)
 
 

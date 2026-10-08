@@ -178,3 +178,40 @@ def test_no_response_contains_password_hash(client: TestClient, make_user, auth_
         assert "password_hash" not in values
         assert "password" not in values
         assert "$argon2" not in response.text
+
+
+def test_login_and_register_hash_without_holding_a_database_connection(
+    client, make_user, monkeypatch
+) -> None:
+    """Argon2 takes ~40 ms; a pooled connection must not be held meanwhile."""
+    from app.services import auth as auth_service
+
+    pool = client.app.state.pool
+    in_use: list[int] = []
+
+    def watched(real):
+        def wrapper(*args, **kwargs):
+            stats = pool.get_stats()
+            in_use.append(stats["pool_size"] - stats["pool_available"])
+            return real(*args, **kwargs)
+
+        return wrapper
+
+    monkeypatch.setattr(auth_service, "verify_password", watched(auth_service.verify_password))
+    monkeypatch.setattr(auth_service, "hash_password", watched(auth_service.hash_password))
+    user = make_user(email="known@example.com")
+
+    known = client.post(
+        "/api/auth/login", json={"email": "known@example.com", "password": user["password"]}
+    )
+    unknown = client.post(
+        "/api/auth/login", json={"email": "nobody@example.com", "password": "Wrong-passw0rd"}
+    )
+    registered = client.post(
+        "/api/auth/register",
+        json={"email": "new@example.com", "password": "Passw0rd!x", "full_name": "New User"},
+    )
+
+    assert (known.status_code, unknown.status_code, registered.status_code) == (200, 401, 201)
+    assert len(in_use) >= 3, "the hashing functions were not observed"
+    assert set(in_use) == {0}, f"connections held while hashing: {in_use}"
