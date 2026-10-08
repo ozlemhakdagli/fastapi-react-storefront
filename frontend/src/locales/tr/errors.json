@@ -18,5 +18,6 @@
   "unsupported_media_type": "Yalnızca JPEG, PNG veya WebP görselleri yüklenebilir.",
   "validation_error": "Girilen bilgiler geçersiz. Lütfen alanları kontrol edin.",
   "network": "Sunucuya ulaşılamıyor. Bağlantınızı kontrol edin.",
-  "unknown": "Beklenmeyen bir hata oluştu."
+  "unknown": "Beklenmeyen bir hata oluştu.",
+  "payload_too_large": "Gönderilen veri çok büyük."
 }

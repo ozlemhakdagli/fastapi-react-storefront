@@ -16,6 +16,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.config import Settings, get_settings
 from app.db import create_pool
 from app.errors import ApiError, api_error_handler
+from app.middleware import UPLOAD_OVERHEAD, BodySizeLimitMiddleware
 
 PLACEHOLDER = Path(__file__).resolve().parent / "static" / "placeholder.svg"
 
@@ -47,6 +48,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         docs_url="/api/docs",
         redoc_url=None,
         openapi_url="/api/openapi.json",
+    )
+    # Innermost on purpose: its 413 answers still get the CORS and nosniff headers.
+    app.add_middleware(
+        BodySizeLimitMiddleware, upload_limit=settings.max_upload_bytes + UPLOAD_OVERHEAD
     )
     app.add_middleware(
         CORSMiddleware,
