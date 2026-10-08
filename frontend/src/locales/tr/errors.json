@@ -1,0 +1,22 @@
+{
+  "unauthorized": "Oturumunuz geçersiz. Lütfen tekrar giriş yapın.",
+  "invalid_credentials": "E-posta veya şifre hatalı.",
+  "forbidden": "Bu işlem için yetkiniz yok.",
+  "not_found": "Aradığınız kayıt bulunamadı.",
+  "email_taken": "Bu e-posta adresi zaten kayıtlı.",
+  "sku_taken": "Bu stok kodu (SKU) zaten kullanılıyor.",
+  "name_taken": "Bu isim zaten kullanılıyor.",
+  "has_dependencies": "Bu kayıt başka kayıtlar tarafından kullanıldığı için silinemez.",
+  "last_admin": "Son yönetici hesabı devre dışı bırakılamaz veya yetkisi alınamaz.",
+  "insufficient_stock": "Yeterli stok yok.",
+  "product_unavailable": "Bu ürün şu anda satışta değil.",
+  "invalid_status_transition": "Sipariş durumu bu şekilde değiştirilemez.",
+  "empty_cart": "Sepetiniz boş.",
+  "wrong_password": "Mevcut şifre hatalı.",
+  "invalid_reference": "Seçilen kayıt geçerli değil.",
+  "file_too_large": "Dosya çok büyük (en fazla 2 MB).",
+  "unsupported_media_type": "Yalnızca JPEG, PNG veya WebP görselleri yüklenebilir.",
+  "validation_error": "Girilen bilgiler geçersiz. Lütfen alanları kontrol edin.",
+  "network": "Sunucuya ulaşılamıyor. Bağlantınızı kontrol edin.",
+  "unknown": "Beklenmeyen bir hata oluştu."
+}

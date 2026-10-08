@@ -1,0 +1,19 @@
+{
+  "nav_home": "Ana Sayfa",
+  "nav_products": "Ürünler",
+  "nav_about": "Hakkımızda",
+  "nav_contact": "İletişim",
+  "nav_cart": "Sepetim",
+  "nav_login": "Giriş Yap",
+  "nav_register": "Kayıt Ol",
+  "nav_account": "Hesabım",
+  "nav_admin": "Yönetim Paneli",
+  "nav_logout": "Çıkış Yap",
+  "footer_rights": "Tüm hakları saklıdır.",
+  "footer_contact": "İletişim",
+  "account_title": "Hesabım",
+  "account_profile": "Profilim",
+  "account_orders": "Siparişlerim",
+  "account_comments": "Yorumlarım",
+  "account_messages": "Mesajlarım"
+}
