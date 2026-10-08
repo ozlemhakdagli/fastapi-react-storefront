@@ -10,6 +10,7 @@ import re
 from pathlib import Path
 
 import psycopg
+from dotenv import dotenv_values
 
 DEFAULT_DIR = Path(__file__).resolve().parent.parent / "migrations"
 
@@ -74,9 +75,10 @@ def apply_migrations(dsn: str, migrations_dir: Path = DEFAULT_DIR) -> list[str]:
 
 def main() -> None:
     """Apply pending migrations to the database named by DATABASE_URL (python -m app.migrate)."""
-    dsn = os.environ.get("DATABASE_URL")
+    # The environment wins; otherwise read the .env file of the current directory (backend/).
+    dsn = os.environ.get("DATABASE_URL") or dotenv_values(".env").get("DATABASE_URL")
     if not dsn:
-        raise SystemExit("DATABASE_URL is not set")
+        raise SystemExit("DATABASE_URL is not set (export it or put it in backend/.env)")
     for version in apply_migrations(dsn):
         print(f"applied {version}")
 

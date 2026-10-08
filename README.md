@@ -92,13 +92,12 @@ add `--no-capture-output` so that their output streams.
 
    ```bash
    cd backend
-   export DATABASE_URL="$(grep '^DATABASE_URL=' .env | cut -d= -f2-)"
    python -m app.migrate
    python seed.py
    ```
 
-   `python -m app.migrate` reads `DATABASE_URL` from the environment, not from `.env`, so the `export`
-   line is required. `python seed.py` reads `.env` itself. It creates 5 categories, 5 brands, 20 sample
+   Both commands read `DATABASE_URL` from `backend/.env` (an exported variable wins).
+   `python seed.py` creates 5 categories, 5 brands, 20 sample
    products (one inactive, three with no stock), the site settings, the admin account and, if it is
    configured, the demo customer. Running it again keeps the existing rows.
 

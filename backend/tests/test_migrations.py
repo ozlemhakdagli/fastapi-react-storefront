@@ -193,7 +193,21 @@ def test_main_applies_pending_migrations_and_prints_them(
     assert capsys.readouterr().out == ""
 
 
-def test_main_without_database_url_exits(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_main_without_database_url_exits(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.chdir(tmp_path)  # a directory without a .env file
     with pytest.raises(SystemExit):
         main()
+
+
+def test_main_falls_back_to_database_url_in_dot_env(
+    db_dsn: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    (tmp_path / ".env").write_text(f'DATABASE_URL="{db_dsn}"\n')
+    monkeypatch.chdir(tmp_path)
+    main()
+    assert capsys.readouterr().out == "applied 0001_init\n"
