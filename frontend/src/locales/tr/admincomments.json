@@ -1,0 +1,10 @@
+{
+  "title": "Yorumlar",
+  "column_author": "Yazar",
+  "column_product": "Ürün",
+  "column_comment": "Yorum",
+  "column_date": "Tarih",
+  "empty": "Yorum bulunamadı.",
+  "delete_title": "Yorum silinsin mi?",
+  "delete_description": "Bu yorum kalıcı olarak silinir."
+}
