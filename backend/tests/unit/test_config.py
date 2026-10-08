@@ -48,8 +48,8 @@ def test_secret_key_must_be_long_and_not_a_placeholder(clean_env):
     with pytest.raises(ValidationError):
         Settings()
 
-    clean_env.setenv("SECRET_KEY", "x" * 32)
-    assert Settings().secret_key == "x" * 32
+    clean_env.setenv("SECRET_KEY", SECRET_KEY)
+    assert Settings().secret_key == SECRET_KEY
 
     clean_env.setenv("SECRET_KEY", "change-me-" + "x" * 40)
     with pytest.raises(ValidationError) as exc_info:
@@ -78,3 +78,31 @@ def test_settings_reads_dotenv_and_ignores_unknown_keys(clean_env, tmp_path):
 
     assert settings.database_url == DATABASE_URL
     assert settings.secret_key == SECRET_KEY
+
+
+def test_secret_key_must_not_be_a_repeated_character(clean_env):
+    clean_env.setenv("DATABASE_URL", DATABASE_URL)
+    for weak in ("x" * 40, "ab" * 20, "password" * 5):
+        clean_env.setenv("SECRET_KEY", weak)
+        with pytest.raises(ValidationError):
+            Settings()
+
+
+def test_cors_origins_reject_a_wildcard(clean_env):
+    clean_env.setenv("DATABASE_URL", DATABASE_URL)
+    clean_env.setenv("SECRET_KEY", SECRET_KEY)
+    for value in ("*", "http://a,*"):
+        clean_env.setenv("CORS_ORIGINS", value)
+        with pytest.raises(ValidationError):
+            Settings()
+
+
+def test_token_lifetime_has_sane_bounds(clean_env):
+    clean_env.setenv("DATABASE_URL", DATABASE_URL)
+    clean_env.setenv("SECRET_KEY", SECRET_KEY)
+    for minutes in ("0", "-5", "1441", "5256000"):
+        clean_env.setenv("ACCESS_TOKEN_MINUTES", minutes)
+        with pytest.raises(ValidationError):
+            Settings()
+    clean_env.setenv("ACCESS_TOKEN_MINUTES", "1440")
+    assert Settings().access_token_minutes == 1440

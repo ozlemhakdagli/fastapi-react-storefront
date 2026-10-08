@@ -4,9 +4,13 @@ cost_price exists only on admin-facing models (AdminProduct and ProductIn), neve
 public ProductListItem or ProductDetail.
 """
 
-from pydantic import BaseModel, Field
+from decimal import Decimal
+
+from pydantic import BaseModel, Field, field_validator
 
 from app.schemas.common import InputModel, Iso, Money, Named
+
+MAX_PRICE = Decimal("1000000.00")
 
 
 class ProductImageOut(BaseModel):
@@ -52,6 +56,14 @@ class ProductIn(InputModel):
     stock: int = Field(ge=0, le=1_000_000)
     is_new: bool = False
     is_active: bool = True
+
+    @field_validator("price", "cost_price")
+    @classmethod
+    def _limit_price(cls, value: Decimal | None) -> Decimal | None:
+        """Keep a full cart of the dearest product inside the NUMERIC(12,2) order total."""
+        if value is not None and value > MAX_PRICE:
+            raise ValueError("must be at most 1000000.00")
+        return value
 
 
 class ImageOrderIn(InputModel):

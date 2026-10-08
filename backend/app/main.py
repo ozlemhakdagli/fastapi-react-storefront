@@ -7,10 +7,13 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.exception_handlers import http_exception_handler
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from psycopg import DataError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.config import Settings, get_settings
@@ -67,6 +70,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return response
 
     app.add_exception_handler(ApiError, api_error_handler)
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_error(request: Request, exc: RequestValidationError) -> Response:
+        # FastAPI's default shape without `input` and `ctx`, which would echo submitted values
+        # (for example a rejected password) back into responses and logs.
+        errors = [
+            {key: value for key, value in error.items() if key in {"type", "loc", "msg"}}
+            for error in exc.errors()
+        ]
+        return JSONResponse(status_code=422, content={"detail": jsonable_encoder(errors)})
+
+    async def input_the_database_refuses(request: Request, exc: Exception) -> Response:
+        # NUL characters, lone surrogates and out-of-range numbers pass schema validation but
+        # PostgreSQL (or the driver) refuses them. That is the client's mistake, not a server error.
+        return JSONResponse(status_code=422, content={"detail": "validation_error"})
+
+    app.add_exception_handler(DataError, input_the_database_refuses)
+    app.add_exception_handler(UnicodeEncodeError, input_the_database_refuses)
 
     @app.exception_handler(StarletteHTTPException)
     async def http_error(request: Request, exc: StarletteHTTPException) -> Response:
