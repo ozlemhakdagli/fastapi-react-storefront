@@ -271,9 +271,9 @@ endpoints; public product reads never select it.
 - **Wrong Python version.** The backend needs Python 3.14 from the `ecommerce` environment. Check with
   `conda run -n ecommerce python --version`. If you see another version, activate `ecommerce` or use
   `conda run -n ecommerce`.
-- **`DATABASE_URL is not set`.** `python -m app.migrate` reads the environment only: export the variable
-  as in step 6. `scripts/db.sh` and the tests read `backend/.env`; if that file is missing or has no
-  `DATABASE_URL`, they stop with a message that says so.
+- **`DATABASE_URL is not set`.** `python -m app.migrate`, `python seed.py`, `scripts/db.sh` and the tests
+  read `DATABASE_URL` from `backend/.env` (an exported variable wins). Run `python -m app.migrate` from
+  `backend/`, and check that the file exists and contains the variable.
 - **Tests fail with connection errors.** PostgreSQL is stopped. Run `scripts/db.sh status`, then
   `scripts/db.sh start`.
 - **`SECRET_KEY must have at least 32 characters` or `must be replaced with a generated value`.** The
