@@ -41,11 +41,14 @@ ident='^[a-z_][a-z0-9_]*$'
 [[ "$DB_USER" =~ $ident ]] || die "database user must match $ident"
 [[ "$DB_NAME" =~ $ident ]] || die "database name must match $ident"
 
-# The unix socket lives inside the data directory; TCP listens on localhost only.
-SERVER_OPTS="-p $DB_PORT -k $PGDATA -c listen_addresses=localhost"
+# The unix socket needs a short path (the limit is 107 bytes, and a project folder deep in a home
+# directory exceeds it), so it lives in /tmp. Local connections use "trust", so the socket is
+# restricted to the owner (0700); TCP listens on localhost only and needs a password.
+SOCKET_DIR="/tmp"
+SERVER_OPTS="-p $DB_PORT -k $SOCKET_DIR -c unix_socket_permissions=0700 -c listen_addresses=localhost"
 
 superuser_psql() {
-  "$PG_BIN/psql" -h "$PGDATA" -p "$DB_PORT" -U postgres -v ON_ERROR_STOP=1 "$@"
+  "$PG_BIN/psql" -h "$SOCKET_DIR" -p "$DB_PORT" -U postgres -v ON_ERROR_STOP=1 "$@"
 }
 
 cmd_init() {
