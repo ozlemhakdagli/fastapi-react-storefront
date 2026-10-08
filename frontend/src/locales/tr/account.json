@@ -27,7 +27,7 @@
   "direction_outbound": "Mağazadan",
   "column_order": "Sipariş",
   "column_date": "Tarih",
-  "column_item_count": "Ürün sayısı",
+  "column_item_count": "Ürün adedi",
   "column_status": "Durum",
   "column_total": "Tutar",
   "column_product": "Ürün",
