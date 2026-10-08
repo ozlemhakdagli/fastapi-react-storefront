@@ -72,13 +72,13 @@ describe('AppRoutes', () => {
   it('keeps an admin on /admin/products inside the admin layout', () => {
     renderAt('/admin/products', testAdmin)
     expect(screen.getByTestId('pathname')).toHaveTextContent('/admin/products')
-    expect(screen.getByText(t('admin.title'))).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: t('admin.title') })).toBeInTheDocument()
   })
 
   it('keeps a customer on /account/orders inside the account layout', () => {
     renderAt('/account/orders', testCustomer)
     expect(screen.getByTestId('pathname')).toHaveTextContent('/account/orders')
-    expect(screen.getByText(t('layout.account_title'))).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: t('layout.account_title') })).toBeInTheDocument()
   })
 
   it('keeps an unknown URL where it is and still shows the store layout', async () => {
