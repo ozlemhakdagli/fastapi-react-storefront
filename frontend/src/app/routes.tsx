@@ -26,9 +26,9 @@ import ProductListPage from '@/features/catalog/pages/ProductListPage'
 import AccountLayout from '@/layouts/AccountLayout'
 import AdminLayout from '@/layouts/AdminLayout'
 import StoreLayout from '@/layouts/StoreLayout'
-import AboutPage from '@/pages/AboutPage'
-import ContactPage from '@/pages/ContactPage'
-import NotFoundPage from '@/pages/NotFoundPage'
+import AboutPage from '@/features/pages/AboutPage'
+import ContactPage from '@/features/pages/ContactPage'
+import NotFoundPage from '@/features/pages/NotFoundPage'
 
 // Browser URL -> page. This is React Router; it is unrelated to the FastAPI routers, which map
 // HTTP requests to Python functions. Page tasks edit only their own page file, never this one.
