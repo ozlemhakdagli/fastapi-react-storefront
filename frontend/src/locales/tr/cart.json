@@ -1,0 +1,22 @@
+{
+  "title": "Sepetim",
+  "empty": "Sepetiniz boş.",
+  "continue_shopping": "Alışverişe devam et",
+  "column_product": "Ürün",
+  "column_unit_price": "Birim fiyat",
+  "column_quantity": "Adet",
+  "column_line_total": "Tutar",
+  "increase": "Adedi artır",
+  "decrease": "Adedi azalt",
+  "remove": "Kaldır",
+  "stock_warning": "Stokta yalnızca {stock} adet var. Lütfen adedi azaltın.",
+  "total": "Toplam",
+  "checkout": "Siparişi tamamla",
+  "checkout_title": "Teslimat bilgileri",
+  "checkout_name": "Ad soyad",
+  "checkout_phone": "Telefon",
+  "checkout_address": "Teslimat adresi",
+  "checkout_required": "Bu alan zorunludur.",
+  "checkout_submit": "Siparişi onayla",
+  "checkout_back_to_cart": "Sepete dön"
+}
