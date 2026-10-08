@@ -6,6 +6,7 @@ created through the `postgres` maintenance database and dropped after the test.
 
 import os
 import shutil
+import time
 import uuid
 from collections.abc import Iterator
 from pathlib import Path
@@ -43,10 +44,22 @@ def db_dsn() -> Iterator[str]:
     try:
         yield make_conninfo(base_dsn, dbname=name)
     finally:
-        with psycopg.connect(maintenance_dsn, autocommit=True) as conn:
-            conn.execute(
-                sql.SQL("DROP DATABASE IF EXISTS {} WITH (FORCE)").format(sql.Identifier(name))
-            )
+        _drop_database(maintenance_dsn, name)
+
+
+def _drop_database(maintenance_dsn: str, name: str) -> None:
+    """Drop a throwaway database. WITH (FORCE) can briefly fail for a role that is not a
+    superuser while a server background worker (autovacuum) is still attached, so retry."""
+    statement = sql.SQL("DROP DATABASE IF EXISTS {} WITH (FORCE)").format(sql.Identifier(name))
+    for attempt in range(10):
+        try:
+            with psycopg.connect(maintenance_dsn, autocommit=True) as conn:
+                conn.execute(statement)
+            return
+        except errors.InsufficientPrivilege:
+            if attempt == 9:
+                raise
+            time.sleep(0.3)
 
 
 def _query(dsn: str, query: str) -> list[tuple]:

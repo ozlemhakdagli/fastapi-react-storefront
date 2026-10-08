@@ -75,7 +75,7 @@ def update(conn: Connection, user_id: int, fields: dict) -> dict | None:
 def list_page(
     conn: Connection, *, role: str | None, q: str | None, limit: int, offset: int
 ) -> tuple[list[dict], int]:
-    """One page of users ordered by id, and the number of users that match the filters."""
+    """One page of users, newest first, and the number of users that match the filters."""
     conditions: list[sql.Composable] = []
     params: dict[str, object] = {"limit": limit, "offset": offset}
     if role is not None:
@@ -94,7 +94,7 @@ def list_page(
             "SELECT id, email, full_name, role, phone, address, is_active, created_at FROM users"
         )
         + where
-        + sql.SQL(" ORDER BY id LIMIT %(limit)s OFFSET %(offset)s"),
+        + sql.SQL(" ORDER BY created_at DESC, id DESC LIMIT %(limit)s OFFSET %(offset)s"),
         params,
     ).fetchall()
     return rows, count_row["total"]

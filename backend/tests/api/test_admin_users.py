@@ -145,3 +145,15 @@ def test_patch_unknown_user_404(client: TestClient, make_user, admin_headers) ->
     )
     assert response.status_code == 404
     assert response.json() == {"detail": "not_found"}
+
+
+def test_list_is_newest_first(client: TestClient, make_user, auth_headers) -> None:
+    first = make_user(email="first@example.com", role="admin")
+    make_user(email="second@example.com")
+    last = make_user(email="third@example.com")
+    emails = [
+        row["email"]
+        for row in client.get("/api/admin/users", headers=auth_headers(first)).json()["items"]
+    ]
+    assert emails == ["third@example.com", "second@example.com", "first@example.com"]
+    assert last["id"] > first["id"]
