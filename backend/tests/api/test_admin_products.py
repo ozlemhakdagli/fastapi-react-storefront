@@ -1,0 +1,200 @@
+"""Admin product management: admin-only access, CRUD and reference rules (contract section 5)."""
+
+from fastapi.testclient import TestClient
+
+from app.repositories import products
+
+
+def _payload(**overrides) -> dict:
+    body = {"sku": "NEW-1", "name": "New product", "price": "120.50", "stock": 5}
+    body.update(overrides)
+    return body
+
+
+def test_admin_products_require_admin(
+    client: TestClient, make_user, make_product, auth_headers
+) -> None:
+    product = make_product()
+    product_path = f"/api/admin/products/{product['id']}"
+    image_path = f"{product_path}/images"
+    customer = auth_headers(make_user())
+    calls = [
+        ("GET", "/api/admin/products", {}),
+        ("POST", "/api/admin/products", {"json": _payload()}),
+        ("GET", product_path, {}),
+        ("PUT", product_path, {"json": _payload()}),
+        ("DELETE", product_path, {}),
+        ("POST", image_path, {"files": {"file": ("a.png", b"x", "image/png")}}),
+        ("PUT", f"{product_path}/images/order", {"json": {"image_ids": []}}),
+        ("DELETE", f"{image_path}/1", {}),
+    ]
+    for method, path, kwargs in calls:
+        assert client.request(method, path, **kwargs).status_code == 401, (method, path)
+        response = client.request(method, path, headers=customer, **kwargs)
+        assert response.status_code == 403, (method, path)
+        assert response.json() == {"detail": "forbidden"}
+
+
+def test_admin_list_includes_inactive_and_cost_price(
+    client: TestClient, admin_headers, make_product
+) -> None:
+    active = make_product(cost_price="60.00")
+    inactive = make_product(is_active=False)
+    body = client.get("/api/admin/products", headers=admin_headers()).json()
+    assert body["total"] == 2
+    by_id = {item["id"]: item for item in body["items"]}
+    assert by_id[active["id"]]["cost_price"] == "60.00"
+    assert by_id[active["id"]]["is_active"] is True
+    assert by_id[inactive["id"]]["is_active"] is False
+    assert by_id[inactive["id"]]["cost_price"] is None
+
+
+def test_create_get_update_delete(
+    client: TestClient, admin_headers, make_brand, make_category
+) -> None:
+    headers = admin_headers()
+    brand = make_brand()
+    category = make_category()
+    created = client.post(
+        "/api/admin/products",
+        headers=headers,
+        json=_payload(
+            sku="CRUD-1", brand_id=brand["id"], category_id=category["id"], cost_price="60.00"
+        ),
+    )
+    assert created.status_code == 201
+    product = created.json()
+    product_id = product["id"]
+    assert product["sku"] == "CRUD-1"
+    assert product["price"] == "120.50"
+    assert product["cost_price"] == "60.00"
+    assert product["brand"] == {"id": brand["id"], "name": brand["name"]}
+    assert product["category"] == {"id": category["id"], "name": category["name"]}
+    assert product["image_url"] == "/api/media/placeholder.svg"
+    assert product["is_active"] is True
+
+    fetched = client.get(f"/api/admin/products/{product_id}", headers=headers)
+    assert fetched.status_code == 200
+    assert fetched.json()["sku"] == "CRUD-1"
+
+    replaced = client.put(
+        f"/api/admin/products/{product_id}",
+        headers=headers,
+        json=_payload(
+            sku="CRUD-2",
+            name="Renamed",
+            short_description="Short",
+            description="Long text",
+            price="99.00",
+            stock=7,
+            is_new=True,
+            is_active=False,
+        ),
+    )
+    assert replaced.status_code == 200
+    body = replaced.json()
+    assert body["sku"] == "CRUD-2"
+    assert body["name"] == "Renamed"
+    assert body["short_description"] == "Short"
+    assert body["description"] == "Long text"
+    assert body["price"] == "99.00"
+    assert body["cost_price"] is None  # a full replace clears fields that the body omits
+    assert body["stock"] == 7
+    assert body["is_new"] is True
+    assert body["is_active"] is False
+    assert body["brand"] is None
+    assert body["category"] is None
+    assert body["updated_at"] != product["updated_at"]
+
+    deleted = client.delete(f"/api/admin/products/{product_id}", headers=headers)
+    assert deleted.status_code == 204
+    assert deleted.content == b""
+    assert client.get(f"/api/admin/products/{product_id}", headers=headers).status_code == 404
+
+
+def test_missing_product_gives_404_for_update_and_delete(client: TestClient, admin_headers) -> None:
+    headers = admin_headers()
+    put = client.put("/api/admin/products/999999", headers=headers, json=_payload())
+    assert put.status_code == 404
+    assert put.json() == {"detail": "not_found"}
+    delete = client.delete("/api/admin/products/999999", headers=headers)
+    assert delete.status_code == 404
+    assert delete.json() == {"detail": "not_found"}
+
+
+def test_create_duplicate_sku_409(client: TestClient, admin_headers, make_product) -> None:
+    make_product(sku="TAKEN-1")
+    response = client.post(
+        "/api/admin/products", headers=admin_headers(), json=_payload(sku="TAKEN-1")
+    )
+    assert response.status_code == 409
+    assert response.json() == {"detail": "sku_taken"}
+
+
+def test_update_to_taken_sku_409(client: TestClient, admin_headers, make_product) -> None:
+    headers = admin_headers()
+    make_product(sku="TAKEN-2")
+    mine = make_product(sku="MINE-2")
+    path = f"/api/admin/products/{mine['id']}"
+    response = client.put(path, headers=headers, json=_payload(sku="TAKEN-2"))
+    assert response.status_code == 409
+    assert response.json() == {"detail": "sku_taken"}
+    # Keeping one's own SKU is not a conflict.
+    assert client.put(path, headers=headers, json=_payload(sku="MINE-2")).status_code == 200
+
+
+def test_unknown_brand_or_category_gives_422_invalid_reference(
+    client: TestClient, admin_headers, make_product
+) -> None:
+    headers = admin_headers()
+    product = make_product()
+    path = f"/api/admin/products/{product['id']}"
+    for field in ("brand_id", "category_id"):
+        created = client.post(
+            "/api/admin/products", headers=headers, json=_payload(**{field: 999999})
+        )
+        assert created.status_code == 422
+        assert created.json() == {"detail": "invalid_reference", "field": field}
+        replaced = client.put(path, headers=headers, json=_payload(**{field: 999999}))
+        assert replaced.status_code == 422
+        assert replaced.json() == {"detail": "invalid_reference", "field": field}
+    # An id too large for a bigint is simply unknown, not a server error.
+    huge = client.post("/api/admin/products", headers=headers, json=_payload(brand_id=10**30))
+    assert huge.status_code == 422
+    assert huge.json() == {"detail": "invalid_reference", "field": "brand_id"}
+
+
+def test_delete_product_in_an_order_gives_409_has_dependencies(
+    client: TestClient, admin_headers, make_user, make_product, make_order
+) -> None:
+    headers = admin_headers()
+    product = make_product()
+    make_order(make_user()["id"], items=((product["id"], 1),))
+    response = client.delete(f"/api/admin/products/{product['id']}", headers=headers)
+    assert response.status_code == 409
+    assert response.json() == {"detail": "has_dependencies"}
+    assert client.get(f"/api/admin/products/{product['id']}", headers=headers).status_code == 200
+
+
+def test_delete_refused_by_the_database_gives_409_has_dependencies(
+    client: TestClient, admin_headers, make_user, make_product, make_order, monkeypatch
+) -> None:
+    # The order line is added after the has_orders check, so only RESTRICT stops the delete.
+    product = make_product()
+    make_order(make_user()["id"], items=((product["id"], 1),))
+    monkeypatch.setattr(products, "has_orders", lambda conn, product_id: False)
+    response = client.delete(f"/api/admin/products/{product['id']}", headers=admin_headers())
+    assert response.status_code == 409
+    assert response.json() == {"detail": "has_dependencies"}
+
+
+def test_reference_deleted_after_the_check_gives_422_invalid_reference(
+    client: TestClient, admin_headers, monkeypatch
+) -> None:
+    # The brand vanishes between the reference check and the insert, so the foreign key refuses it.
+    monkeypatch.setattr(products, "missing_reference", lambda conn, brand_id, category_id: None)
+    response = client.post(
+        "/api/admin/products", headers=admin_headers(), json=_payload(brand_id=999999)
+    )
+    assert response.status_code == 422
+    assert response.json() == {"detail": "invalid_reference", "field": "brand_id"}
