@@ -18,6 +18,13 @@ _ORDER_SELECT = """
 _UPDATABLE = ("status", "cargo_company", "tracking_no", "admin_note")
 
 
+def required(row: dict | None) -> dict:
+    """A row the statement must have produced (INSERT ... RETURNING, a just-written order)."""
+    if row is None:
+        raise RuntimeError("expected a row from the database")
+    return row
+
+
 def _with_customer(row: dict) -> dict:
     customer = {
         "id": row.pop("customer_id"),
@@ -40,7 +47,7 @@ def cart_lines_for_update(conn: psycopg.Connection, user_id: int) -> list[dict]:
 
 
 def decrement_stock(conn: psycopg.Connection, product_id: int, quantity: int) -> dict | None:
-    """Take stock atomically. Returns the current price and name, or None when it cannot be taken."""
+    """Take stock atomically. Returns the price and name, or None when it cannot be taken."""
     return conn.execute(
         "UPDATE products SET stock = stock - %s, updated_at = now() "
         "WHERE id = %s AND is_active AND stock >= %s RETURNING price, name",
@@ -68,8 +75,7 @@ def insert_order(
         "VALUES (%s, %s, %s, %s, %s) RETURNING *",
         (user_id, total, ship_name, ship_phone, ship_address),
     ).fetchone()
-    assert row is not None
-    return row
+    return required(row)
 
 
 def insert_item(
@@ -131,11 +137,8 @@ def list_for_user(
         + "WHERE o.user_id = %s ORDER BY o.created_at DESC, o.id DESC LIMIT %s OFFSET %s",
         (user_id, limit, offset),
     ).fetchall()
-    total = conn.execute(
-        "SELECT count(*) AS n FROM orders WHERE user_id = %s", (user_id,)
-    ).fetchone()
-    assert total is not None
-    return [_with_customer(row) for row in rows], total["n"]
+    total = conn.execute("SELECT count(*) AS n FROM orders WHERE user_id = %s", (user_id,))
+    return [_with_customer(row) for row in rows], required(total.fetchone())["n"]
 
 
 def list_admin(
@@ -149,9 +152,8 @@ def list_admin(
     total = conn.execute(
         "SELECT count(*) AS n FROM orders WHERE (%s::text IS NULL OR status = %s)",
         (status, status),
-    ).fetchone()
-    assert total is not None
-    return [_with_customer(row) for row in rows], total["n"]
+    )
+    return [_with_customer(row) for row in rows], required(total.fetchone())["n"]
 
 
 # --- writing --------------------------------------------------------------------------------

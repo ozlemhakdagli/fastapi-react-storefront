@@ -64,9 +64,7 @@ def place_order(
             )
         repo.clear_cart(conn, user_id)
 
-    created = repo.get_with_items(conn, order["id"])
-    assert created is not None
-    return created
+    return repo.required(repo.get_with_items(conn, order["id"]))
 
 
 def _apply_status(conn: psycopg.Connection, order: dict, new_status: str) -> None:
@@ -92,9 +90,7 @@ def admin_update_order(conn: psycopg.Connection, order_id: int, fields: dict) ->
         plain = {name: value for name, value in fields.items() if name != "status"}
         if plain:
             repo.update_fields(conn, order_id, plain)
-    updated = repo.get_with_items(conn, order_id)
-    assert updated is not None
-    return updated
+    return repo.required(repo.get_with_items(conn, order_id))
 
 
 def change_order_status(conn: psycopg.Connection, order_id: int, new_status: str) -> dict:
@@ -110,6 +106,4 @@ def cancel_own_order(conn: psycopg.Connection, user_id: int, order_id: int) -> d
         if order["status"] != "new":
             raise ApiError(409, "invalid_status_transition")
         _apply_status(conn, order, "cancelled")
-    cancelled = repo.get_with_items(conn, order_id, user_id)
-    assert cancelled is not None
-    return cancelled
+    return repo.required(repo.get_with_items(conn, order_id, user_id))
