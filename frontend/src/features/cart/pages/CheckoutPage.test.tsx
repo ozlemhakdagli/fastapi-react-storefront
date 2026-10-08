@@ -75,6 +75,15 @@ describe('CheckoutPage', () => {
     })
   })
 
+  it('refreshes the cart and the order lists after an order is placed', async () => {
+    vi.spyOn(api, 'post').mockResolvedValue(makeOrder(42))
+    const { queryClient } = renderCheckout()
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
+    await userEvent.click(screen.getByRole('button', { name: t('cart.checkout_submit') }))
+    await waitFor(() => expect(invalidate).toHaveBeenCalledWith({ queryKey: ['cart'] }))
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['orders'] })
+  })
+
   it('test_checkout_disables_button_while_pending', async () => {
     const post = vi.spyOn(api, 'post').mockReturnValue(new Promise(() => {}))
     const { container } = renderCheckout()

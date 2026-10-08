@@ -16,6 +16,7 @@ export function useCheckout() {
     mutationFn: (shipping: ShippingDetails) => api.post<Order>('/orders', shipping),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: cartQueryKey })
+      void queryClient.invalidateQueries({ queryKey: ['orders'] })
     },
   })
 }

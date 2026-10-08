@@ -4,8 +4,8 @@ import type { User } from '@/lib/types'
 
 export interface ProfileInput {
   full_name: string
-  phone: string
-  address: string
+  phone: string | null
+  address: string | null
 }
 
 export interface PasswordInput {

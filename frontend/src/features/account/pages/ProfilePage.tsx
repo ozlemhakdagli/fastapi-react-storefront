@@ -37,11 +37,11 @@ function ProfileForm({ user }: { user: User }) {
     setSaved(false)
     setError(null)
     try {
-      // An empty phone or address is sent as "" so that the saved value is cleared.
+      // An empty phone or address is sent as null so that the stored value is cleared.
       await updateProfile.mutateAsync({
         full_name: fullName.trim(),
-        phone: phone.trim(),
-        address: address.trim(),
+        phone: phone.trim() || null,
+        address: address.trim() || null,
       })
       await refresh()
       setSaved(true)

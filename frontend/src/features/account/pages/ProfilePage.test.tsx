@@ -62,6 +62,21 @@ describe('ProfilePage', () => {
     expect(await screen.findByRole('status')).toHaveTextContent(t('profile.saved'))
   })
 
+  it('sends null for an emptied phone or address so the stored value is cleared', async () => {
+    renderProfile()
+    const patch = vi.spyOn(api, 'patch').mockResolvedValue(testCustomer)
+    await userEvent.clear(await screen.findByLabelText(t('profile.phone')))
+    await userEvent.clear(screen.getByLabelText(t('profile.address')))
+    await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
+    await waitFor(() =>
+      expect(patch).toHaveBeenCalledWith('/auth/me', {
+        full_name: testCustomer.full_name,
+        phone: null,
+        address: null,
+      }),
+    )
+  })
+
   it('test_change_password_wrong_password_shows_error', async () => {
     renderProfile()
     await screen.findByLabelText(t('profile.full_name'))
