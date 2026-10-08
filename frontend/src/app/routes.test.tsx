@@ -1,8 +1,11 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen } from '@testing-library/react'
+import { useLocation } from 'react-router'
 import { AppRoutes } from '@/app/routes'
 import { api } from '@/lib/api'
+import { t } from '@/lib/i18n'
 import type { SiteSettings } from '@/lib/types'
 import { renderWithProviders, testAdmin, testCustomer } from '@/test/utils'
+import type { User } from '@/lib/types'
 
 const site: SiteSettings = {
   site_name: 'Örnek Mağaza',
@@ -17,48 +20,70 @@ const site: SiteSettings = {
   contact_text: '',
 }
 
+// These tests check guards, redirects and layouts through the URL, never through page content,
+// so they keep passing when page tasks replace the stub pages.
+function Pathname() {
+  return <div data-testid="pathname">{useLocation().pathname}</div>
+}
+
+function renderAt(route: string, user: User | null = null) {
+  return renderWithProviders(
+    <>
+      <AppRoutes />
+      <Pathname />
+    </>,
+    { route, user },
+  )
+}
+
 describe('AppRoutes', () => {
   beforeEach(() => {
-    vi.spyOn(api, 'get').mockResolvedValue(site)
+    // Only /site resolves. Every other request stays pending, so pages sit in their loading state.
+    vi.spyOn(api, 'get').mockImplementation((path: string) =>
+      path === '/site' ? Promise.resolve(site) : new Promise(() => {}),
+    )
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('renders the home page for an anonymous visitor inside the store layout', async () => {
-    renderWithProviders(<AppRoutes />, { route: '/' })
-    expect(screen.getByText('HomePage')).toBeInTheDocument()
-    await waitFor(() => expect(screen.getAllByText('Örnek Mağaza').length).toBeGreaterThan(0))
+  it('serves the home page to an anonymous visitor inside the store layout', async () => {
+    renderAt('/')
+    expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/$/)
+    expect(await screen.findAllByText('Örnek Mağaza')).not.toHaveLength(0)
   })
 
-  it('sends an anonymous visitor of /admin/products to the login page', () => {
-    renderWithProviders(<AppRoutes />, { route: '/admin/products' })
-    expect(screen.getByText('LoginPage')).toBeInTheDocument()
+  it('sends an anonymous visitor of /admin/products to /login', () => {
+    renderAt('/admin/products')
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/login')
   })
 
-  it('sends an anonymous visitor of /account to the login page', () => {
-    renderWithProviders(<AppRoutes />, { route: '/account' })
-    expect(screen.getByText('LoginPage')).toBeInTheDocument()
+  it('sends an anonymous visitor of /account and /cart to /login', () => {
+    renderAt('/account')
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/login')
   })
 
   it('sends a customer who opens /admin to the home page', () => {
-    renderWithProviders(<AppRoutes />, { route: '/admin', user: testCustomer })
-    expect(screen.getByText('HomePage')).toBeInTheDocument()
+    renderAt('/admin', testCustomer)
+    expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/$/)
   })
 
-  it('shows the admin page for an admin', () => {
-    renderWithProviders(<AppRoutes />, { route: '/admin/products', user: testAdmin })
-    expect(screen.getByText('ProductsPage')).toBeInTheDocument()
+  it('keeps an admin on /admin/products inside the admin layout', () => {
+    renderAt('/admin/products', testAdmin)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/admin/products')
+    expect(screen.getByText(t('admin.title'))).toBeInTheDocument()
   })
 
-  it('shows the account page for a customer', () => {
-    renderWithProviders(<AppRoutes />, { route: '/account/orders', user: testCustomer })
-    expect(screen.getByText('OrdersPage')).toBeInTheDocument()
+  it('keeps a customer on /account/orders inside the account layout', () => {
+    renderAt('/account/orders', testCustomer)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/account/orders')
+    expect(screen.getByText(t('layout.account_title'))).toBeInTheDocument()
   })
 
-  it('renders the not-found page for an unknown URL', () => {
-    renderWithProviders(<AppRoutes />, { route: '/no/such/page' })
-    expect(screen.getByText('NotFoundPage')).toBeInTheDocument()
+  it('keeps an unknown URL where it is and still shows the store layout', async () => {
+    renderAt('/no/such/page')
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/no/such/page')
+    expect(await screen.findAllByText('Örnek Mağaza')).not.toHaveLength(0)
   })
 })

@@ -1,9 +1,10 @@
 """FastAPI dependencies: database connection, current user, admin check."""
 
+from dataclasses import dataclass
 from typing import Annotated
 
 import psycopg
-from fastapi import Depends, Header
+from fastapi import Depends, Header, Query
 
 from app.db import get_conn
 from app.errors import ApiError
@@ -55,3 +56,29 @@ def require_admin(user: CurrentUser) -> dict:
 
 
 AdminUser = Annotated[dict, Depends(require_admin)]
+
+
+@dataclass(frozen=True)
+class PageParams:
+    """The `page` and `page_size` query parameters of every list endpoint."""
+
+    page: int
+    page_size: int
+
+    @property
+    def limit(self) -> int:
+        return self.page_size
+
+    @property
+    def offset(self) -> int:
+        return (self.page - 1) * self.page_size
+
+
+def page_params(
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 20,
+) -> PageParams:
+    return PageParams(page=page, page_size=page_size)
+
+
+Pagination = Annotated[PageParams, Depends(page_params)]

@@ -169,3 +169,34 @@ def test_factories_insert_valid_rows(
     assert order["items"][0]["quantity"] == 3
     assert set(auth_headers(user)) == {"Authorization"}
     assert set(admin_headers()) == {"Authorization"}
+
+
+def _add_page_route(client: TestClient) -> None:
+    from app.deps import Pagination
+
+    def page_info(p: Pagination) -> dict:
+        return {"page": p.page, "page_size": p.page_size, "limit": p.limit, "offset": p.offset}
+
+    client.app.add_api_route("/api/_test/page", page_info)
+
+
+def test_pagination_defaults_and_offsets(client: TestClient) -> None:
+    _add_page_route(client)
+    assert client.get("/api/_test/page").json() == {
+        "page": 1,
+        "page_size": 20,
+        "limit": 20,
+        "offset": 0,
+    }
+    assert client.get("/api/_test/page?page=3&page_size=50").json() == {
+        "page": 3,
+        "page_size": 50,
+        "limit": 50,
+        "offset": 100,
+    }
+
+
+def test_pagination_rejects_out_of_range_values(client: TestClient) -> None:
+    _add_page_route(client)
+    for query in ("page=0", "page=-1", "page_size=0", "page_size=101", "page=x"):
+        assert client.get(f"/api/_test/page?{query}").status_code == 422, query
