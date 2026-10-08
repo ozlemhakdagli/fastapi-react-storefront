@@ -27,3 +27,14 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 *.stTheme.cache
 *.sublime-workspace
 *.sublime-project
+
+# E-commerce port (React + FastAPI)
+.pgdata/
+.env
+backend/uploads/
+node_modules/
+__pycache__/
+.venv/
+frontend/dist/
+.pytest_cache/
+.ruff_cache/
