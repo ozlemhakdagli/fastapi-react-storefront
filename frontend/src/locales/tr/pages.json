@@ -1,0 +1,22 @@
+{
+  "about_title": "Hakkımızda",
+  "contact_title": "İletişim",
+  "contact_form_title": "Bize mesaj gönderin",
+  "info_address": "Adres",
+  "info_phone": "Telefon",
+  "info_email": "E-posta",
+  "social_facebook": "Facebook",
+  "social_instagram": "Instagram",
+  "social_pinterest": "Pinterest",
+  "form_name": "Ad soyad",
+  "form_email": "E-posta",
+  "form_phone": "Telefon (isteğe bağlı)",
+  "form_subject": "Konu",
+  "form_body": "Mesajınız",
+  "form_submit": "Gönder",
+  "form_thanks": "Mesajınız alındı. Teşekkür ederiz!",
+  "field_required": "Bu alan zorunludur.",
+  "not_found_title": "Sayfa bulunamadı",
+  "not_found_text": "Aradığınız sayfa taşınmış, kaldırılmış ya da hiç var olmamış olabilir.",
+  "not_found_home": "Ana sayfaya dön"
+}
