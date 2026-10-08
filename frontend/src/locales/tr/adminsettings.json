@@ -1,0 +1,19 @@
+{
+  "title": "Site ayarları",
+  "tab_general": "Genel",
+  "tab_contact": "İletişim bilgileri",
+  "tab_social": "Sosyal medya",
+  "tab_about": "Hakkımızda",
+  "tab_contact_text": "İletişim sayfası",
+  "site_name": "Site adı",
+  "description": "Site açıklaması",
+  "address": "Adres",
+  "phone": "Telefon",
+  "email": "E-posta",
+  "facebook": "Facebook",
+  "instagram": "Instagram",
+  "pinterest": "Pinterest",
+  "about_text": "Hakkımızda metni",
+  "contact_text": "İletişim sayfası metni",
+  "saved": "Ayarlar kaydedildi."
+}

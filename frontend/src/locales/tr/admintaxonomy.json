@@ -1,0 +1,12 @@
+{
+  "categories_title": "Kategoriler",
+  "brands_title": "Markalar",
+  "create": "Yeni ekle",
+  "create_title": "Yeni kayıt ekle",
+  "edit_title": "Kaydı düzenle",
+  "name": "Ad",
+  "description": "Açıklama",
+  "name_required": "Ad alanı boş bırakılamaz.",
+  "delete_title": "Kayıt silinsin mi?",
+  "delete_description": "\"{name}\" kaydı kalıcı olarak silinecek."
+}
