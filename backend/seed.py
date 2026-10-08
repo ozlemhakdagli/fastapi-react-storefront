@@ -250,6 +250,9 @@ def _account(email: str | None, password: str | None, prefix: str) -> tuple[str,
         return None
     if not address or not password:
         raise ValueError(f"{prefix}_EMAIL and {prefix}_PASSWORD must be set together")
+    if len(password) < 8 or password.lower().startswith("change-me"):
+        # The same rule as for SECRET_KEY: a copied .env.example must not create a known login.
+        raise ValueError(f"{prefix}_PASSWORD must be at least 8 characters and not a placeholder")
     return address, password
 
 

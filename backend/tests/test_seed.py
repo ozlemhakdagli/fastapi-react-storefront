@@ -111,3 +111,11 @@ def test_seed_rejects_an_admin_email_without_a_password(conn: psycopg.Connection
         seed(conn, admin_email=ADMIN_EMAIL, admin_password=None)
     # The check runs before the first write, so a half-configured run leaves the database alone.
     assert _counts(conn)["products"] == 0
+
+
+def test_seed_refuses_a_placeholder_or_short_password(conn: psycopg.Connection) -> None:
+    for password in ("change-me-admin-password", "Change-Me-Please-123", "short"):
+        with pytest.raises(ValueError, match="ADMIN_PASSWORD"):
+            seed(conn, admin_email=ADMIN_EMAIL, admin_password=password)
+    # Nothing is written when the password is refused.
+    assert _counts(conn)["products"] == 0
