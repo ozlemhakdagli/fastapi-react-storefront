@@ -15,7 +15,7 @@ import pytest
 from psycopg import errors, sql
 from psycopg.conninfo import make_conninfo
 
-from app.migrate import DEFAULT_DIR, MigrationError, apply_migrations
+from app.migrate import DEFAULT_DIR, MigrationError, apply_migrations, main
 
 EXPECTED_TABLES = {
     "users",
@@ -168,3 +168,19 @@ def test_schema_constraints(db_dsn: str) -> None:
             conn.execute("UPDATE product_images SET position = 0 WHERE id = %s", (second,))
         positions = dict(conn.execute("SELECT id, position FROM product_images").fetchall())
     assert positions == {first: 1, second: 0}
+
+
+def test_main_applies_pending_migrations_and_prints_them(
+    db_dsn: str, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("DATABASE_URL", db_dsn)
+    main()
+    assert capsys.readouterr().out == "applied 0001_init\n"
+    main()
+    assert capsys.readouterr().out == ""
+
+
+def test_main_without_database_url_exits(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    with pytest.raises(SystemExit):
+        main()
