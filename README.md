@@ -258,6 +258,24 @@ endpoints; public product reads never select it.
 - **CORS** allows only the origins listed in `CORS_ORIGINS`. In development the Vite proxy makes the
   browser's requests same-origin anyway.
 
+### Before you put it on the internet
+
+This starter is safe to run on your own machine. A public deployment needs a few things that the
+application does not do for you:
+
+- **Rate limiting.** Nothing limits login, registration or contact attempts. Argon2 makes each
+  guess expensive for the server as well, so put a rate limiter in front of the app (a reverse proxy
+  such as nginx, Caddy or Traefik).
+- **A reverse proxy with TLS**, which also sets security headers (`Content-Security-Policy`,
+  `Strict-Transport-Security`, `X-Frame-Options`) and a request size limit (`client_max_body_size`
+  in nginx). The app refuses bodies over 256 KB (image uploads: 2 MB plus overhead) by itself.
+- **Switch off the API documentation** (`docs_url` and `openapi_url` in `app/main.py`), or keep it
+  behind your own login.
+- **Real secrets:** a generated `SECRET_KEY`, a strong database password and a strong admin password.
+- **Known limitations:** a password change does not sign out other sessions (tokens live up to
+  `ACCESS_TOKEN_MINUTES`), and saving a product in the admin form overwrites its stock with the value
+  in the form.
+
 ## Common errors
 
 - **Port 5432 is busy.** `scripts/db.sh start` fails because another PostgreSQL server (or another
