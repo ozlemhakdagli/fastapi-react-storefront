@@ -197,3 +197,23 @@ def test_line_image_is_the_first_image_or_the_placeholder(
         with_images["id"]: "/api/media/first.jpg",
         without_images["id"]: "/api/media/placeholder.svg",
     }
+
+
+def test_a_stale_stock_check_that_overshoots_the_line_limit_is_a_409_not_a_500(
+    client: TestClient, make_user, make_product, make_cart_item, auth_headers, monkeypatch
+) -> None:
+    """Two concurrent adds can both pass the check; the database CHECK must not become a 500."""
+    from app.repositories import cart as cart_repo
+
+    user = make_user()
+    product = make_product(stock=500)
+    make_cart_item(user["id"], product["id"], 98)
+    real = cart_repo.product_for_cart
+    monkeypatch.setattr(
+        cart_repo, "product_for_cart", lambda *args: {**real(*args), "cart_quantity": 0}
+    )
+
+    response = _post(client, auth_headers(user), product["id"], 5)  # 98 + 5 breaks BETWEEN 1 AND 99
+
+    assert response.status_code == 409
+    assert response.json() == {"detail": "insufficient_stock", "product_id": product["id"]}

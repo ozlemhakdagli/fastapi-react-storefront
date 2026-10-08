@@ -151,3 +151,19 @@ def test_taxonomy_admin_routes_require_admin(
         forbidden = client.request(method, url, json=body, headers=customer)
         assert forbidden.status_code == 403, url
         assert forbidden.json() == {"detail": "forbidden"}, url
+
+
+@pytest.mark.parametrize("path", ["categories", "brands"])
+def test_names_are_trimmed_and_blank_names_are_rejected(
+    client: TestClient, admin_headers, path: str
+) -> None:
+    headers = admin_headers()
+    created = _create(client, headers, path, "  Shoes  ")
+    assert created["name"] == "Shoes"
+    for blank in ("", "   ", "\t\n"):
+        response = client.post(f"/api/admin/{path}", json={"name": blank}, headers=headers)
+        assert response.status_code == 422, repr(blank)
+    renamed = client.put(
+        f"/api/admin/{path}/{created['id']}", json={"name": "   "}, headers=headers
+    )
+    assert renamed.status_code == 422
