@@ -8,6 +8,7 @@ import { Money } from '@/components/Money'
 import { NativeSelect } from '@/components/NativeSelect'
 import { PageHeader } from '@/components/PageHeader'
 import { Pagination } from '@/components/Pagination'
+import { ProductImage } from '@/components/ProductImage'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -74,11 +75,11 @@ export default function ProductsPage() {
       key: 'image',
       header: t('adminproducts.column_image'),
       cell: (product) => (
-        <img
-          src={product.image_url}
-          alt=""
-          loading="lazy"
-          className="size-12 rounded-md border object-cover"
+        <ProductImage
+          name={product.name}
+          imageUrl={product.image_url}
+          category={product.category}
+          className="size-12 rounded-md"
         />
       ),
     },
@@ -123,7 +124,7 @@ export default function ProductsPage() {
           </Button>
         }
       />
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 rounded-xl border bg-card p-4 md:grid-cols-4">
         {/* Keyed by the URL value: the draft resets when the URL changes (e.g. browser back). */}
         <SearchForm
           key={filters.q ?? ''}

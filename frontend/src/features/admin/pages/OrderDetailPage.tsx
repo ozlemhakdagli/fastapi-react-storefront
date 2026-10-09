@@ -78,7 +78,7 @@ export default function OrderDetailPage() {
         </span>
       </div>
 
-      <section className="grid gap-3">
+      <section className="grid gap-3 rounded-xl border bg-card p-4">
         <h2 className="text-lg font-semibold">{t('adminorders.customer_title')}</h2>
         <dl className="grid gap-3 text-sm">
           <DetailRow label={t('adminorders.customer_name')}>{detail.customer.full_name}</DetailRow>
@@ -86,7 +86,7 @@ export default function OrderDetailPage() {
         </dl>
       </section>
 
-      <section className="grid gap-3">
+      <section className="grid gap-3 rounded-xl border bg-card p-4">
         <h2 className="text-lg font-semibold">{t('adminorders.shipping_title')}</h2>
         <dl className="grid gap-3 text-sm">
           <DetailRow label={t('adminorders.ship_name')}>{detail.ship_name}</DetailRow>
@@ -95,7 +95,7 @@ export default function OrderDetailPage() {
         </dl>
       </section>
 
-      <section className="grid gap-3">
+      <section className="grid gap-3 rounded-xl border bg-card p-4">
         <h2 className="text-lg font-semibold">{t('adminorders.items_title')}</h2>
         <DataTable
           columns={columns}
@@ -109,7 +109,7 @@ export default function OrderDetailPage() {
         </div>
       </section>
 
-      <section className="grid gap-4">
+      <section className="grid gap-4 rounded-xl border bg-card p-4">
         <h2 className="text-lg font-semibold">{t('adminorders.manage_title')}</h2>
         {/* Keyed by the saved version, so the form shows the server's values after every
             change, and keeps the admin's draft while the order is unchanged. */}

@@ -11,6 +11,9 @@ import { useAdminSite, useSaveAdminSite } from '@/features/admin/hooks/useAdminS
 import { t } from '@/lib/i18n'
 import type { SiteSettings } from '@/lib/types'
 
+// Each settings tab is one bordered card.
+const PANEL = 'grid gap-4 rounded-xl border bg-card p-4'
+
 export default function SettingsPage() {
   const site = useAdminSite()
   return (
@@ -53,7 +56,7 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
           <TabsTrigger value="contact-text">{t('adminsettings.tab_contact_text')}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="general" className="grid gap-4">
+        <TabsContent value="general" className={PANEL}>
           <FormField label={t('adminsettings.site_name')} htmlFor="site-name">
             <Input
               id="site-name"
@@ -73,7 +76,7 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
           </FormField>
         </TabsContent>
 
-        <TabsContent value="contact" className="grid gap-4">
+        <TabsContent value="contact" className={PANEL}>
           <FormField label={t('adminsettings.address')} htmlFor="site-address">
             <Textarea
               id="site-address"
@@ -103,7 +106,7 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
           </FormField>
         </TabsContent>
 
-        <TabsContent value="social" className="grid gap-4">
+        <TabsContent value="social" className={PANEL}>
           <FormField label={t('adminsettings.facebook')} htmlFor="site-facebook">
             <Input
               id="site-facebook"
@@ -130,7 +133,7 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
           </FormField>
         </TabsContent>
 
-        <TabsContent value="about" className="grid gap-4">
+        <TabsContent value="about" className={PANEL}>
           <FormField label={t('adminsettings.about_text')} htmlFor="site-about-text">
             <Textarea
               id="site-about-text"
@@ -142,7 +145,7 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
           </FormField>
         </TabsContent>
 
-        <TabsContent value="contact-text" className="grid gap-4">
+        <TabsContent value="contact-text" className={PANEL}>
           <FormField label={t('adminsettings.contact_text')} htmlFor="site-contact-text">
             <Textarea
               id="site-contact-text"

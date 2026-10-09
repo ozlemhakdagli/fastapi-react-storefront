@@ -80,7 +80,7 @@ export default function MessagesPage() {
   return (
     <div className="grid gap-6">
       <PageHeader title={t('adminmessages.title')} />
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 rounded-xl border bg-card p-4 md:grid-cols-2">
         <FormField label={t('adminmessages.filter_status')} htmlFor="messages-filter-status">
           <NativeSelect
             id="messages-filter-status"
@@ -176,49 +176,51 @@ function MessageView({ message, onDeleted }: { message: AdminMessage; onDeleted:
 
   return (
     <>
-      <div className="grid gap-2">
-        <h2 className="text-lg font-semibold break-words">{message.subject}</h2>
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <Badge variant="outline">{directionLabel(message.direction)}</Badge>
-          {statusBadge(message.status)}
-          <time dateTime={message.created_at} className="text-muted-foreground">
-            {formatDate(message.created_at)}
-          </time>
+      <div className="grid gap-5 rounded-xl border bg-card p-4">
+        <div className="grid gap-2">
+          <h2 className="text-lg font-semibold break-words">{message.subject}</h2>
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <Badge variant="outline">{directionLabel(message.direction)}</Badge>
+            {statusBadge(message.status)}
+            <time dateTime={message.created_at} className="text-muted-foreground">
+              {formatDate(message.created_at)}
+            </time>
+          </div>
+        </div>
+
+        <dl className="grid gap-2 text-sm">
+          <DetailRow label={t('adminmessages.column_sender')}>{message.name}</DetailRow>
+          <DetailRow label={t('adminmessages.detail_email')}>{message.email}</DetailRow>
+          {message.phone ? (
+            <DetailRow label={t('adminmessages.detail_phone')}>{message.phone}</DetailRow>
+          ) : null}
+        </dl>
+        {/* Plain text: the body is user input and must never be rendered as markup. */}
+        <p className="text-sm break-words whitespace-pre-line">{message.body}</p>
+
+        <ErrorNotice error={update.error} />
+        <ErrorNotice error={remove.error} />
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            disabled={update.isPending}
+            onClick={() => update.mutate({ status: message.status === 'new' ? 'read' : 'new' })}
+          >
+            {message.status === 'new'
+              ? t('adminmessages.mark_read')
+              : t('adminmessages.mark_unread')}
+          </Button>
+          <Button
+            variant="destructive"
+            disabled={remove.isPending}
+            onClick={() => setConfirmOpen(true)}
+          >
+            {t('adminmessages.delete')}
+          </Button>
         </div>
       </div>
 
-      <dl className="grid gap-2 text-sm">
-        <DetailRow label={t('adminmessages.column_sender')}>{message.name}</DetailRow>
-        <DetailRow label={t('adminmessages.detail_email')}>{message.email}</DetailRow>
-        {message.phone ? (
-          <DetailRow label={t('adminmessages.detail_phone')}>{message.phone}</DetailRow>
-        ) : null}
-      </dl>
-      {/* Plain text: the body is user input and must never be rendered as markup. */}
-      <p className="text-sm break-words whitespace-pre-line">{message.body}</p>
-
-      <ErrorNotice error={update.error} />
-      <ErrorNotice error={remove.error} />
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant="outline"
-          disabled={update.isPending}
-          onClick={() => update.mutate({ status: message.status === 'new' ? 'read' : 'new' })}
-        >
-          {message.status === 'new'
-            ? t('adminmessages.mark_read')
-            : t('adminmessages.mark_unread')}
-        </Button>
-        <Button
-          variant="destructive"
-          disabled={remove.isPending}
-          onClick={() => setConfirmOpen(true)}
-        >
-          {t('adminmessages.delete')}
-        </Button>
-      </div>
-
-      <form className="grid gap-2" onSubmit={saveNote}>
+      <form className="grid gap-2 rounded-xl border bg-card p-4" onSubmit={saveNote}>
         <FormField label={t('adminmessages.field_note')} htmlFor="message-admin-note">
           <Textarea
             id="message-admin-note"
@@ -282,7 +284,7 @@ function ReplyForm({ userId }: { userId: number }) {
   }
 
   return (
-    <section className="grid gap-3">
+    <section className="grid gap-3 rounded-xl border bg-card p-4">
       <h3 className="font-semibold">{t('adminmessages.reply_title')}</h3>
       <form className="grid gap-4" noValidate onSubmit={handleSubmit}>
         <FormField

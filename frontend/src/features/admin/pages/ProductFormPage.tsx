@@ -235,7 +235,7 @@ function ProductForm({ productId, product, categories, brands }: ProductFormProp
     <div className="grid gap-6">
       {/* noValidate: the messages come from our own validation, not from the browser. */}
       <form className="grid gap-6" noValidate onSubmit={handleSubmit}>
-        <section className="grid gap-4 md:grid-cols-2">
+        <section className="grid gap-4 rounded-xl border bg-card p-4 md:grid-cols-2">
           <FormField label={t('adminproducts.field_sku')} htmlFor="product-sku" error={skuError}>
             <Input
               id="product-sku"
@@ -340,49 +340,51 @@ function ProductForm({ productId, product, categories, brands }: ProductFormProp
             />
           </FormField>
         </section>
-        <FormField
-          label={t('adminproducts.field_short_description')}
-          htmlFor="product-short-description"
-        >
-          <Textarea
-            id="product-short-description"
-            name="short_description"
-            rows={2}
-            maxLength={500}
-            value={values.short_description}
-            onChange={(event) => setValue('short_description', event.target.value)}
-          />
-        </FormField>
-        <FormField label={t('adminproducts.field_description')} htmlFor="product-description">
-          <Textarea
-            id="product-description"
-            name="description"
-            rows={6}
-            maxLength={5000}
-            value={values.description}
-            onChange={(event) => setValue('description', event.target.value)}
-          />
-        </FormField>
-        <div className="flex flex-wrap gap-6 text-sm">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="size-4"
-              checked={values.is_new}
-              onChange={(event) => setValue('is_new', event.target.checked)}
+        <section className="grid gap-4 rounded-xl border bg-card p-4">
+          <FormField
+            label={t('adminproducts.field_short_description')}
+            htmlFor="product-short-description"
+          >
+            <Textarea
+              id="product-short-description"
+              name="short_description"
+              rows={2}
+              maxLength={500}
+              value={values.short_description}
+              onChange={(event) => setValue('short_description', event.target.value)}
             />
-            {t('adminproducts.field_is_new')}
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="size-4"
-              checked={values.is_active}
-              onChange={(event) => setValue('is_active', event.target.checked)}
+          </FormField>
+          <FormField label={t('adminproducts.field_description')} htmlFor="product-description">
+            <Textarea
+              id="product-description"
+              name="description"
+              rows={6}
+              maxLength={5000}
+              value={values.description}
+              onChange={(event) => setValue('description', event.target.value)}
             />
-            {t('adminproducts.field_is_active')}
-          </label>
-        </div>
+          </FormField>
+          <div className="flex flex-wrap gap-6 text-sm">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="size-4"
+                checked={values.is_new}
+                onChange={(event) => setValue('is_new', event.target.checked)}
+              />
+              {t('adminproducts.field_is_new')}
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="size-4"
+                checked={values.is_active}
+                onChange={(event) => setValue('is_active', event.target.checked)}
+              />
+              {t('adminproducts.field_is_active')}
+            </label>
+          </div>
+        </section>
         <ErrorNotice error={skuTaken ? null : saveError} />
         {productChanged ? (
           <Button type="button" variant="outline" onClick={() => window.location.reload()}>
@@ -402,7 +404,7 @@ function ProductForm({ productId, product, categories, brands }: ProductFormProp
       </form>
 
       {productId !== undefined ? (
-        <section className="grid gap-3 border-t pt-6">
+        <section className="grid gap-3 rounded-xl border border-destructive/30 bg-card p-4">
           <ErrorNotice error={deleteError} />
           {deleteBlocked ? (
             <p className="text-muted-foreground text-sm">

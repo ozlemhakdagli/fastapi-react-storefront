@@ -81,7 +81,7 @@ export default function UsersPage() {
         title={t('adminusers.title')}
         actions={<Button onClick={() => setCreating(true)}>{t('adminusers.new_user')}</Button>}
       />
-      <div className="grid gap-4 md:grid-cols-[12rem_1fr]">
+      <div className="grid gap-4 rounded-xl border bg-card p-4 md:grid-cols-[12rem_1fr]">
         <FormField label={t('adminusers.filter_role')} htmlFor="users-filter-role">
           <NativeSelect
             id="users-filter-role"

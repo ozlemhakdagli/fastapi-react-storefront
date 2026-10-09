@@ -67,7 +67,7 @@ export function ProductImagesPanel({ productId, images }: ProductImagesPanelProp
   }
 
   return (
-    <section className="grid gap-4">
+    <section className="grid gap-4 rounded-xl border bg-card p-4">
       <h2 className="text-lg font-semibold">{t('adminproducts.images_title')}</h2>
       <ErrorNotice error={error} />
       {images.length === 0 ? (
