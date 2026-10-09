@@ -719,9 +719,11 @@ either. The existing files named as models are real.
    }
    ```
 
-   The query keys already in use are: `['cart']` for the cart; `['orders', ...]` for every customer
-   order query, so one invalidation refreshes them all; `['site']` for the public site settings; and
-   `['admin', ...]` for every admin query. Admin keys always begin with `'admin'`.
+   The main query keys are: `['cart']` for the cart; `['orders', ...]` for every customer order
+   query, so one invalidation refreshes them all; `['site']` for the public site settings; and
+   `['admin', ...]` for every admin query. Admin keys always begin with `'admin'`. The catalogue
+   uses `['products', ...]`, `['product', id]`, `['categories']` and `['brands']`; the account uses
+   `['my-messages', ...]` and `['my-comments', ...]`.
 
 9. **Page.** `frontend/src/features/wishlist/pages/WishlistPage.tsx`, the default export, modelled on
    `features/cart/pages/CartPage.tsx`. Every visible string comes from `t(...)`, and the page shows the

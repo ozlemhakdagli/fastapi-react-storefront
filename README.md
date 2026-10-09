@@ -286,9 +286,10 @@ application does not do for you:
 
 `compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` and `frontend/nginx.conf` describe the same
 application as three containers: PostgreSQL 18, the API, and an nginx web server that serves the built
-frontend and forwards `/api` to the API. **These files have not been run with Docker yet.** Treat them as a starting point, read them before you rely on them, and fix what
-does not work. Compared with the setup above, only the host in `DATABASE_URL` changes: `localhost`
-becomes the service name `db`.
+frontend and forwards `/api` to the API. **These files have not been run with Docker yet.** Treat
+them as a starting point, read them before you rely on them, and fix what does not work. Compared
+with the setup above, only the host in `DATABASE_URL` changes: `localhost` becomes the service name
+`db`.
 
 ```bash
 cp .env.example .env     # then edit it: POSTGRES_PASSWORD, SECRET_KEY, ADMIN_EMAIL, ADMIN_PASSWORD
@@ -305,7 +306,8 @@ Notes:
 - The root `.env` is for Docker only. When you run the API by hand it reads `backend/.env`.
 - Use letters and digits in `POSTGRES_PASSWORD`: it is placed inside the `DATABASE_URL`.
 - The nginx configuration limits login and registration to a few requests per second and sets
-  security headers, which the API itself does not do (see
+  security headers (`Content-Security-Policy`, `X-Frame-Options`, `Referrer-Policy`) that the API does
+  not send (see
   [Before you put it on the internet](#before-you-put-it-on-the-internet)). It does not provide TLS:
   put a TLS-terminating proxy or your hosting provider's load balancer in front for a public server.
 - The Content-Security-Policy blocks the Swagger UI at `/api/docs`, which loads a script from a CDN.
@@ -350,7 +352,8 @@ Notes:
 - `scripts/db.sh` is a bash script that uses Unix sockets. Use WSL2 (recommended: run everything inside
   the Linux distribution) or Git Bash.
 - Without bash, start PostgreSQL by hand with the programs of the `pg18` environment. The commands below
-  follow similar steps to `scripts/db.sh`, with different options. The project has not tested them on native Windows.
+  follow similar steps to `scripts/db.sh`, with different options. The project has not tested them
+  on native Windows.
 
   ```bat
   rem Anaconda Prompt, in the project root, with the pg18 environment active (conda activate pg18)
