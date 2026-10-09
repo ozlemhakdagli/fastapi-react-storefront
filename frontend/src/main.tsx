@@ -6,6 +6,7 @@ import { AppRoutes } from '@/app/routes'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import { ApiError } from '@/lib/api'
 import { ThemeProvider } from '@/lib/theme'
+import { useLocale } from '@/lib/i18n'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -19,13 +20,23 @@ const queryClient = new QueryClient({
   },
 })
 
+function App() {
+  const { locale } = useLocale()
+
+  return (
+    <div key={locale} className="contents">
+      <AppRoutes />
+    </div>
+  )
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <BrowserRouter>
           <AuthProvider>
-            <AppRoutes />
+            <App />
           </AuthProvider>
         </BrowserRouter>
       </ThemeProvider>

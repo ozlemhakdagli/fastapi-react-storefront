@@ -14,7 +14,7 @@ import { Link, NavLink, Outlet } from 'react-router'
 import { LoadingNotice } from '@/components/LoadingNotice'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { t } from '@/lib/i18n'
+import { t, useLocale } from '@/lib/i18n'
 
 const links = [
   { to: '/admin', label: 'admin.nav_dashboard', icon: LayoutDashboard, end: true },
@@ -33,6 +33,7 @@ const LINK_BASE =
   'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-sidebar-accent-foreground'
 
 export default function AdminLayout() {
+  useLocale()
   return (
     <div className="grid min-h-screen grid-cols-1 grid-rows-[auto_1fr] md:grid-cols-[15rem_minmax(0,1fr)] md:grid-rows-1">
       {/* Below md the sidebar is a top bar: its links wrap, so the page never scrolls sideways. */}

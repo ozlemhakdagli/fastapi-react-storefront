@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useCartCount } from '@/features/cart/hooks/useCart'
 import { useSite } from '@/features/pages/hooks/useSite'
-import { t } from '@/lib/i18n'
+import { t, useLocale } from '@/lib/i18n'
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   cn(
@@ -20,6 +20,7 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
   )
 
 export default function StoreLayout() {
+  useLocale()
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const { data: site } = useSite()

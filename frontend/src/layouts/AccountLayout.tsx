@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router'
 import { cn } from '@/lib/utils'
 import { LoadingNotice } from '@/components/LoadingNotice'
-import { t } from '@/lib/i18n'
+import { t, useLocale } from '@/lib/i18n'
 
 const links = [
   { to: '/account', label: 'layout.account_profile', end: true, icon: User },
@@ -16,6 +16,7 @@ const links = [
 // A vertical menu beside the content from md up. Below md it is one row that scrolls sideways
 // inside itself, so the page itself never scrolls sideways.
 export default function AccountLayout() {
+  useLocale()
   return (
     <div className="grid gap-6 md:grid-cols-[14rem_minmax(0,1fr)] md:gap-8">
       <aside className="min-w-0">

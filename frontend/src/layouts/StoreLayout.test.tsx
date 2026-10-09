@@ -1,4 +1,5 @@
 import { screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router'
 import { cartQueryKey } from '@/features/cart/hooks/useCart'
 import StoreLayout from '@/layouts/StoreLayout'
@@ -106,5 +107,18 @@ describe('StoreLayout', () => {
     const { queryClient } = renderLayout(testCustomer)
     await waitFor(() => expect(queryClient.getQueryState(cartQueryKey)?.status).toBe('success'))
     expect(screen.getByRole('link', { name: 'Sepetim' })).toHaveTextContent(/^Sepetim$/)
+  })
+
+  it('reactively translates navigation links when language is switched without page reload', async () => {
+    mockApi(cartWith([]))
+    renderLayout()
+    expect(screen.getByRole('link', { name: 'Ürünler' })).toBeInTheDocument()
+
+    const switchBtn = screen.getByTestId('language-switcher')
+    await userEvent.click(switchBtn)
+
+    expect(screen.getByRole('link', { name: 'Products' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'About Us' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Contact' })).toBeInTheDocument()
   })
 })

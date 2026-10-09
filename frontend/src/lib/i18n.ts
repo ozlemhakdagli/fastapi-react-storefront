@@ -67,6 +67,9 @@ export function setLocale(locale: Locale): void {
   }
   if (activeLocale === locale) return
   activeLocale = locale
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = locale
+  }
   listeners.forEach((listener) => listener())
 }
 
