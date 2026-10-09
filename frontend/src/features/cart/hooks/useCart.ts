@@ -12,6 +12,16 @@ export function useCart() {
   })
 }
 
+/** Number of items in the logged-in user's cart, for the header badge. Shares the cart cache. */
+export function useCartCount(enabled: boolean) {
+  return useQuery({
+    queryKey: cartQueryKey,
+    queryFn: () => api.get<Cart>('/cart'),
+    enabled,
+    select: (cart) => cart.items.reduce((sum, item) => sum + item.quantity, 0),
+  })
+}
+
 /** Sets the absolute quantity of one cart line. The server answers with the whole cart. */
 export function useSetCartQuantity() {
   const queryClient = useQueryClient()

@@ -4,6 +4,7 @@
   "nav_about": "Hakkımızda",
   "nav_contact": "İletişim",
   "nav_cart": "Sepetim",
+  "cart_with_count": "Sepetim, {count} ürün",
   "nav_login": "Giriş Yap",
   "nav_register": "Kayıt Ol",
   "nav_account": "Hesabım",

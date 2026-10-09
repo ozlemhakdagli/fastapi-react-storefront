@@ -1,14 +1,22 @@
 import { useQuery } from '@tanstack/react-query'
+import { cn } from 'cn'
+import { ShoppingCart, Store } from 'lucide-react'
 import { useEffect } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
+import { useCartCount } from '@/features/cart/hooks/useCart'
 import { api } from '@/lib/api'
 import { t } from '@/lib/i18n'
 import type { SiteSettings } from '@/lib/types'
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
-  isActive ? 'font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'
+  cn(
+    'inline-flex items-center gap-2 rounded-md px-3 py-1.5 transition-colors',
+    isActive
+      ? 'bg-accent font-medium text-accent-foreground'
+      : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
+  )
 
 export default function StoreLayout() {
   const { user, logout } = useAuth()
@@ -18,6 +26,9 @@ export default function StoreLayout() {
     queryFn: () => api.get<SiteSettings>('/site'),
     staleTime: 5 * 60 * 1000,
   })
+  const { data: cartCount = 0 } = useCartCount(Boolean(user))
+  // Only a logged-in customer sees a count (the cart cache is also cleared on logout).
+  const itemsInCart = user ? cartCount : 0
 
   // The browser tab shows the shop name from the site settings.
   useEffect(() => {
@@ -26,12 +37,17 @@ export default function StoreLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-6 px-4 py-3">
-          <Link to="/" className="text-lg font-semibold">
-            {site?.site_name || t('layout.nav_home')}
+      <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3">
+          <Link to="/" className="flex min-w-0 items-center gap-2.5 text-lg font-semibold">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <Store aria-hidden="true" className="size-4" />
+            </span>
+            <span className="break-words">{site?.site_name || t('layout.nav_home')}</span>
           </Link>
-          <nav className="flex flex-1 flex-wrap items-center gap-4 text-sm">
+          <nav
+            className="flex basis-full flex-wrap items-center gap-1 text-sm md:basis-auto md:grow"
+          >
             <NavLink to="/products" className={navClass}>
               {t('layout.nav_products')}
             </NavLink>
@@ -42,9 +58,30 @@ export default function StoreLayout() {
               {t('layout.nav_contact')}
             </NavLink>
           </nav>
-          <div className="flex items-center gap-3 text-sm">
-            <NavLink to="/cart" className={navClass}>
-              {t('layout.nav_cart')}
+          <div className="ml-auto flex flex-wrap items-center gap-2 text-sm">
+            {/* The label is explicit: the visible text is hidden below sm, and hidden text
+                is left out of the accessible name. */}
+            <NavLink
+              to="/cart"
+              className={navClass}
+              aria-label={
+                itemsInCart > 0
+                  ? t('layout.cart_with_count', { count: itemsInCart })
+                  : t('layout.nav_cart')
+              }
+            >
+              <span className="relative flex">
+                <ShoppingCart aria-hidden="true" className="size-4" />
+                {itemsInCart > 0 ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute -top-2 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] leading-none font-semibold text-primary-foreground ring-2 ring-background"
+                  >
+                    {itemsInCart > 99 ? '99+' : itemsInCart}
+                  </span>
+                ) : null}
+              </span>
+              <span className="hidden sm:inline">{t('layout.nav_cart')}</span>
             </NavLink>
             {user ? (
               <>
@@ -85,13 +122,21 @@ export default function StoreLayout() {
         <Outlet />
       </main>
 
-      <footer className="border-t">
-        <div className="text-muted-foreground mx-auto grid max-w-6xl gap-1 px-4 py-6 text-sm">
-          <p className="text-foreground font-medium">{site?.site_name}</p>
-          {site?.address ? <p>{site.address}</p> : null}
-          {site?.phone ? <p>{site.phone}</p> : null}
-          {site?.email ? <p>{site.email}</p> : null}
-          <p>{t('layout.footer_rights')}</p>
+      <footer className="bg-sidebar text-sm text-sidebar-foreground">
+        <div className="mx-auto max-w-6xl px-4 py-10">
+          <div className="grid gap-6 md:grid-cols-2">
+            <p className="text-base font-semibold text-sidebar-accent-foreground">
+              {site?.site_name}
+            </p>
+            <div className="grid gap-1">
+              {site?.address ? <p>{site.address}</p> : null}
+              {site?.phone ? <p>{site.phone}</p> : null}
+              {site?.email ? <p>{site.email}</p> : null}
+            </div>
+          </div>
+          <p className="mt-8 border-t border-sidebar-border pt-6 text-sidebar-foreground/70">
+            {t('layout.footer_rights')}
+          </p>
         </div>
       </footer>
     </div>
