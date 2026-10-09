@@ -42,6 +42,16 @@ describe('FavoriteButton', () => {
     expect(remove).not.toHaveBeenCalled()
   })
 
+  it('stays disabled while the session is still being read', () => {
+    const get = vi.spyOn(api, 'get')
+    renderWithProviders(<FavoriteButton productId={7} name={name} />, {
+      user: null,
+      auth: { loading: true },
+    })
+    expect(screen.getByRole('button', { name: addLabel })).toBeDisabled()
+    expect(get).not.toHaveBeenCalled()
+  })
+
   it('shows whether each product is a favourite', async () => {
     vi.spyOn(api, 'get').mockResolvedValue({ ids: [7] })
     renderWithProviders(

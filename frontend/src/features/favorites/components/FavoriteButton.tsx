@@ -15,7 +15,7 @@ interface FavoriteButtonProps {
 
 /** A heart that adds the product to the favourites. Anonymous visitors go to the login page. */
 export function FavoriteButton({ productId, name, className }: FavoriteButtonProps) {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const isFavorite = useIsFavorite(productId)
@@ -36,7 +36,8 @@ export function FavoriteButton({ productId, name, className }: FavoriteButtonPro
       size="icon"
       aria-pressed={isFavorite}
       aria-label={isFavorite ? t('favorites.remove', { name }) : t('favorites.add', { name })}
-      disabled={toggle.isPending}
+      // While the session is still being read, a logged-in visitor must not be sent to the login page.
+      disabled={toggle.isPending || loading}
       onClick={handleClick}
       className={className}
     >
