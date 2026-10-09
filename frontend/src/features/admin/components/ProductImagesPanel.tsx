@@ -79,7 +79,7 @@ export function ProductImagesPanel({ productId, images }: ProductImagesPanelProp
             return (
               <li key={image.id} className="flex flex-wrap items-center gap-3">
                 <img
-                  src={image.url}
+                  src={image.thumb_url}
                   alt={t('adminproducts.image_alt', { position })}
                   loading="lazy"
                   decoding="async"

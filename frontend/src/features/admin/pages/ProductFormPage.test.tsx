@@ -22,9 +22,9 @@ const product: AdminProduct = {
   category: { id: 1, name: 'Klavyeler' },
   image_url: '/api/media/a.jpg',
   images: [
-    { id: 11, url: '/api/media/a.jpg', position: 0 },
-    { id: 12, url: '/api/media/b.jpg', position: 1 },
-    { id: 13, url: '/api/media/c.jpg', position: 2 },
+    { id: 11, url: '/api/media/a.jpg', thumb_url: '/api/media/a-sm.jpg', position: 0 },
+    { id: 12, url: '/api/media/b.jpg', thumb_url: '/api/media/b-sm.jpg', position: 1 },
+    { id: 13, url: '/api/media/c.jpg', thumb_url: '/api/media/c-sm.jpg', position: 2 },
   ],
   created_at: '2026-10-08T12:00:00Z',
   updated_at: '2026-10-08T12:00:00Z',
@@ -305,7 +305,12 @@ describe('ProductFormPage', () => {
     mockGet(editResponses)
     const upload = vi
       .spyOn(api, 'upload')
-      .mockResolvedValue({ id: 14, url: '/api/media/d.jpg', position: 3 })
+      .mockResolvedValue({
+        id: 14,
+        url: '/api/media/d.jpg',
+        thumb_url: '/api/media/d-sm.jpg',
+        position: 3,
+      })
     renderEdit()
     const file = new File(['fake-jpeg'], 'kapak.jpg', { type: 'image/jpeg' })
     await userEvent.upload(await screen.findByLabelText(t('adminproducts.image_file')), file)
@@ -328,6 +333,20 @@ describe('ProductFormPage', () => {
     await userEvent.upload(await screen.findByLabelText(t('adminproducts.image_file')), file)
     await userEvent.click(screen.getByRole('button', { name: t('adminproducts.image_upload') }))
     expect(await screen.findByRole('alert')).toHaveTextContent(errorMessage(error))
+  })
+
+  it('shows the card-sized image of each product image in the list', async () => {
+    mockGet(editResponses)
+    renderEdit()
+    await screen.findByRole('img', { name: t('adminproducts.image_alt', { position: 1 }) })
+    const images = [1, 2, 3].map((position) =>
+      screen.getByRole('img', { name: t('adminproducts.image_alt', { position }) }),
+    )
+    expect(images.map((image) => image.getAttribute('src'))).toEqual([
+      '/api/media/a-sm.jpg',
+      '/api/media/b-sm.jpg',
+      '/api/media/c-sm.jpg',
+    ])
   })
 
   it('test_image_move_up_sends_reordered_ids', async () => {

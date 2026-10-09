@@ -53,7 +53,9 @@ function ProductContent({ productId }: { productId: number }) {
 
   const item = product.data
   const gallery =
-    item.images.length > 0 ? item.images : [{ id: 0, url: item.image_url, position: 0 }]
+    item.images.length > 0
+      ? item.images
+      : [{ id: 0, url: item.image_url, thumb_url: item.image_url, position: 0 }]
   const image = gallery[activeImage] ?? gallery[0]
   const outOfStock = item.stock <= 0
   const maxQuantity = Math.min(item.stock, MAX_QUANTITY)
@@ -92,7 +94,7 @@ function ProductContent({ productId }: { productId: number }) {
                   }`}
                 >
                   <img
-                    src={thumbnail.url}
+                    src={thumbnail.thumb_url}
                     alt=""
                     loading="lazy"
                     decoding="async"

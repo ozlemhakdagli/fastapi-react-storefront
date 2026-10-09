@@ -20,8 +20,8 @@ const product: ProductDetail = {
   image_url: '/api/media/k1.jpg',
   description: 'Uzun açıklama',
   images: [
-    { id: 1, url: '/api/media/k1.jpg', position: 0 },
-    { id: 2, url: '/api/media/k2.jpg', position: 1 },
+    { id: 1, url: '/api/media/k1.jpg', thumb_url: '/api/media/k1-sm.jpg', position: 0 },
+    { id: 2, url: '/api/media/k2.jpg', thumb_url: '/api/media/k2-sm.jpg', position: 1 },
   ],
   created_at: '2026-10-08T12:00:00Z',
 }
@@ -95,6 +95,20 @@ describe('ProductDetailPage', () => {
       'src',
       '/api/media/k2.jpg',
     )
+  })
+
+  it('uses the full image for the main picture and the card image for thumbnails', async () => {
+    mockGet({ '/products/5': product, '/products/5/comments': commentsPage([]) })
+    renderDetail()
+    expect(await screen.findByRole('img', { name: 'Mekanik Klavye' })).toHaveAttribute(
+      'src',
+      '/api/media/k1.jpg',
+    )
+    const thumbnails = [1, 2].map((number) =>
+      screen.getByRole('button', { name: t('catalog.thumbnail', { number }) }),
+    )
+    const sources = thumbnails.map((button) => button.querySelector('img')?.getAttribute('src'))
+    expect(sources).toEqual(['/api/media/k1-sm.jpg', '/api/media/k2-sm.jpg'])
   })
 
   it('test_detail_add_to_cart_posts_product_and_quantity', async () => {

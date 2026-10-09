@@ -42,6 +42,7 @@ export interface Taxonomy {
 export interface ProductImage {
   id: number
   url: string
+  thumb_url: string
   position: number
 }
 
