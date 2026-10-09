@@ -1,4 +1,5 @@
 import { useSearchParams } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { PageHeader } from '@/components/PageHeader'
 import { Pagination } from '@/components/Pagination'
@@ -71,7 +72,7 @@ export default function ProductListPage() {
         />
         <div className="grid content-start gap-6">
           <ErrorNotice error={products.error} />
-          {products.isPending ? <p className="text-muted-foreground text-sm">{t('common.loading')}</p> : null}
+          {products.isPending ? <LoadingNotice /> : null}
           {products.data && products.data.items.length === 0 ? (
             <p className="text-muted-foreground text-sm">{t('catalog.list_empty')}</p>
           ) : null}

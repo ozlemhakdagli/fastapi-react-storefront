@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
@@ -173,7 +174,7 @@ export default function ProductsPage() {
       </div>
       <ErrorNotice error={products.error} />
       {products.isPending ? (
-        <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+        <LoadingNotice />
       ) : null}
       {products.data ? (
         <>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
 import { PageHeader } from '@/components/PageHeader'
@@ -19,7 +20,7 @@ export default function SettingsPage() {
   return (
     <div className="grid grid-cols-1 gap-6">
       <PageHeader title={t('adminsettings.title')} />
-      {site.isPending ? <p className="text-muted-foreground text-sm">{t('common.loading')}</p> : null}
+      {site.isPending ? <LoadingNotice /> : null}
       {site.isError ? <ErrorNotice error={site.error} /> : null}
       {site.data ? <SettingsForm initial={site.data} /> : null}
     </div>

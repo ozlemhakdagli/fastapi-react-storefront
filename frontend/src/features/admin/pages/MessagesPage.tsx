@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
@@ -115,7 +116,7 @@ export default function MessagesPage() {
         <div className="grid gap-2">
           <ErrorNotice error={messages.error} />
           {messages.isPending ? (
-            <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+            <LoadingNotice />
           ) : null}
           {messages.data ? (
             <>
@@ -155,7 +156,7 @@ export default function MessagesPage() {
 function MessageDetail({ id, onDeleted }: { id: number; onDeleted: () => void }) {
   const message = useAdminMessage(id)
   if (message.isPending) {
-    return <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+    return <LoadingNotice />
   }
   if (message.isError) return <ErrorNotice error={message.error} />
   return <MessageView message={message.data} onDeleted={onDeleted} />

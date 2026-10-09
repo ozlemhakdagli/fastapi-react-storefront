@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useParams } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { type Column, DataTable } from '@/components/DataTable'
 import { DetailRow } from '@/components/DetailRow'
 import { ErrorNotice } from '@/components/ErrorNotice'
@@ -29,7 +30,7 @@ export default function OrderDetailPage() {
   const order = useAdminOrder(orderId)
   const update = useUpdateAdminOrder(orderId)
 
-  if (order.isPending) return <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+  if (order.isPending) return <LoadingNotice />
   if (order.isError) return <ErrorNotice error={order.error} />
 
   const detail = order.data

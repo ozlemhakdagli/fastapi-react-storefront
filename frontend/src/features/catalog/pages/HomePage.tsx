@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { categoryIcon } from '@/components/ProductImage'
 import { Button } from '@/components/ui/button'
@@ -49,7 +50,7 @@ export default function HomePage() {
           </Button>
         </div>
         <ErrorNotice error={newProducts.error} />
-        {newProducts.isPending ? <p className="text-muted-foreground text-sm">{t('common.loading')}</p> : null}
+        {newProducts.isPending ? <LoadingNotice /> : null}
         {newProducts.data && newProducts.data.items.length === 0 ? (
           <p className="text-muted-foreground text-sm">{t('catalog.home_no_new_products')}</p>
         ) : null}

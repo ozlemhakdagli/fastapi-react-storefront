@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
@@ -111,7 +112,7 @@ export default function UsersPage() {
 
       <ErrorNotice error={users.error} />
       {users.isPending ? (
-        <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+        <LoadingNotice />
       ) : null}
       {users.data ? (
         <>

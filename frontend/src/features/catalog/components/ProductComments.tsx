@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useLocation } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
@@ -72,7 +73,7 @@ export function ProductComments({ productId }: ProductCommentsProps) {
 
       <ErrorNotice error={addComment.error ?? deleteComment.error} />
       <ErrorNotice error={comments.error} />
-      {comments.isPending ? <p className="text-muted-foreground text-sm">{t('common.loading')}</p> : null}
+      {comments.isPending ? <LoadingNotice /> : null}
 
       {comments.data && comments.data.items.length === 0 ? (
         <p className="text-muted-foreground text-sm">{t('catalog.comments_empty')}</p>

@@ -1,4 +1,5 @@
 import { Link, useSearchParams } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { Money } from '@/components/Money'
@@ -110,7 +111,7 @@ export default function OrdersPage() {
         <TabsContent value={currentTab} className="grid gap-4">
           <ErrorNotice error={orders.error} />
           {orders.isPending ? (
-            <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+            <LoadingNotice />
           ) : null}
           {orders.data ? (
             <>

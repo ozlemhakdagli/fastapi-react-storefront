@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import { Mail, MapPin, Phone, type LucideIcon } from 'lucide-react'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
 import { PageHeader } from '@/components/PageHeader'
@@ -37,13 +38,13 @@ export default function ContactPage() {
         <div className="grid gap-6">
           <ErrorNotice error={site.error} />
           {site.isPending ? (
-            <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+            <LoadingNotice />
           ) : null}
           {site.data ? <SiteDetails site={site.data} /> : null}
         </div>
         {/* Wait for the session check, so that a logged-in visitor's fields are prefilled. */}
         {loading ? (
-          <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+          <LoadingNotice />
         ) : (
           <ContactForm user={user} />
         )}

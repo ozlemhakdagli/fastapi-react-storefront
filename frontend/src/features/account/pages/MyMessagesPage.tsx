@@ -1,4 +1,5 @@
 import { useSearchParams } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { PageHeader } from '@/components/PageHeader'
@@ -54,7 +55,7 @@ export default function MyMessagesPage() {
       <PageHeader title={t('account.messages_title')} />
       <ErrorNotice error={messages.error} />
       {messages.isPending ? (
-        <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+        <LoadingNotice />
       ) : null}
       {messages.data ? (
         <>

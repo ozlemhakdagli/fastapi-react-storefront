@@ -1,3 +1,4 @@
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { PageHeader } from '@/components/PageHeader'
 import { useSite } from '@/features/pages/hooks/useSite'
@@ -11,7 +12,7 @@ export default function AboutPage() {
       <PageHeader title={t('pages.about_title')} />
       <ErrorNotice error={site.error} />
       {site.isPending ? (
-        <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+        <LoadingNotice />
       ) : null}
       {site.data?.about_text ? (
         <div className="rounded-xl border bg-card p-6 sm:p-8">

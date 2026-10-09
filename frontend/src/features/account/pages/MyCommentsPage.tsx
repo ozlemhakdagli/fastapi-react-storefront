@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
@@ -81,7 +82,7 @@ export default function MyCommentsPage() {
       <ErrorNotice error={deleteComment.error} />
       <ErrorNotice error={comments.error} />
       {comments.isPending ? (
-        <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+        <LoadingNotice />
       ) : null}
       {comments.data ? (
         <>

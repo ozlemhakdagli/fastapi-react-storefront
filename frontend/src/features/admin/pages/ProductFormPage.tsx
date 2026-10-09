@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
@@ -144,7 +145,7 @@ export default function ProductFormPage() {
         }
       />
       {!isNew && product.isPending ? (
-        <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+        <LoadingNotice />
       ) : null}
       {!isNew ? <ErrorNotice error={product.isError ? product.error : null} /> : null}
       {isNew || product.data ? (

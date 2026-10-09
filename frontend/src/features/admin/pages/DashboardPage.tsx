@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import { ClipboardList, MessageSquare, Package, Users } from 'lucide-react'
 import { Link } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { PageHeader } from '@/components/PageHeader'
 import { useAdminDashboard } from '@/features/admin/hooks/useAdminDashboard'
@@ -63,7 +64,7 @@ export default function DashboardPage() {
       <PageHeader title={t('admindashboard.title')} />
       <ErrorNotice error={dashboard.error} />
       {dashboard.isPending ? (
-        <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+        <LoadingNotice />
       ) : null}
       {dashboard.data ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

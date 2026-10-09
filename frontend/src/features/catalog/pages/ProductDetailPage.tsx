@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { ShoppingCart } from 'lucide-react'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
 import { Money } from '@/components/Money'
@@ -48,7 +49,7 @@ function ProductContent({ productId }: { productId: number }) {
   const [quantityText, setQuantityText] = useState('1')
 
   if (product.error) return <ErrorNotice error={product.error} />
-  if (!product.data) return <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+  if (!product.data) return <LoadingNotice />
 
   const item = product.data
   const gallery =

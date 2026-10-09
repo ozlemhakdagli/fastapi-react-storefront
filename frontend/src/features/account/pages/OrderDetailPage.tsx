@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { type Column, DataTable } from '@/components/DataTable'
 import { DetailRow } from '@/components/DetailRow'
@@ -22,7 +23,7 @@ export default function OrderDetailPage() {
   const cancel = useCancelOrder(orderId)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
-  if (order.isPending) return <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
+  if (order.isPending) return <LoadingNotice />
   if (order.isError) return <ErrorNotice error={order.error} />
 
   const detail = order.data

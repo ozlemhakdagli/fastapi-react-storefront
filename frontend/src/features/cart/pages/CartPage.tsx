@@ -1,5 +1,6 @@
 import { Minus, Plus } from 'lucide-react'
 import { Link } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { Money } from '@/components/Money'
 import { PageHeader } from '@/components/PageHeader'
@@ -16,7 +17,7 @@ export default function CartPage() {
   const setQuantity = useSetCartQuantity()
   const removeItem = useRemoveCartItem()
 
-  if (cart.isPending) return <p className="text-muted-foreground">{t('common.loading')}</p>
+  if (cart.isPending) return <LoadingNotice />
   if (cart.isError) return <ErrorNotice error={cart.error} />
 
   const { items, total } = cart.data
