@@ -2,13 +2,15 @@ import { Badge } from '@/components/ui/badge'
 import { t } from '@/lib/i18n'
 import type { OrderStatus } from '@/lib/types'
 
-const VARIANTS: Record<OrderStatus, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-  new: 'default',
-  approved: 'secondary',
-  shipped: 'secondary',
-  completed: 'outline',
+type Variant = 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info'
+
+const VARIANTS: Record<OrderStatus, Variant> = {
+  new: 'warning',
+  approved: 'info',
+  shipped: 'default',
+  completed: 'success',
   rejected: 'destructive',
-  cancelled: 'destructive',
+  cancelled: 'secondary',
 }
 
 export function StatusBadge({ status }: { status: OrderStatus }) {

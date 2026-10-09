@@ -17,35 +17,37 @@ interface DataTableProps<T> {
 
 export function DataTable<T>({ columns, rows, rowKey, emptyText }: DataTableProps<T>) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          {columns.map((column) => (
-            <TableHead key={column.key} className={column.className}>
-              {column.header}
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {rows.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={columns.length} className="text-muted-foreground py-8 text-center">
-              {emptyText}
-            </TableCell>
+    <div className="overflow-hidden rounded-xl border bg-card">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            {columns.map((column) => (
+              <TableHead key={column.key} className={column.className}>
+                {column.header}
+              </TableHead>
+            ))}
           </TableRow>
-        ) : (
-          rows.map((row) => (
-            <TableRow key={rowKey(row)}>
-              {columns.map((column) => (
-                <TableCell key={column.key} className={column.className}>
-                  {column.cell(row)}
-                </TableCell>
-              ))}
+        </TableHeader>
+        <TableBody>
+          {rows.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="text-muted-foreground py-8 text-center">
+                {emptyText}
+              </TableCell>
             </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
+          ) : (
+            rows.map((row) => (
+              <TableRow key={rowKey(row)} className="hover:bg-accent/40">
+                {columns.map((column) => (
+                  <TableCell key={column.key} className={column.className}>
+                    {column.cell(row)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   )
 }

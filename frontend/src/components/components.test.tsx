@@ -10,7 +10,7 @@ import { Pagination } from '@/components/Pagination'
 import { StatusBadge } from '@/components/StatusBadge'
 import { ApiError } from '@/lib/api'
 import { t } from '@/lib/i18n'
-import { ORDER_STATUSES } from '@/lib/types'
+import { ORDER_STATUSES, type OrderStatus } from '@/lib/types'
 
 describe('Pagination', () => {
   it('calls onChange(page + 1) when Next is clicked', async () => {
@@ -58,6 +58,18 @@ describe('StatusBadge', () => {
     render(<StatusBadge status={status} />)
     expect(screen.getByText(t(`common.status_${status}`))).toBeInTheDocument()
     expect(t(`common.status_${status}`)).not.toBe(`common.status_${status}`)
+  })
+
+  it.each<[OrderStatus, string, string]>([
+    ['new', 'Yeni', 'warning'],
+    ['approved', 'Onaylandı', 'info'],
+    ['shipped', 'Kargoda', 'default'],
+    ['completed', 'Tamamlandı', 'success'],
+    ['rejected', 'Reddedildi', 'destructive'],
+    ['cancelled', 'İptal Edildi', 'secondary'],
+  ])('shows status %s as "%s" with the %s variant', (status, label, variant) => {
+    render(<StatusBadge status={status} />)
+    expect(screen.getByText(label)).toHaveAttribute('data-variant', variant)
   })
 })
 

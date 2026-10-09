@@ -11,8 +11,10 @@ interface FormFieldProps {
 
 export function FormField({ label, htmlFor, error, children }: FormFieldProps) {
   return (
-    <div className="grid gap-1.5">
-      <Label htmlFor={htmlFor}>{label}</Label>
+    <div className="grid gap-2">
+      <Label htmlFor={htmlFor} className="font-medium">
+        {label}
+      </Label>
       {children}
       {error ? (
         <p className="text-destructive text-sm" role="alert">

@@ -14,7 +14,7 @@ export function Pagination({ page, pageSize, total, onChange }: PaginationProps)
   // row of the last page was just deleted) it stays, so the user can step back.
   if (pages <= 1 && page <= 1) return null
   return (
-    <nav className="flex items-center justify-center gap-4 py-4">
+    <nav className="flex items-center justify-center gap-4 py-6">
       <Button variant="outline" disabled={page <= 1} onClick={() => onChange(page - 1)}>
         {t('common.previous')}
       </Button>
