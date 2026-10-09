@@ -47,6 +47,13 @@ rights and registers nothing in the system (`PLAYWRIGHT_BROWSERS_PATH=0` keeps i
 Do not run `npx playwright install --with-deps`: it installs operating-system packages with administrator
 rights.
 
+## Adding a shadcn/ui component
+
+The shadcn CLI is not a dependency of the project. When you need a new component, run a pinned version
+from `frontend/`: `npx shadcn@4.21.4 add <component>` (it reads `components.json`). If the CLI adds
+`@import "shadcn/tailwind.css";` to `src/index.css` or `shadcn` to `package.json`, remove them again and copy
+only the `@custom-variant` blocks the new component uses into `src/index.css`.
+
 ## Conventions
 
 - **Language.** Code, comments, commit messages and documents are in English. Texts that users see
