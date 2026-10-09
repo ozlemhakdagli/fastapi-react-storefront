@@ -11,7 +11,3 @@ export const ALLOWED_NEXT: Record<OrderStatus, OrderStatus[]> = {
   cancelled: [],
 }
 
-/** The statuses an order can move to from `status`. The status itself is not included. */
-export function allowedNext(status: OrderStatus): OrderStatus[] {
-  return ALLOWED_NEXT[status]
-}

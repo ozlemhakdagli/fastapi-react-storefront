@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react'
-import { cn } from 'cn'
+import { cn } from '@/lib/utils'
 
 /**
  * A plain browser `<select>` that looks like the shadcn Input. It is used instead of the shadcn

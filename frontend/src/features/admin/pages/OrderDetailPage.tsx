@@ -18,7 +18,7 @@ import {
   useAdminOrder,
   useUpdateAdminOrder,
 } from '@/features/admin/hooks/useAdminOrders'
-import { allowedNext } from '@/features/admin/orderTransitions'
+import { ALLOWED_NEXT } from '@/features/admin/orderTransitions'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
 import type { AdminOrder, OrderItem, OrderStatus } from '@/lib/types'
@@ -148,7 +148,7 @@ function OrderForm({ order, saving, onSave }: OrderFormProps) {
   const [adminNote, setAdminNote] = useState(order.admin_note ?? '')
 
   // The current status is always offered, so that the select shows where the order stands.
-  const next = allowedNext(order.status)
+  const next = ALLOWED_NEXT[order.status]
   const statusOptions: OrderStatus[] = [order.status, ...next]
   const statusFinal = next.length === 0
 

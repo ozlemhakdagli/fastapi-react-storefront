@@ -4,19 +4,20 @@ import type { Cart } from '@/lib/types'
 
 export const cartQueryKey = ['cart'] as const
 
+const cartQuery = {
+  queryKey: cartQueryKey,
+  queryFn: () => api.get<Cart>('/cart'),
+}
+
 /** The logged-in user's cart. The server owns it; the browser only caches the last answer. */
 export function useCart() {
-  return useQuery({
-    queryKey: cartQueryKey,
-    queryFn: () => api.get<Cart>('/cart'),
-  })
+  return useQuery(cartQuery)
 }
 
 /** Number of items in the logged-in user's cart, for the header badge. Shares the cart cache. */
 export function useCartCount(enabled: boolean) {
   return useQuery({
-    queryKey: cartQueryKey,
-    queryFn: () => api.get<Cart>('/cart'),
+    ...cartQuery,
     enabled,
     select: (cart) => cart.items.reduce((sum, item) => sum + item.quantity, 0),
   })

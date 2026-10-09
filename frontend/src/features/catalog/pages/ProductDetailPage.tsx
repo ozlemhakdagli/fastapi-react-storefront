@@ -16,13 +16,10 @@ import { useAddToCart, useProduct } from '@/features/catalog/hooks/useProduct'
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton'
 import { ApiError } from '@/lib/api'
 import { t } from '@/lib/i18n'
+import { CHIP_LINK_CLASS } from '@/lib/styles'
 
 // The API holds at most 99 units in a cart line.
 const MAX_QUANTITY = 99
-
-// Soft chip for the brand and category links.
-const CHIP_CLASS =
-  'bg-secondary text-secondary-foreground hover:bg-accent focus-visible:ring-ring focus-visible:ring-3 inline-flex items-center rounded-full px-3 py-1 text-sm font-medium transition-colors outline-none'
 
 /** Turns the typed quantity into a whole number in [1, max]; text that is not a number becomes 1. */
 function clampQuantity(text: string, max: number): number {
@@ -115,7 +112,7 @@ function ProductContent({ productId }: { productId: number }) {
               <dt className="text-muted-foreground">{t('catalog.brand_label')}</dt>
               <dd>
                 {item.brand ? (
-                  <Link to={`/products?brand_id=${item.brand.id}`} className={CHIP_CLASS}>
+                  <Link to={`/products?brand_id=${item.brand.id}`} className={CHIP_LINK_CLASS}>
                     {item.brand.name}
                   </Link>
                 ) : null}
@@ -125,7 +122,7 @@ function ProductContent({ productId }: { productId: number }) {
               <dt className="text-muted-foreground">{t('catalog.category_label')}</dt>
               <dd>
                 {item.category ? (
-                  <Link to={`/products?category_id=${item.category.id}`} className={CHIP_CLASS}>
+                  <Link to={`/products?category_id=${item.category.id}`} className={CHIP_LINK_CLASS}>
                     {item.category.name}
                   </Link>
                 ) : null}

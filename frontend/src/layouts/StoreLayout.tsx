@@ -1,4 +1,4 @@
-import { cn } from 'cn'
+import { cn } from '@/lib/utils'
 import { ShoppingCart, Store } from 'lucide-react'
 import { Suspense, useEffect } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'

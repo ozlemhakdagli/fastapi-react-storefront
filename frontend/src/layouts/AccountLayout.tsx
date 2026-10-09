@@ -1,7 +1,7 @@
 import { Heart, Mail, MessageCircle, ShoppingBag, User } from 'lucide-react'
 import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router'
-import { cn } from 'cn'
+import { cn } from '@/lib/utils'
 import { LoadingNotice } from '@/components/LoadingNotice'
 import { t } from '@/lib/i18n'
 

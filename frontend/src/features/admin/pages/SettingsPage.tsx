@@ -176,16 +176,7 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
 
 /** The PUT body: every field of the object, with the surrounding spaces removed. */
 function trimmed(values: SiteSettings): SiteSettings {
-  return {
-    site_name: values.site_name.trim(),
-    description: values.description.trim(),
-    address: values.address.trim(),
-    phone: values.phone.trim(),
-    email: values.email.trim(),
-    facebook: values.facebook.trim(),
-    instagram: values.instagram.trim(),
-    pinterest: values.pinterest.trim(),
-    about_text: values.about_text.trim(),
-    contact_text: values.contact_text.trim(),
-  }
+  return Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [key, value.trim()]),
+  ) as SiteSettings
 }

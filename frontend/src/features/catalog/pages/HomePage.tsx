@@ -7,6 +7,7 @@ import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { useProducts } from '@/features/catalog/hooks/useProducts'
 import { useBrands, useCategories } from '@/features/catalog/hooks/useTaxonomy'
 import { t } from '@/lib/i18n'
+import { CHIP_LINK_CLASS } from '@/lib/styles'
 
 const NEW_PRODUCTS_COUNT = 8
 
@@ -93,7 +94,7 @@ export default function HomePage() {
             <Link
               key={brand.id}
               to={`/products?brand_id=${brand.id}`}
-              className="bg-secondary text-secondary-foreground hover:bg-accent focus-visible:ring-ring focus-visible:ring-3 inline-flex items-center rounded-full px-3 py-1 text-sm font-medium transition-colors outline-none"
+              className={CHIP_LINK_CLASS}
             >
               {brand.name}
             </Link>

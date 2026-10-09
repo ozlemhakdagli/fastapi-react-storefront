@@ -1,6 +1,6 @@
 import { Heart } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router'
-import { cn } from 'cn'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useIsFavorite, useToggleFavorite } from '@/features/favorites/hooks/useFavorites'

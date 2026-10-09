@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react'
-import { cn } from 'cn'
+import { cn } from '@/lib/utils'
 import { StatusBadge } from '@/components/StatusBadge'
 import { t } from '@/lib/i18n'
 import type { OrderStatus } from '@/lib/types'

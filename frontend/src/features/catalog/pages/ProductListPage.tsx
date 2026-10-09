@@ -1,4 +1,4 @@
-import { cn } from 'cn'
+import { cn } from '@/lib/utils'
 import { useSearchParams } from 'react-router'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { LoadingNotice } from '@/components/LoadingNotice'

@@ -1,4 +1,4 @@
-import { ALLOWED_NEXT, allowedNext } from '@/features/admin/orderTransitions'
+import { ALLOWED_NEXT } from '@/features/admin/orderTransitions'
 import { ORDER_STATUSES, type OrderStatus } from '@/lib/types'
 
 // Written out from docs/api.md, deliberately not derived from the implementation.
@@ -13,7 +13,6 @@ const STATUS_TABLE: [OrderStatus, OrderStatus[]][] = [
 
 describe('orderTransitions', () => {
   it.each(STATUS_TABLE)('test_allowed_next_matches_status_table (%s)', (status, next) => {
-    expect(allowedNext(status)).toEqual(next)
     expect(ALLOWED_NEXT[status]).toEqual(next)
   })
 
