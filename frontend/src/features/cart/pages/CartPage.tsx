@@ -9,7 +9,7 @@ import { useCart, useRemoveCartItem, useSetCartQuantity } from '@/features/cart/
 import { t } from '@/lib/i18n'
 import type { CartItem } from '@/lib/types'
 
-// The API accepts quantities 1..99, and never more than the stock (contract section 5).
+// The API accepts quantities 1..99, and never more than the stock (docs/api.md).
 const MAX_QUANTITY = 99
 
 export default function CartPage() {

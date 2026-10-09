@@ -14,7 +14,7 @@ from app.schemas.users import AdminUserUpdateIn
 
 
 def product_row(**overrides: object) -> dict[str, object]:
-    """A dict shaped like ProductListItem in contract section 4."""
+    """A dict shaped like ProductListItem in docs/api.md."""
     row: dict[str, object] = {
         "id": 1,
         "sku": "SSD-1.0_a",

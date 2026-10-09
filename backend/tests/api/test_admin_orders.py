@@ -1,4 +1,4 @@
-"""Admin order endpoints and the order status machine (contract section 6)."""
+"""Admin order endpoints and the order status machine (see docs/api.md)."""
 
 import pytest
 
@@ -15,7 +15,7 @@ def _patch(client, headers, order_id: int, **body):
     return client.patch(f"/api/admin/orders/{order_id}", json=body, headers=headers)
 
 
-def test_allowed_transitions_match_the_contract_table() -> None:
+def test_allowed_transitions_match_the_status_table() -> None:
     assert ALLOWED_TRANSITIONS == {
         "new": frozenset({"approved", "rejected", "cancelled"}),
         "approved": frozenset({"shipped", "cancelled"}),

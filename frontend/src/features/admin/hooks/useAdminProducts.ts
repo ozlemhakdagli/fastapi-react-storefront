@@ -10,7 +10,7 @@ function refreshProducts(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: PRODUCTS_KEY })
 }
 
-/** Body of POST and PUT /admin/products (contract section 5). Money is sent as a string. */
+/** Body of POST and PUT /admin/products (docs/api.md). Money is sent as a string. */
 export interface ProductInput {
   sku: string
   name: string

@@ -11,7 +11,7 @@ import { useAddToCart, useProduct } from '@/features/catalog/hooks/useProduct'
 import { ApiError } from '@/lib/api'
 import { t } from '@/lib/i18n'
 
-// Contract section 5: a cart line holds at most 99 units.
+// The API holds at most 99 units in a cart line.
 const MAX_QUANTITY = 99
 
 /** Turns the typed quantity into a whole number in [1, max]; text that is not a number becomes 1. */

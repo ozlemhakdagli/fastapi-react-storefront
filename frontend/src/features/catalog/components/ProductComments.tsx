@@ -12,7 +12,7 @@ import { useAddComment, useComments, useDeleteComment } from '@/features/catalog
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
 
-// Contract section 4: comment body 1..2000 characters.
+// The API accepts a comment body of 1 to 2000 characters.
 const COMMENT_MAX_LENGTH = 2000
 
 interface ProductCommentsProps {

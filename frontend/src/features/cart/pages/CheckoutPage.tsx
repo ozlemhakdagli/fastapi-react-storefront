@@ -17,7 +17,7 @@ type FieldErrors = Partial<Record<Field, string>>
 
 const FIELDS: Field[] = ['ship_name', 'ship_phone', 'ship_address']
 
-// Same limits as the orders table columns (contract section 3).
+// Same limits as the orders table columns (backend/migrations/0001_init.sql).
 const MAX_LENGTH: Record<Field, number> = { ship_name: 100, ship_phone: 30, ship_address: 500 }
 
 function validate(values: ShippingDetails): FieldErrors {

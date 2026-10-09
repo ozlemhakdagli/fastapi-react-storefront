@@ -28,7 +28,7 @@ describe('i18n', () => {
     expect(errorMessage('boom')).toBe(t('errors.unknown'))
   })
 
-  it('has a translated message for every error code of the contract', () => {
+  it('has a translated message for every error code of the API', () => {
     const codes = [
       'unauthorized', 'invalid_credentials', 'forbidden', 'not_found', 'email_taken',
       'sku_taken', 'name_taken', 'has_dependencies', 'last_admin', 'insufficient_stock',

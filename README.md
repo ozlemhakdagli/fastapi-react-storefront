@@ -6,6 +6,8 @@ in `legacy/` as a reference only.
 
 Students clone the project, run it and adapt it to their own project.
 
+- [docs/api.md](docs/api.md): the API reference, the database overview and a walkthrough for adding a feature
+
 ## What is included
 
 - **Storefront:** catalogue with category, brand and search filters, product pages with an image
@@ -164,6 +166,8 @@ backend/
     security.py       Argon2 password hashing and JWT tokens
     deps.py           get_current_user, require_admin, pagination
     errors.py         ApiError and the JSON error format
+    middleware.py     request body size limit (413 before authentication)
+    media.py          URLs of product images
     routers/          HTTP layer: paths, input and status codes
     services/         business rules (accounts, cart, orders, images)
     repositories/     SQL, one module per area
@@ -181,6 +185,7 @@ frontend/
     layouts/          store, account and admin layouts
     locales/tr/       Turkish UI texts, one JSON file per area
 scripts/db.sh        starts, stops and inspects the local PostgreSQL server
+docs/                api.md (API reference)
 legacy/              the old PHP application, for reference only
 ```
 

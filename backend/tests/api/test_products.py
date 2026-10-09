@@ -1,4 +1,4 @@
-"""Public product catalogue: list, filters, search, sorting and detail (contract section 5)."""
+"""Public product catalogue: list, filters, search, sorting and detail (see docs/api.md)."""
 
 from fastapi.testclient import TestClient
 

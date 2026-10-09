@@ -1,4 +1,4 @@
-"""Shared test fixtures (contract section 8).
+"""Shared test fixtures.
 
 Tests that need the database use the throwaway database ``ecommerce_test_<TEST_DB_SUFFIX>``
 (default suffix ``main``). It is created on first use, migrated, and emptied after every test.

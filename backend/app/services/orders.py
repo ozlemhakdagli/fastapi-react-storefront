@@ -7,7 +7,7 @@ import psycopg
 from app.errors import ApiError
 from app.repositories import orders as repo
 
-# Contract section 6.
+# The order status machine (docs/api.md).
 ALLOWED_TRANSITIONS: dict[str, frozenset[str]] = {
     "new": frozenset({"approved", "rejected", "cancelled"}),
     "approved": frozenset({"shipped", "cancelled"}),

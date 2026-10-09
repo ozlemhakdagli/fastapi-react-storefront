@@ -2,7 +2,7 @@ import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tansta
 import { api } from '@/lib/api'
 import type { Taxonomy } from '@/lib/types'
 
-/** The two admin taxonomy lists. Both have the same shape (contract section 5). */
+/** The two admin taxonomy lists. Both have the same shape (docs/api.md). */
 export type TaxonomyEndpoint = '/admin/categories' | '/admin/brands'
 
 export interface TaxonomyInput {
