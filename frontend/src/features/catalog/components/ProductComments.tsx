@@ -64,7 +64,7 @@ export function ProductComments({ productId }: ProductCommentsProps) {
       ) : (
         <p className="text-muted-foreground text-sm">
           {t('catalog.comment_login_hint')}{' '}
-          <Link to="/login" state={{ from: location }} className="text-foreground underline">
+          <Link to="/login" state={{ from: location }} className="text-primary font-medium underline underline-offset-4">
             {t('catalog.login_link')}
           </Link>
         </p>

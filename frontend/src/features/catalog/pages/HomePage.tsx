@@ -65,7 +65,7 @@ export default function HomePage() {
       <section className="grid gap-3">
         <h2 className="text-xl font-semibold">{t('catalog.home_categories')}</h2>
         <ErrorNotice error={categories.error} />
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
           {categories.data?.map((category) => {
             const Icon = categoryIcon(category.name)
             return (

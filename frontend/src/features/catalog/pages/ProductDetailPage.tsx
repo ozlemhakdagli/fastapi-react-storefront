@@ -161,10 +161,12 @@ function ProductContent({ productId }: { productId: number }) {
         </div>
       </div>
 
-      <section className="grid gap-2 rounded-xl border bg-card p-6">
-        <h2 className="text-xl font-semibold">{t('catalog.description_title')}</h2>
-        <p className="text-sm leading-6 whitespace-pre-line">{item.description}</p>
-      </section>
+      {item.description.trim() ? (
+        <section className="grid gap-2 rounded-xl border bg-card p-6">
+          <h2 className="text-xl font-semibold">{t('catalog.description_title')}</h2>
+          <p className="text-sm leading-6 whitespace-pre-line">{item.description}</p>
+        </section>
+      ) : null}
 
       <ProductComments productId={item.id} />
     </div>
