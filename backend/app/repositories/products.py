@@ -12,18 +12,22 @@ from app.repositories.like import like_pattern
 _PUBLIC_COLUMNS = sql.SQL(
     "p.id, p.sku, p.name, p.short_description, p.description, p.price, p.stock, p.is_new, "
     "p.created_at, p.brand_id, b.name AS brand_name, p.category_id, c.name AS category_name, "
-    "rt.rating_avg, rt.rating_count"
+    "rt.rating_avg, rt.rating_count, cover.cover_file, cover.cover_thumb"
 )
 _ADMIN_COLUMNS = sql.SQL("{public}, p.cost_price, p.is_active, p.updated_at").format(
     public=_PUBLIC_COLUMNS
 )
 # rt has one row per product, read through the product_id index: rating_avg is NULL without ratings.
+# cover is the image with the lowest position, the one that images_for lists first.
 _FROM = sql.SQL(
     "FROM products p "
     "LEFT JOIN brands b ON b.id = p.brand_id "
     "LEFT JOIN categories c ON c.id = p.category_id "
     "LEFT JOIN LATERAL (SELECT round(avg(rating), 1) AS rating_avg, count(*) AS rating_count "
-    "FROM product_ratings WHERE product_id = p.id) AS rt ON TRUE"
+    "FROM product_ratings WHERE product_id = p.id) AS rt ON TRUE "
+    "LEFT JOIN LATERAL (SELECT pi.file_name AS cover_file, pi.thumb_name AS cover_thumb "
+    "FROM product_images pi WHERE pi.product_id = p.id ORDER BY pi.position, pi.id LIMIT 1) "
+    "AS cover ON TRUE"
 )
 # API sort keys map to these fixed clauses. Nothing from the request reaches the SQL text.
 _PUBLIC_SORTS = {

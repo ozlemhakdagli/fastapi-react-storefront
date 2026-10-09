@@ -54,9 +54,7 @@ def _image_out(image: dict) -> dict:
     }
 
 
-def list_item(row: dict, images: list[dict]) -> dict:
-    # Images come in position order, so the first one is the cover. No image means the placeholder.
-    cover = images[0] if images else {}
+def list_item(row: dict) -> dict:
     return {
         "id": row["id"],
         "sku": row["sku"],
@@ -67,7 +65,7 @@ def list_item(row: dict, images: list[dict]) -> dict:
         "is_new": row["is_new"],
         "brand": _named(row["brand_id"], row["brand_name"]),
         "category": _named(row["category_id"], row["category_name"]),
-        "image_url": card_image_url(cover.get("file_name"), cover.get("thumb_name")),
+        "image_url": card_image_url(row["cover_file"], row["cover_thumb"]),
         "rating_avg": None if row["rating_avg"] is None else float(row["rating_avg"]),
         "rating_count": row["rating_count"],
     }
@@ -75,7 +73,7 @@ def list_item(row: dict, images: list[dict]) -> dict:
 
 def _detail(row: dict, images: list[dict]) -> dict:
     return {
-        **list_item(row, images),
+        **list_item(row),
         "description": row["description"],
         "images": [_image_out(image) for image in images],
         "created_at": row["created_at"],
@@ -134,8 +132,7 @@ def list_products(
         limit=p.limit,
         offset=p.offset,
     )
-    images = products.images_for(conn, [row["id"] for row in rows])
-    return p.page_of([list_item(row, images.get(row["id"], [])) for row in rows], total)
+    return p.page_of([list_item(row) for row in rows], total)
 
 
 @router.get("/products/{product_id}", response_model=ProductDetail)
@@ -219,7 +216,7 @@ def delete_product(product_id: int, conn: Conn) -> None:
 @admin_router.post("/products/{product_id}/images", status_code=201, response_model=ProductImageOut)
 def upload_image(product_id: int, conn: Conn, file: Annotated[UploadFile, File()]) -> dict:
     settings = get_settings()
-    if products.get_admin(conn, product_id) is None:
+    if not products.exists(conn, product_id):
         raise ApiError(404, "not_found")
     # Read one byte past the limit, so an oversize file is recognised without being read whole.
     data = file.file.read(settings.max_upload_bytes + 1)
@@ -245,7 +242,7 @@ def upload_image(product_id: int, conn: Conn, file: Annotated[UploadFile, File()
 
 @admin_router.put("/products/{product_id}/images/order", response_model=AdminProduct)
 def reorder_images(product_id: int, body: ImageOrderIn, conn: Conn) -> dict:
-    if products.get_admin(conn, product_id) is None:
+    if not products.exists(conn, product_id):
         raise ApiError(404, "not_found")
     if not products.set_image_order(conn, product_id, body.image_ids):
         raise ApiError(422, "invalid_reference", field="image_ids")

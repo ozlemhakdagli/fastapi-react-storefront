@@ -421,3 +421,15 @@ def test_only_jpeg_png_and_webp_are_decoded() -> None:
     Image.new("RGB", (4, 4)).save(buffer, format="GIF")
     with pytest.raises(images.InvalidImage):
         images.process_image(buffer.getvalue())
+
+
+def test_upload_checks_the_product_without_the_admin_query(
+    client: TestClient, admin_headers, make_product, monkeypatch
+) -> None:
+    product = make_product()
+
+    def not_called(*args: object) -> None:
+        raise AssertionError("an existence check needs no admin columns")
+
+    monkeypatch.setattr(products, "get_admin", not_called)
+    assert _upload(client, admin_headers(), product["id"]).status_code == 201

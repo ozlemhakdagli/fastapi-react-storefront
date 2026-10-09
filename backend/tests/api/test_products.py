@@ -2,6 +2,8 @@
 
 from fastapi.testclient import TestClient
 
+from app.repositories import products as products_repo
+
 
 def _ids(response) -> list[int]:
     return [item["id"] for item in response.json()["items"]]
@@ -176,3 +178,28 @@ def test_unicode_name_round_trips(client: TestClient, make_product) -> None:
     product = make_product(name=name)
     assert client.get("/api/products").json()["items"][0]["name"] == name
     assert client.get(f"/api/products/{product['id']}").json()["name"] == name
+
+
+def test_list_cover_is_the_image_with_the_lowest_position(
+    client: TestClient, make_product, make_image
+) -> None:
+    product = make_product()
+    make_image(product["id"], file_name="second.png", position=1)
+    make_image(product["id"], file_name="first.png", position=0, thumb_name="first-sm.webp")
+    items = {item["id"]: item for item in client.get("/api/products").json()["items"]}
+    assert items[product["id"]]["image_url"] == "/api/media/first-sm.webp"
+
+
+def test_lists_do_not_load_every_image_row(
+    client: TestClient, make_user, make_product, make_favorite, auth_headers, monkeypatch
+) -> None:
+    user = make_user()
+    product = make_product()
+    make_favorite(user["id"], product["id"])
+
+    def not_called(*args: object) -> None:
+        raise AssertionError("the lists must read the cover in their own query")
+
+    monkeypatch.setattr(products_repo, "images_for", not_called)
+    assert client.get("/api/products").status_code == 200
+    assert client.get("/api/me/favorites", headers=auth_headers(user)).status_code == 200
