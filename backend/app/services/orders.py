@@ -93,10 +93,6 @@ def admin_update_order(conn: psycopg.Connection, order_id: int, fields: dict) ->
     return repo.required(repo.get_with_items(conn, order_id))
 
 
-def change_order_status(conn: psycopg.Connection, order_id: int, new_status: str) -> dict:
-    return admin_update_order(conn, order_id, {"status": new_status})
-
-
 def cancel_own_order(conn: psycopg.Connection, user_id: int, order_id: int) -> dict:
     """A customer cancels their own order, allowed only while it is still new."""
     with conn.transaction():

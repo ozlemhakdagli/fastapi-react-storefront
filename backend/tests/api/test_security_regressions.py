@@ -7,8 +7,6 @@ import jwt
 import pytest
 from fastapi.testclient import TestClient
 
-from app.security import create_access_token
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -66,10 +64,20 @@ def test_a_token_without_an_expiry_is_rejected(client: TestClient, make_user, se
 
 
 def test_the_media_mount_does_not_serve_files_outside_the_upload_folder(
-    client: TestClient,
+    client: TestClient, settings
 ) -> None:
-    for path in ("/api/media/../../.env", "/api/media/%2e%2e/%2e%2e/.env", "/api/media/..%2f.env"):
-        assert client.get(path).status_code == 404, path
+    # A real file next to the upload folder, so that a traversal bug would be seen as a 200.
+    sentinel = settings.upload_dir.parent / "outside-secret.txt"
+    sentinel.write_text("TOP-SECRET")
+    for path in (
+        "/api/media/%2e%2e/outside-secret.txt",
+        "/api/media/..%2foutside-secret.txt",
+        "/api/media/%2e%2e%2foutside-secret.txt",
+        "/api/media/%2e%2e%5coutside-secret.txt",
+    ):
+        response = client.get(path)
+        assert response.status_code == 404, path
+        assert "TOP-SECRET" not in response.text, path
 
 
 def test_validation_errors_do_not_echo_the_submitted_values(client: TestClient) -> None:
@@ -137,4 +145,3 @@ def test_a_full_cart_of_the_most_expensive_product_still_works(
         headers=headers,
     )
     assert order.status_code == 201
-    assert create_access_token(user["id"])  # token helper still importable

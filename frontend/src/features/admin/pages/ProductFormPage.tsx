@@ -24,6 +24,12 @@ import type { AdminProduct, Taxonomy } from '@/lib/types'
 const SKU_PATTERN = /^[A-Za-z0-9._-]{1,64}$/
 // Up to 10 integer digits and 2 decimals: the NUMERIC(12,2) range.
 const MONEY_PATTERN = /^\d{1,10}(\.\d{1,2})?$/
+// The server refuses prices above this (the largest total still fits an order, see the API reference).
+const MAX_PRICE = 1_000_000
+
+function isValidMoney(text: string): boolean {
+  return MONEY_PATTERN.test(text) && Number(text) <= MAX_PRICE
+}
 const MAX_STOCK = 1000000
 
 // Native selects, styled like the inputs: the shadcn Select needs browser APIs that jsdom lacks.
@@ -88,9 +94,9 @@ function validate(values: FormValues): FieldErrors {
   if (values.name.trim() === '') errors.name = t('adminproducts.error_required')
   const price = normalizeMoney(values.price)
   if (price === '') errors.price = t('adminproducts.error_required')
-  else if (!MONEY_PATTERN.test(price)) errors.price = t('adminproducts.error_money')
+  else if (!isValidMoney(price)) errors.price = t('adminproducts.error_money')
   const cost = normalizeMoney(values.cost_price)
-  if (cost !== '' && !MONEY_PATTERN.test(cost)) errors.cost_price = t('adminproducts.error_money')
+  if (cost !== '' && !isValidMoney(cost)) errors.cost_price = t('adminproducts.error_money')
   const stock = values.stock.trim()
   if (!/^\d+$/.test(stock) || Number(stock) > MAX_STOCK) {
     errors.stock = t('adminproducts.error_stock')

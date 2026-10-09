@@ -1,8 +1,8 @@
 """Schemas for orders, in both the customer view and the admin view."""
 
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, StringConstraints, model_validator
 
 from app.schemas.common import InputModel, Iso, Money, reject_null_fields
 
@@ -10,9 +10,15 @@ OrderStatus = Literal["new", "approved", "rejected", "cancelled", "shipped", "co
 
 
 class OrderCreateIn(InputModel):
-    ship_name: str = Field(min_length=1, max_length=100)
-    ship_phone: str = Field(min_length=1, max_length=30)
-    ship_address: str = Field(min_length=1, max_length=500)
+    ship_name: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)
+    ]
+    ship_phone: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=30)
+    ]
+    ship_address: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=500)
+    ]
 
 
 class OrderItemOut(BaseModel):

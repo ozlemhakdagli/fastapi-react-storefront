@@ -39,6 +39,14 @@ describe('Pagination', () => {
     expect(screen.getByText(t('common.page_of', { page: 2, pages: 5 }))).toBeInTheDocument()
   })
 
+  it('keeps the pager after the last item of the last page was deleted', async () => {
+    // Page 2 is selected, but only 5 rows remain, which fit on page 1: the user must be able to go back.
+    const onChange = vi.fn()
+    render(<Pagination page={2} pageSize={10} total={5} onChange={onChange} />)
+    await userEvent.click(screen.getByRole('button', { name: t('common.previous') }))
+    expect(onChange).toHaveBeenCalledWith(1)
+  })
+
   it('renders nothing when everything fits on one page', () => {
     const { container } = render(<Pagination page={1} pageSize={10} total={7} onChange={vi.fn()} />)
     expect(container).toBeEmptyDOMElement()

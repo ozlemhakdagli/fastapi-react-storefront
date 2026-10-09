@@ -5,8 +5,9 @@ public ProductListItem or ProductDetail.
 """
 
 from decimal import Decimal
+from typing import Annotated
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, StringConstraints, field_validator
 
 from app.schemas.common import InputModel, Iso, Money, Named
 
@@ -46,7 +47,7 @@ class AdminProduct(ProductDetail):
 
 class ProductIn(InputModel):
     sku: str = Field(pattern=r"^[A-Za-z0-9._-]{1,64}$")
-    name: str = Field(min_length=1, max_length=200)
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
     brand_id: int | None = None
     category_id: int | None = None
     short_description: str = Field(default="", max_length=500)

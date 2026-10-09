@@ -1,8 +1,8 @@
 """Schemas for contact messages and admin replies."""
 
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, StringConstraints, model_validator
 
 from app.schemas.common import Email, InputModel, Iso, reject_null_fields
 
@@ -11,11 +11,11 @@ MessageStatus = Literal["new", "read"]
 
 
 class ContactIn(InputModel):
-    name: str = Field(min_length=1, max_length=100)
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
     email: Email
     phone: str | None = Field(default=None, max_length=30)
-    subject: str = Field(min_length=1, max_length=200)
-    body: str = Field(min_length=1, max_length=5000)
+    subject: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
+    body: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=5000)]
 
 
 class MessageOut(BaseModel):
@@ -37,8 +37,8 @@ class AdminMessageOut(MessageOut):
 
 class AdminMessageCreateIn(InputModel):
     user_id: int
-    subject: str = Field(min_length=1, max_length=200)
-    body: str = Field(min_length=1, max_length=5000)
+    subject: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
+    body: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=5000)]
 
 
 class AdminMessageUpdateIn(InputModel):

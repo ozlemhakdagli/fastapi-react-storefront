@@ -245,6 +245,19 @@ describe('ProductFormPage', () => {
     vi.unstubAllGlobals()
   })
 
+  it('test_prices_above_the_server_limit_are_refused_before_sending', async () => {
+    mockGet({ '/admin/categories': categories, '/admin/brands': brands })
+    const post = vi.spyOn(api, 'post').mockResolvedValue({ ...product, id: 42 })
+    renderNew()
+    await screen.findByRole('option', { name: 'Logitech' })
+    await userEvent.type(screen.getByLabelText(t('adminproducts.field_sku')), 'KL-100')
+    await userEvent.type(screen.getByLabelText(t('adminproducts.field_name')), 'Mekanik Klavye')
+    await userEvent.type(screen.getByLabelText(t('adminproducts.field_price')), '1000000.01')
+    await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
+    expect(await screen.findByText(t('adminproducts.error_money'))).toBeInTheDocument()
+    expect(post).not.toHaveBeenCalled()
+  })
+
   it('test_creating_a_product_sends_no_version', async () => {
     mockGet({ '/admin/categories': categories, '/admin/brands': brands })
     const post = vi.spyOn(api, 'post').mockResolvedValue({ ...product, id: 42 })

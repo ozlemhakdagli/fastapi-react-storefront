@@ -10,7 +10,9 @@ interface PaginationProps {
 
 export function Pagination({ page, pageSize, total, onChange }: PaginationProps) {
   const pages = Math.max(1, Math.ceil(total / pageSize))
-  if (pages <= 1) return null
+  // Hide the pager only when there is nothing to page through. On a page past the end (the last
+  // row of the last page was just deleted) it stays, so the user can step back.
+  if (pages <= 1 && page <= 1) return null
   return (
     <nav className="flex items-center justify-center gap-4 py-4">
       <Button variant="outline" disabled={page <= 1} onClick={() => onChange(page - 1)}>

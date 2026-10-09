@@ -1,12 +1,14 @@
 """Schemas for product comments."""
 
-from pydantic import BaseModel, Field
+from typing import Annotated
+
+from pydantic import BaseModel, StringConstraints
 
 from app.schemas.common import InputModel, Iso
 
 
 class CommentIn(InputModel):
-    body: str = Field(min_length=1, max_length=2000)
+    body: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)]
 
 
 class CommentOut(BaseModel):

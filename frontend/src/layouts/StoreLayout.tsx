@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -17,6 +18,11 @@ export default function StoreLayout() {
     queryFn: () => api.get<SiteSettings>('/site'),
     staleTime: 5 * 60 * 1000,
   })
+
+  // The browser tab shows the shop name from the site settings.
+  useEffect(() => {
+    if (site?.site_name) document.title = site.site_name
+  }, [site?.site_name])
 
   return (
     <div className="flex min-h-screen flex-col">
