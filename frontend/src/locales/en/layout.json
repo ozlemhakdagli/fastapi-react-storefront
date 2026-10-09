@@ -1,0 +1,20 @@
+{
+  "nav_home": "Home",
+  "nav_products": "Products",
+  "nav_about": "About Us",
+  "nav_contact": "Contact",
+  "nav_cart": "My Cart",
+  "cart_with_count": "My Cart, {count} items",
+  "nav_login": "Sign In",
+  "nav_register": "Register",
+  "nav_account": "My Account",
+  "nav_admin": "Admin Panel",
+  "nav_logout": "Sign Out",
+  "footer_rights": "All rights reserved.",
+  "account_title": "My Account",
+  "account_profile": "My Profile",
+  "account_orders": "My Orders",
+  "account_comments": "My Reviews",
+  "account_messages": "My Messages",
+  "account_favorites": "My Favorites"
+}

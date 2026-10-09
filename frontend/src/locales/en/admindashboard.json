@@ -1,0 +1,20 @@
+{
+  "title": "Dashboard",
+  "new_orders": "New orders",
+  "unread_messages": "Unread messages",
+  "products": "Products",
+  "customers": "Customers",
+  "chart_title": "Last 14 days",
+  "chart_revenue": "Revenue: {amount}",
+  "chart_aria": "A total of {orders} orders in the last 14 days",
+  "status_title": "Orders by status",
+  "recent_title": "Recent orders",
+  "recent_empty": "No orders yet.",
+  "low_stock_title": "Low stock products",
+  "low_stock_empty": "No low stock products.",
+  "column_order": "Order",
+  "column_customer": "Customer",
+  "column_status": "Status",
+  "column_total": "Total",
+  "column_date": "Date"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "My Profile",
+  "info_title": "Personal Information",
+  "email": "Email",
+  "full_name": "Full Name",
+  "phone": "Phone",
+  "address": "Address",
+  "saved": "Your information has been saved.",
+  "password_title": "Change Password",
+  "current_password": "Current Password",
+  "new_password": "New Password",
+  "new_password_confirm": "Confirm New Password",
+  "password_submit": "Update Password",
+  "password_changed": "Your password has been updated. Sessions on other devices were logged out.",
+  "password_mismatch": "New passwords do not match."
+}

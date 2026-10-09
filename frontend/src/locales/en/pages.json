@@ -1,0 +1,23 @@
+{
+  "about_title": "About Us",
+  "contact_title": "Contact",
+  "contact_form_title": "Send us a message",
+  "info_address": "Address",
+  "info_phone": "Phone",
+  "info_email": "Email",
+  "social_facebook": "Facebook",
+  "social_instagram": "Instagram",
+  "social_pinterest": "Pinterest",
+  "form_name": "Full name",
+  "form_email": "Email",
+  "form_phone": "Phone (optional)",
+  "form_subject": "Subject",
+  "form_body": "Your message",
+  "form_submit": "Send",
+  "form_thanks": "Your message has been received. Thank you!",
+  "field_required": "This field is required.",
+  "not_found_code": "404",
+  "not_found_title": "Page not found",
+  "not_found_text": "The page you are looking for may have been moved, removed, or never existed.",
+  "not_found_home": "Back to home"
+}

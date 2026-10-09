@@ -1,0 +1,19 @@
+{
+  "title": "Invoice",
+  "disclaimer": "This document is for informational purposes only; it does not replace an official invoice.",
+  "number": "Order no",
+  "date": "Date",
+  "status": "Status",
+  "seller": "Seller",
+  "buyer": "Buyer",
+  "column_product": "Product",
+  "column_quantity": "Quantity",
+  "column_unit_price": "Unit price",
+  "column_total": "Amount",
+  "total": "Total",
+  "cargo": "Shipping company",
+  "tracking": "Tracking number",
+  "print": "Print",
+  "back": "Back to order",
+  "link": "View invoice"
+}

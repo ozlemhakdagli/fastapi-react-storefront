@@ -1,0 +1,10 @@
+{
+  "title": "Reviews",
+  "column_author": "Author",
+  "column_product": "Product",
+  "column_comment": "Review",
+  "column_date": "Date",
+  "empty": "No reviews found.",
+  "delete_title": "Delete review?",
+  "delete_description": "This review will be permanently deleted."
+}

@@ -1,0 +1,19 @@
+{
+  "title": "Site settings",
+  "tab_general": "General",
+  "tab_contact": "Contact information",
+  "tab_social": "Social media",
+  "tab_about": "About us",
+  "tab_contact_text": "Contact page",
+  "site_name": "Site name",
+  "description": "Site description",
+  "address": "Address",
+  "phone": "Phone",
+  "email": "Email",
+  "facebook": "Facebook",
+  "instagram": "Instagram",
+  "pinterest": "Pinterest",
+  "about_text": "About us text",
+  "contact_text": "Contact page text",
+  "saved": "Settings saved."
+}

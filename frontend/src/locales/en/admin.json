@@ -1,0 +1,13 @@
+{
+  "title": "Admin Panel",
+  "back_to_store": "Back to store",
+  "nav_dashboard": "Dashboard",
+  "nav_products": "Products",
+  "nav_categories": "Categories",
+  "nav_brands": "Brands",
+  "nav_orders": "Orders",
+  "nav_users": "Users",
+  "nav_messages": "Messages",
+  "nav_comments": "Reviews",
+  "nav_settings": "Site Settings"
+}

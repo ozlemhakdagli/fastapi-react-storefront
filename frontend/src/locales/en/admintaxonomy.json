@@ -1,0 +1,12 @@
+{
+  "categories_title": "Categories",
+  "brands_title": "Brands",
+  "create": "Add new",
+  "create_title": "Add new record",
+  "edit_title": "Edit record",
+  "name": "Name",
+  "description": "Description",
+  "name_required": "Name field cannot be empty.",
+  "delete_title": "Delete record?",
+  "delete_description": "\"{name}\" record will be permanently deleted."
+}
