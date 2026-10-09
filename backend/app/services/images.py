@@ -37,9 +37,10 @@ def process_image(data: bytes) -> tuple[bytes, bytes]:
     pixels, the card copy into 480 x 480. The EXIF rotation is applied. Pixels with transparency
     keep their alpha channel, every other mode becomes RGB, and only the first frame of an
     animation is used. The output is a new file, so camera metadata such as GPS data is dropped.
+    Only the JPEG, PNG and WebP decoders are used.
     """
     try:
-        with Image.open(io.BytesIO(data)) as source:
+        with Image.open(io.BytesIO(data), formats=("JPEG", "PNG", "WEBP")) as source:
             if source.width * source.height > MAX_PIXELS:
                 raise InvalidImage("more than 40 million pixels")
             source.load()

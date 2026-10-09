@@ -19,7 +19,11 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.config import Settings, get_settings
 from app.db import create_pool
 from app.errors import ApiError, api_error_handler
-from app.middleware import UPLOAD_OVERHEAD, BodySizeLimitMiddleware
+from app.middleware import (
+    UPLOAD_OVERHEAD,
+    BodySizeLimitMiddleware,
+    SecurityHeadersMiddleware,
+)
 
 PLACEHOLDER = Path(__file__).resolve().parent / "static" / "placeholder.svg"
 DOCS_URL = "/api/docs"
@@ -61,21 +65,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+        allow_headers=["Authorization", "Content-Type"],
     )
-
-    @app.middleware("http")
-    async def add_security_headers(request: Request, call_next) -> Response:
-        response = await call_next(request)
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        path = request.url.path
-        exempt = path.startswith("/api/media") or path in (DOCS_URL, OPENAPI_URL)
-        if path.startswith("/api/") and not exempt:
-            response.headers["X-Frame-Options"] = "DENY"
-            response.headers["Referrer-Policy"] = "no-referrer"
-            response.headers["Cache-Control"] = "no-store"
-        return response
+    app.add_middleware(SecurityHeadersMiddleware, exempt_paths=frozenset({DOCS_URL, OPENAPI_URL}))
 
     app.add_exception_handler(ApiError, api_error_handler)
 

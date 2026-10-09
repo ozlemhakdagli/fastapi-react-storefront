@@ -414,3 +414,10 @@ def test_first_real_photo_replaces_the_placeholder_row(
     assert [row["file_name"] for row in rows] == [_stored_name(response)]
     listed = client.get(f"/api/products/{product['id']}").json()
     assert listed["image_url"] == response.json()["thumb_url"]
+
+
+def test_only_jpeg_png_and_webp_are_decoded() -> None:
+    buffer = io.BytesIO()
+    Image.new("RGB", (4, 4)).save(buffer, format="GIF")
+    with pytest.raises(images.InvalidImage):
+        images.process_image(buffer.getvalue())

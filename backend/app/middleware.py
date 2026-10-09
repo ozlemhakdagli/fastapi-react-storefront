@@ -1,8 +1,9 @@
-"""Request body size limits, applied before any route (or authentication) reads the body."""
+"""Request body limits and response headers, applied around every route."""
 
 import re
 
 from fastapi import HTTPException
+from starlette.datastructures import MutableHeaders
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
@@ -54,3 +55,46 @@ class BodySizeLimitMiddleware:
             return message
 
         await self.app(scope, limited_receive, send)
+
+
+# Uploaded files are named by a random UUID and never overwritten (services/images.py).
+_UPLOADED_FILE = re.compile(r"^[0-9a-f]{32}(-sm)?\.(webp|jpe?g|png)$")
+_MEDIA_PREFIX = "/api/media/"
+
+
+class SecurityHeadersMiddleware:
+    """Add nosniff to every answer, the API headers to API answers and caching to media files.
+
+    A browser may keep an uploaded file for a year, because its name never comes back with other
+    content. The shared placeholder is kept for a day. Media errors (a 404) are never cached.
+    """
+
+    def __init__(self, app: ASGIApp, *, exempt_paths: frozenset[str]) -> None:
+        self.app = app
+        self.exempt_paths = exempt_paths
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        path: str = scope["path"]
+
+        async def send_with_headers(message: Message) -> None:
+            if message["type"] == "http.response.start":
+                headers = MutableHeaders(scope=message)
+                headers["X-Content-Type-Options"] = "nosniff"
+                if path.startswith(_MEDIA_PREFIX):
+                    if message["status"] in (200, 304):
+                        name = path.rsplit("/", 1)[-1]
+                        headers["Cache-Control"] = (
+                            "public, max-age=31536000, immutable"
+                            if _UPLOADED_FILE.match(name)
+                            else "public, max-age=86400"
+                        )
+                elif path.startswith("/api/") and path not in self.exempt_paths:
+                    headers["X-Frame-Options"] = "DENY"
+                    headers["Referrer-Policy"] = "no-referrer"
+                    headers["Cache-Control"] = "no-store"
+            await send(message)
+
+        await self.app(scope, receive, send_with_headers)
