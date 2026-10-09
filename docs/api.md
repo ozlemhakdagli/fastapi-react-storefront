@@ -18,7 +18,10 @@ UTF-8. Uploaded product images are served from `/api/media/<file_name>`.
 
 **Response headers.** Every response carries `X-Content-Type-Options: nosniff`. Responses under `/api/`
 (except the media files and the documentation pages) also carry `X-Frame-Options: DENY`,
-`Referrer-Policy: no-referrer` and `Cache-Control: no-store`.
+`Referrer-Policy: no-referrer` and `Cache-Control: no-store`. Files under `/api/media` instead get
+`Cache-Control: public, max-age=31536000, immutable` (uploaded files, whose names never come back) or
+`public, max-age=86400` (the placeholder). A missing file gets no caching header. CORS preflights allow
+the methods `GET, POST, PUT, PATCH, DELETE` and the headers `Authorization, Content-Type`.
 
 **Health check.** `GET /api/health` answers `{"status": "ok", "db": true}` when the database responds.
 
@@ -236,7 +239,7 @@ and 422) are not repeated in each row.
 | GET | `/api/admin/products/{product_id}` | admin | none | 200 `AdminProduct` | 404 `not_found` |
 | PUT | `/api/admin/products/{product_id}` | admin | Body: `ProductIn` plus an optional `expected_updated_at`; every field is replaced. `expected_updated_at`: the `updated_at` the form was loaded with. If it no longer matches, nothing is saved. Without it, the save is unconditional. | 200 `AdminProduct` | 404 `not_found`; 409 `sku_taken`; 409 `product_changed`; 422 `invalid_reference` |
 | DELETE | `/api/admin/products/{product_id}` | admin | none | 204 | 404 `not_found`; 409 `has_dependencies` when the product appears in an order |
-| POST | `/api/admin/products/{product_id}/images` | admin | Multipart form with one field, `file`: a JPEG, PNG or WebP image of at most 2 000 000 bytes. The type is read from the first bytes, then the file is decoded and saved again as WebP in two sizes: a full copy (long edge at most 1600 px) and a card copy (long edge at most 480 px). Smaller images are not enlarged, camera metadata is dropped and the EXIF rotation is applied. The client's file name and content type are ignored; the files get the generated names `<uuid>.webp` and `<uuid>-sm.webp`. A product whose only image row is the placeholder loses that row, so the first real photo becomes the cover. | 201 `ProductImageOut`, added after the last image | 404 `not_found`; 413 `file_too_large`; 413 `payload_too_large`; 415 `unsupported_media_type` (also for a file that cannot be decoded and for one that declares more than 40 million pixels) |
+| POST | `/api/admin/products/{product_id}/images` | admin | Multipart form with one field, `file`: a JPEG, PNG or WebP image of at most 2 000 000 bytes. The type is read from the first bytes, then the file is decoded and saved again as WebP in two sizes: a full copy (long edge at most 1600 px) and a card copy (long edge at most 480 px). Smaller images are not enlarged, camera metadata is dropped and the EXIF rotation is applied. The client's file name and content type are ignored; the files get the generated names `<uuid>.webp` and `<uuid>-sm.webp`. | 201 `ProductImageOut`, added after the last image | 404 `not_found`; 413 `file_too_large`; 413 `payload_too_large`; 415 `unsupported_media_type` (also for a file that cannot be decoded and for one that declares more than 40 million pixels) |
 | PUT | `/api/admin/products/{product_id}/images/order` | admin | Body: `image_ids`, which must list every image id of the product exactly once, in the new order | 200 `AdminProduct` | 404 `not_found`; 422 `invalid_reference` (`field` is `image_ids`) |
 | DELETE | `/api/admin/products/{product_id}/images/{image_id}` | admin | none. Both files (full and card copy) are deleted too, except `placeholder.svg`. | 204 | 404 `not_found` (the image does not belong to this product) |
 
@@ -642,7 +645,9 @@ The implementation is in `backend/app/services/orders.py` (`place_order`, `admin
 
 The schema is defined only by the files in `backend/migrations/`: `0001_init.sql` creates it and
 `0002_image_thumbnails.sql` adds `product_images.thumb_name`, `0003_ratings_and_favorites.sql` adds
-`product_ratings` and `favorites`, and `0004_token_version.sql` adds `users.token_version`. The tests and
+`product_ratings` and `favorites`, `0004_token_version.sql` adds `users.token_version`, and
+`0005_order_index_and_image_cleanup.sql` adds the `orders_created_idx` index (orders by date) and
+removes the image rows that pointed at the shared placeholder. The tests and
 `seed.py` run against the schema that these files create. The schema has no triggers, so every `UPDATE` statement sets
 `updated_at` itself on the tables that have that column.
 
@@ -665,7 +670,7 @@ The schema is defined only by the files in `backend/migrations/`: `0001_init.sql
 ### Adding a migration
 
 1. Create a new file in `backend/migrations/` whose name is four digits, an underscore, and a name in
-   lowercase letters, digits and underscores, for example `0005_price_alerts.sql`. The runner rejects other names.
+   lowercase letters, digits and underscores, for example `0006_price_alerts.sql`. The runner rejects other names.
 2. Never edit a file that has already been applied. The runner stores the SHA-256 checksum of each
    applied file, and when a stored checksum no longer matches, it stops with
    `MigrationError: <version> changed after it was applied`.
@@ -683,7 +688,7 @@ list is a finished feature of the same shape: `backend/app/repositories/favorite
 
 ### Backend
 
-1. **Migration.** `backend/migrations/0005_price_alerts.sql`:
+1. **Migration.** `backend/migrations/0006_price_alerts.sql`:
 
    ```sql
    CREATE TABLE price_alerts (
