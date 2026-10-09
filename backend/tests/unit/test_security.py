@@ -43,17 +43,18 @@ def test_dummy_hash_is_argon2_and_never_matches_a_real_password():
 
 
 def test_token_round_trip(settings_env):
-    token = create_access_token(42)
+    token = create_access_token(42, 7)
 
-    assert decode_access_token(token) == 42
+    assert decode_access_token(token) == (42, 7)
     assert jwt.get_unverified_header(token)["alg"] == "HS256"
     claims = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
     assert claims["sub"] == "42"
+    assert claims["tv"] == 7
     assert {"iat", "exp"}.issubset(claims)
 
 
 def test_expired_token_rejected(settings_env):
-    token = create_access_token(1, minutes=-1)
+    token = create_access_token(1, 0, minutes=-1)
 
     with pytest.raises(ApiError) as exc_info:
         decode_access_token(token)
@@ -63,7 +64,7 @@ def test_expired_token_rejected(settings_env):
 
 
 def test_tampered_and_garbage_tokens_rejected(settings_env):
-    token = create_access_token(42)
+    token = create_access_token(42, 0)
     # Replace the final character with a different one so the signature really changes.
     tampered = token[:-1] + ("A" if token[-1] != "A" else "B")
 
@@ -72,3 +73,24 @@ def test_tampered_and_garbage_tokens_rejected(settings_env):
             decode_access_token(bad_token)
         assert exc_info.value.status_code == 401
         assert exc_info.value.code == "unauthorized"
+
+
+@pytest.mark.parametrize(
+    "claims",
+    [
+        {"sub": "42"},  # no tv: issued before the token version existed
+        {"sub": "42", "tv": "0"},
+        {"sub": "42", "tv": 0.0},
+        {"sub": "42", "tv": True},
+        {"sub": "42", "tv": -1},
+        {"tv": 0},  # no sub
+    ],
+)
+def test_token_with_a_missing_or_malformed_claim_is_rejected(settings_env, claims):
+    token = jwt.encode({"iat": 1, "exp": 4_000_000_000, **claims}, SECRET_KEY, algorithm="HS256")
+
+    with pytest.raises(ApiError) as exc_info:
+        decode_access_token(token)
+
+    assert exc_info.value.status_code == 401
+    assert exc_info.value.code == "unauthorized"

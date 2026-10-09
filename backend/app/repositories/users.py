@@ -17,7 +17,7 @@ def _escape_like(text: str) -> str:
 
 def get_by_id(conn: Connection, user_id: int) -> dict | None:
     return conn.execute(
-        "SELECT id, email, full_name, role, phone, address, is_active, created_at "
+        "SELECT id, email, full_name, role, phone, address, is_active, created_at, token_version "
         "FROM users WHERE id = %s",
         (user_id,),
     ).fetchone()
@@ -26,8 +26,8 @@ def get_by_id(conn: Connection, user_id: int) -> dict | None:
 def get_by_email(conn: Connection, email: str) -> dict | None:
     """Match the email ignoring case. The row includes password_hash, so only login may use it."""
     return conn.execute(
-        "SELECT id, email, full_name, password_hash, role, phone, address, is_active, created_at "
-        "FROM users WHERE lower(email) = lower(%s)",
+        "SELECT id, email, full_name, password_hash, role, phone, address, is_active, created_at, "
+        "token_version FROM users WHERE lower(email) = lower(%s)",
         (email,),
     ).fetchone()
 
@@ -56,19 +56,20 @@ def create(
 
 
 def update(conn: Connection, user_id: int, fields: dict) -> dict | None:
-    """Set the given columns and return the public row, or None when the user does not exist."""
+    """Set the given columns and return the row without password_hash, or None when the user does
+    not exist. A new password or a deactivation also ends every session of the user."""
     unknown = set(fields) - _UPDATABLE
     if unknown:
         raise ValueError(f"columns that cannot be updated: {sorted(unknown)}")
     if not fields:
         return get_by_id(conn, user_id)
-    assignments = sql.SQL(", ").join(
-        sql.SQL("{} = %s").format(sql.Identifier(name)) for name in fields
-    )
+    assignments = [sql.SQL("{} = %s").format(sql.Identifier(name)) for name in fields]
+    if "password_hash" in fields or fields.get("is_active") is False:
+        assignments.append(sql.SQL("token_version = token_version + 1"))
     query = sql.SQL(
         "UPDATE users SET {} WHERE id = %s "
-        "RETURNING id, email, full_name, role, phone, address, is_active, created_at"
-    ).format(assignments)
+        "RETURNING id, email, full_name, role, phone, address, is_active, created_at, token_version"
+    ).format(sql.SQL(", ").join(assignments))
     return conn.execute(query, (*fields.values(), user_id)).fetchone()
 
 

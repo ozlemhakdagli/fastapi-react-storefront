@@ -80,8 +80,8 @@ def test_current_user_dependency(client: TestClient, make_user, auth_headers) ->
         {"Authorization": "Token abc"},
         {"Authorization": "Bearer"},
         {"Authorization": "Bearer not-a-jwt"},
-        {"Authorization": f"Bearer {create_access_token(user['id'], minutes=-1)}"},
-        {"Authorization": f"Bearer {create_access_token(user['id'] + 9999)}"},
+        {"Authorization": f"Bearer {create_access_token(user['id'], 0, minutes=-1)}"},
+        {"Authorization": f"Bearer {create_access_token(user['id'] + 9999, 0)}"},
         auth_headers(inactive),
     ]
     for headers in bad_headers:

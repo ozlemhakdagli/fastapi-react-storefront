@@ -143,23 +143,48 @@ def test_me_get_and_patch(client: TestClient, make_user, auth_headers) -> None:
 
 def test_change_password(client: TestClient, make_user, auth_headers) -> None:
     user = make_user(email="pw@example.com", password="Old-passw0rd")
-    headers = auth_headers(user)
+    old_headers = auth_headers(user)
     wrong = client.post(
         "/api/auth/change-password",
-        headers=headers,
+        headers=old_headers,
         json={"current_password": "Not-the-one", "new_password": "New-passw0rd"},
     )
     assert wrong.status_code == 400
     assert wrong.json() == {"detail": "wrong_password"}
+    assert client.get("/api/auth/me", headers=old_headers).status_code == 200
 
     changed = client.post(
         "/api/auth/change-password",
-        headers=headers,
+        headers=old_headers,
         json={"current_password": "Old-passw0rd", "new_password": "New-passw0rd"},
     )
-    assert changed.status_code == 204
+    assert changed.status_code == 200
+    body = changed.json()
+    assert body["token_type"] == "bearer"
+    assert body["user"]["email"] == "pw@example.com"
+    new_headers = {"Authorization": f"Bearer {body['access_token']}"}
+    assert client.get("/api/auth/me", headers=new_headers).status_code == 200
+    assert client.get("/api/auth/me", headers=old_headers).status_code == 401
     assert _login(client, "pw@example.com", "Old-passw0rd").status_code == 401
     assert _login(client, "pw@example.com", "New-passw0rd").status_code == 200
+
+
+def test_token_version_is_never_in_a_response(client: TestClient, make_user, auth_headers) -> None:
+    user = make_user(email="versioned@example.com", password="Old-passw0rd")
+    admin = make_user(role="admin")
+    responses = [
+        _login(client, "versioned@example.com", "Old-passw0rd"),
+        client.get("/api/auth/me", headers=auth_headers(user)),
+        client.post(
+            "/api/auth/change-password",
+            headers=auth_headers(user),
+            json={"current_password": "Old-passw0rd", "new_password": "New-passw0rd"},
+        ),
+        client.get("/api/admin/users", headers=auth_headers(admin)),
+    ]
+    for response in responses:
+        assert response.status_code == 200
+        assert "token_version" not in list(_walk(response.json()))
 
 
 def test_no_response_contains_password_hash(client: TestClient, make_user, auth_headers) -> None:

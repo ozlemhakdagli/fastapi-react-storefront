@@ -23,9 +23,10 @@ def _token_from_header(authorization: str | None) -> str:
 
 def get_current_user(conn: Conn, authorization: Annotated[str | None, Header()] = None) -> dict:
     """The authenticated, active user. The role is read from the database, never from the token."""
-    user_id = decode_access_token(_token_from_header(authorization))
-    user = users.get_by_id(conn, user_id)  # the public columns, never password_hash
-    if user is None or not user["is_active"]:
+    user_id, token_version = decode_access_token(_token_from_header(authorization))
+    user = users.get_by_id(conn, user_id)  # never includes password_hash
+    # The token is valid only while its version is the user's current one (migration 0004).
+    if user is None or not user["is_active"] or user["token_version"] != token_version:
         raise ApiError(401, "unauthorized")
     return user
 

@@ -49,7 +49,7 @@ def test_tokens_with_other_algorithms_are_rejected(
     client: TestClient, make_user, settings, algorithm: str
 ) -> None:
     user = make_user()
-    claims = {"sub": str(user["id"]), "iat": 1, "exp": 4_000_000_000}
+    claims = {"sub": str(user["id"]), "tv": 0, "iat": 1, "exp": 4_000_000_000}
     key = "" if algorithm == "none" else settings.secret_key
     token = jwt.encode(claims, key, algorithm=algorithm)
     response = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
@@ -58,9 +58,22 @@ def test_tokens_with_other_algorithms_are_rejected(
 
 def test_a_token_without_an_expiry_is_rejected(client: TestClient, make_user, settings) -> None:
     user = make_user()
-    token = jwt.encode({"sub": str(user["id"]), "iat": 1}, settings.secret_key, algorithm="HS256")
+    claims = {"sub": str(user["id"]), "tv": 0, "iat": 1}
+    token = jwt.encode(claims, settings.secret_key, algorithm="HS256")
     response = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 401
+
+
+def test_a_token_without_a_version_is_rejected_even_with_the_right_key(
+    client: TestClient, make_user, settings
+) -> None:
+    """Tokens from before the token version existed have no tv claim, so they are refused."""
+    user = make_user()
+    claims = {"sub": str(user["id"]), "iat": 1, "exp": 4_000_000_000}
+    token = jwt.encode(claims, settings.secret_key, algorithm="HS256")
+    response = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 401
+    assert response.json() == {"detail": "unauthorized"}
 
 
 def test_the_media_mount_does_not_serve_files_outside_the_upload_folder(

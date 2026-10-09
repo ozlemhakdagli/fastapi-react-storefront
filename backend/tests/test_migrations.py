@@ -74,6 +74,7 @@ def test_applies_all_migrations_to_empty_database(db_dsn: str) -> None:
         "0001_init",
         "0002_image_thumbnails",
         "0003_ratings_and_favorites",
+        "0004_token_version",
     ]
     rows = _query(db_dsn, "SELECT tablename FROM pg_tables WHERE schemaname = 'public'")
     assert EXPECTED_TABLES <= {row[0] for row in rows}
@@ -82,7 +83,7 @@ def test_applies_all_migrations_to_empty_database(db_dsn: str) -> None:
 def test_second_run_is_a_noop(db_dsn: str) -> None:
     apply_migrations(db_dsn)
     assert apply_migrations(db_dsn) == []
-    assert _query(db_dsn, "SELECT count(*) FROM schema_migrations") == [(3,)]
+    assert _query(db_dsn, "SELECT count(*) FROM schema_migrations") == [(4,)]
 
 
 def test_checksum_change_raises(db_dsn: str, tmp_path: Path) -> None:
@@ -196,6 +197,7 @@ def test_main_applies_pending_migrations_and_prints_them(
     main()
     assert capsys.readouterr().out == (
         "applied 0001_init\napplied 0002_image_thumbnails\napplied 0003_ratings_and_favorites\n"
+        "applied 0004_token_version\n"
     )
     main()
     assert capsys.readouterr().out == ""
@@ -220,6 +222,7 @@ def test_main_falls_back_to_database_url_in_dot_env(
     main()
     assert capsys.readouterr().out == (
         "applied 0001_init\napplied 0002_image_thumbnails\napplied 0003_ratings_and_favorites\n"
+        "applied 0004_token_version\n"
     )
 
 
@@ -249,7 +252,11 @@ def test_images_uploaded_before_the_upgrade_keep_a_null_thumb_name(
             "VALUES (%s, 'old.png', 0)",
             (product_id,),
         )
-    assert apply_migrations(db_dsn) == ["0002_image_thumbnails", "0003_ratings_and_favorites"]
+    assert apply_migrations(db_dsn) == [
+        "0002_image_thumbnails",
+        "0003_ratings_and_favorites",
+        "0004_token_version",
+    ]
     assert _query(db_dsn, "SELECT file_name, thumb_name FROM product_images") == [("old.png", None)]
 
 
@@ -289,3 +296,13 @@ def test_ratings_and_favorites_tables_have_their_constraints(db_dsn: str) -> Non
         conn.execute("DELETE FROM products WHERE id = %s", (product_id,))
         assert conn.execute("SELECT count(*) FROM product_ratings").fetchone()[0] == 0
         assert conn.execute("SELECT count(*) FROM favorites").fetchone()[0] == 0
+
+
+def test_token_version_is_a_not_null_integer_defaulting_to_zero(db_dsn: str) -> None:
+    apply_migrations(db_dsn)
+    rows = _query(
+        db_dsn,
+        "SELECT data_type, is_nullable, column_default FROM information_schema.columns "
+        "WHERE table_name = 'users' AND column_name = 'token_version'",
+    )
+    assert rows == [("integer", "NO", "0")]

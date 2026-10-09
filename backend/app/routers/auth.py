@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Depends, Request
 
 from app.deps import Conn, CurrentUser, require_admin
 from app.repositories import users
@@ -22,7 +22,7 @@ def register(data: RegisterIn, request: Request) -> dict:
 @router.post("/auth/login", response_model=TokenOut)
 def login(data: LoginIn, request: Request) -> TokenOut:
     user = auth_service.authenticate(request.app.state.pool, data.email, data.password)
-    return TokenOut(access_token=create_access_token(user["id"]), user=user)
+    return TokenOut(access_token=create_access_token(user["id"], user["token_version"]), user=user)
 
 
 @router.get("/auth/me", response_model=UserOut)
@@ -35,7 +35,9 @@ def update_me(data: ProfileUpdateIn, user: CurrentUser, conn: Conn) -> dict:
     return users.update(conn, user["id"], data.model_dump(exclude_unset=True))
 
 
-@router.post("/auth/change-password", status_code=204)
-def change_password(data: ChangePasswordIn, user: CurrentUser, conn: Conn) -> Response:
-    auth_service.change_password(conn, user, data.current_password, data.new_password)
-    return Response(status_code=204)
+@router.post("/auth/change-password", response_model=TokenOut)
+def change_password(data: ChangePasswordIn, user: CurrentUser, conn: Conn) -> TokenOut:
+    # The other sessions end with the old version; this one continues with a token for the new one.
+    updated = auth_service.change_password(conn, user, data.current_password, data.new_password)
+    token = create_access_token(updated["id"], updated["token_version"])
+    return TokenOut(access_token=token, user=updated)

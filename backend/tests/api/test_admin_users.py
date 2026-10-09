@@ -1,5 +1,6 @@
 """Admin user management: listing, creating and updating accounts."""
 
+import psycopg
 from fastapi.testclient import TestClient
 
 NEW_USER = {
@@ -8,6 +9,11 @@ NEW_USER = {
     "full_name": "Staff Member",
     "role": "customer",
 }
+
+
+def _token_version(conn: psycopg.Connection, user_id: int) -> int:
+    row = conn.execute("SELECT token_version FROM users WHERE id = %s", (user_id,)).fetchone()
+    return row["token_version"]
 
 
 def test_admin_users_require_admin(client: TestClient, make_user, auth_headers) -> None:
@@ -157,3 +163,52 @@ def test_list_is_newest_first(client: TestClient, make_user, auth_headers) -> No
     ]
     assert emails == ["third@example.com", "second@example.com", "first@example.com"]
     assert last["id"] > first["id"]
+
+
+def test_admin_password_reset_ends_only_that_users_sessions(
+    client: TestClient, make_user, auth_headers
+) -> None:
+    admin = make_user(role="admin")
+    target = make_user(email="reset@example.com")
+    headers = auth_headers(admin)
+    target_headers = auth_headers(target)
+    assert client.get("/api/auth/me", headers=target_headers).status_code == 200
+
+    reset = client.patch(
+        f"/api/admin/users/{target['id']}", headers=headers, json={"password": "Brand-new1pw"}
+    )
+    assert reset.status_code == 200
+    assert client.get("/api/auth/me", headers=target_headers).status_code == 401
+    assert client.get("/api/auth/me", headers=headers).status_code == 200
+    login = client.post(
+        "/api/auth/login", json={"email": "reset@example.com", "password": "Brand-new1pw"}
+    )
+    assert login.status_code == 200
+
+
+def test_deactivation_ends_sessions_and_reactivation_does_not_restore_them(
+    client: TestClient, make_user, admin_headers, conn: psycopg.Connection
+) -> None:
+    headers = admin_headers()
+    target = make_user(email="paused@example.com", password="Passw0rd!x")
+    path = f"/api/admin/users/{target['id']}"
+    login = client.post(
+        "/api/auth/login", json={"email": "paused@example.com", "password": "Passw0rd!x"}
+    )
+    old_headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+    before = _token_version(conn, target["id"])
+
+    assert client.patch(path, headers=headers, json={"is_active": False}).status_code == 200
+    deactivated = _token_version(conn, target["id"])
+    assert deactivated > before
+    assert client.get("/api/auth/me", headers=old_headers).status_code == 401
+
+    assert client.patch(path, headers=headers, json={"is_active": True}).status_code == 200
+    assert client.get("/api/auth/me", headers=old_headers).status_code == 401
+    assert _token_version(conn, target["id"]) >= deactivated
+    fresh = client.post(
+        "/api/auth/login", json={"email": "paused@example.com", "password": "Passw0rd!x"}
+    )
+    assert fresh.status_code == 200
+    fresh_headers = {"Authorization": f"Bearer {fresh.json()['access_token']}"}
+    assert client.get("/api/auth/me", headers=fresh_headers).status_code == 200

@@ -43,13 +43,17 @@ def authenticate(pool: ConnectionPool, email: str, password: str) -> dict:
     return {key: value for key, value in user.items() if key != "password_hash"}
 
 
-def change_password(conn: Connection, user: dict, current: str, new: str) -> None:
+def change_password(conn: Connection, user: dict, current: str, new: str) -> dict:
+    """Store the new password and return the user with its new token version."""
     stored = users.get_password_hash(conn, user["id"])
     if stored is None:  # the account disappeared after the token was checked
         raise ApiError(401, "unauthorized")
     if not verify_password(current, stored):
         raise ApiError(400, "wrong_password")
-    users.update(conn, user["id"], {"password_hash": hash_password(new)})
+    updated = users.update(conn, user["id"], {"password_hash": hash_password(new)})
+    if updated is None:  # the account disappeared between the two statements
+        raise ApiError(401, "unauthorized")
+    return updated
 
 
 def admin_create_user(conn: Connection, data: AdminUserCreateIn) -> dict:

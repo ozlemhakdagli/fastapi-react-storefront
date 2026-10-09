@@ -349,7 +349,7 @@ def make_message(conn: psycopg.Connection) -> Callable[..., dict]:
 @pytest.fixture
 def auth_headers() -> Callable[[dict], dict[str, str]]:
     def factory(user: dict) -> dict[str, str]:
-        return {"Authorization": f"Bearer {create_access_token(user['id'])}"}
+        return {"Authorization": f"Bearer {create_access_token(user['id'], user['token_version'])}"}
 
     return factory
 
