@@ -28,6 +28,8 @@ EXPECTED_TABLES = {
     "orders",
     "order_items",
     "comments",
+    "product_ratings",
+    "favorites",
     "messages",
     "site_settings",
     "schema_migrations",
@@ -68,7 +70,11 @@ def _query(dsn: str, query: str) -> list[tuple]:
 
 
 def test_applies_all_migrations_to_empty_database(db_dsn: str) -> None:
-    assert apply_migrations(db_dsn) == ["0001_init", "0002_image_thumbnails"]
+    assert apply_migrations(db_dsn) == [
+        "0001_init",
+        "0002_image_thumbnails",
+        "0003_ratings_and_favorites",
+    ]
     rows = _query(db_dsn, "SELECT tablename FROM pg_tables WHERE schemaname = 'public'")
     assert EXPECTED_TABLES <= {row[0] for row in rows}
 
@@ -76,7 +82,7 @@ def test_applies_all_migrations_to_empty_database(db_dsn: str) -> None:
 def test_second_run_is_a_noop(db_dsn: str) -> None:
     apply_migrations(db_dsn)
     assert apply_migrations(db_dsn) == []
-    assert _query(db_dsn, "SELECT count(*) FROM schema_migrations") == [(2,)]
+    assert _query(db_dsn, "SELECT count(*) FROM schema_migrations") == [(3,)]
 
 
 def test_checksum_change_raises(db_dsn: str, tmp_path: Path) -> None:
@@ -188,7 +194,9 @@ def test_main_applies_pending_migrations_and_prints_them(
 ) -> None:
     monkeypatch.setenv("DATABASE_URL", db_dsn)
     main()
-    assert capsys.readouterr().out == "applied 0001_init\napplied 0002_image_thumbnails\n"
+    assert capsys.readouterr().out == (
+        "applied 0001_init\napplied 0002_image_thumbnails\napplied 0003_ratings_and_favorites\n"
+    )
     main()
     assert capsys.readouterr().out == ""
 
@@ -210,7 +218,9 @@ def test_main_falls_back_to_database_url_in_dot_env(
     (tmp_path / ".env").write_text(f'DATABASE_URL="{db_dsn}"\n')
     monkeypatch.chdir(tmp_path)
     main()
-    assert capsys.readouterr().out == "applied 0001_init\napplied 0002_image_thumbnails\n"
+    assert capsys.readouterr().out == (
+        "applied 0001_init\napplied 0002_image_thumbnails\napplied 0003_ratings_and_favorites\n"
+    )
 
 
 def test_thumb_name_is_a_nullable_text_column(db_dsn: str) -> None:
@@ -239,5 +249,43 @@ def test_images_uploaded_before_the_upgrade_keep_a_null_thumb_name(
             "VALUES (%s, 'old.png', 0)",
             (product_id,),
         )
-    assert apply_migrations(db_dsn) == ["0002_image_thumbnails"]
+    assert apply_migrations(db_dsn) == ["0002_image_thumbnails", "0003_ratings_and_favorites"]
     assert _query(db_dsn, "SELECT file_name, thumb_name FROM product_images") == [("old.png", None)]
+
+
+def test_ratings_and_favorites_tables_have_their_constraints(db_dsn: str) -> None:
+    apply_migrations(db_dsn)
+    with psycopg.connect(db_dsn, autocommit=True) as conn:
+        user_id = conn.execute(
+            "INSERT INTO users (email, full_name, password_hash, role) "
+            "VALUES ('a@example.com', 'A', 'x', 'customer') RETURNING id"
+        ).fetchone()[0]
+        product_id = conn.execute(
+            "INSERT INTO products (sku, name, price) VALUES ('P-1', 'P', 1) RETURNING id"
+        ).fetchone()[0]
+        for bad in (0, 6):
+            with pytest.raises(errors.CheckViolation):
+                conn.execute(
+                    "INSERT INTO product_ratings (user_id, product_id, rating) VALUES (%s, %s, %s)",
+                    (user_id, product_id, bad),
+                )
+        conn.execute(
+            "INSERT INTO product_ratings (user_id, product_id, rating) VALUES (%s, %s, 5)",
+            (user_id, product_id),
+        )
+        with pytest.raises(errors.UniqueViolation):
+            conn.execute(
+                "INSERT INTO product_ratings (user_id, product_id, rating) VALUES (%s, %s, 4)",
+                (user_id, product_id),
+            )
+        conn.execute(
+            "INSERT INTO favorites (user_id, product_id) VALUES (%s, %s)", (user_id, product_id)
+        )
+        with pytest.raises(errors.UniqueViolation):
+            conn.execute(
+                "INSERT INTO favorites (user_id, product_id) VALUES (%s, %s)", (user_id, product_id)
+            )
+        # Deleting the product removes its ratings and favourites.
+        conn.execute("DELETE FROM products WHERE id = %s", (product_id,))
+        assert conn.execute("SELECT count(*) FROM product_ratings").fetchone()[0] == 0
+        assert conn.execute("SELECT count(*) FROM favorites").fetchone()[0] == 0

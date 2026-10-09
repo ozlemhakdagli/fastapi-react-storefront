@@ -285,6 +285,33 @@ def make_order(conn: psycopg.Connection) -> Callable[..., dict]:
 
 
 @pytest.fixture
+def make_rating(conn: psycopg.Connection) -> Callable[..., dict]:
+    def factory(user_id: int, product_id: int, rating: int = 5) -> dict:
+        row = conn.execute(
+            "INSERT INTO product_ratings (user_id, product_id, rating) VALUES (%s, %s, %s) "
+            "RETURNING *",
+            (user_id, product_id, rating),
+        ).fetchone()
+        assert row is not None
+        return row
+
+    return factory
+
+
+@pytest.fixture
+def make_favorite(conn: psycopg.Connection) -> Callable[..., dict]:
+    def factory(user_id: int, product_id: int) -> dict:
+        row = conn.execute(
+            "INSERT INTO favorites (user_id, product_id) VALUES (%s, %s) RETURNING *",
+            (user_id, product_id),
+        ).fetchone()
+        assert row is not None
+        return row
+
+    return factory
+
+
+@pytest.fixture
 def make_comment(conn: psycopg.Connection) -> Callable[..., dict]:
     def factory(product_id: int, user_id: int, body: str = "Nice") -> dict:
         row = conn.execute(
