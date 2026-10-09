@@ -13,7 +13,12 @@ Contents: 1. Overview · 2. Conventions · 3. Error codes · 4. Endpoints · 5. 
 UTF-8. Uploaded product images are served from `/api/media/<file_name>`.
 
 **Interactive documentation.** Swagger UI is at `/api/docs` and the OpenAPI document is at
-`/api/openapi.json`. The README explains how to switch both off for a public deployment.
+`/api/openapi.json`, but only when the setting `API_DOCS_ENABLED` is `true`. It is `false` by default;
+`backend/.env.example` sets it to `true` for development. Keep it off on a public server.
+
+**Response headers.** Every response carries `X-Content-Type-Options: nosniff`. Responses under `/api/`
+(except the media files and the documentation pages) also carry `X-Frame-Options: DENY`,
+`Referrer-Policy: no-referrer` and `Cache-Control: no-store`.
 
 **Health check.** `GET /api/health` answers `{"status": "ok", "db": true}` when the database responds.
 
@@ -29,14 +34,19 @@ curl -s http://localhost:8000/api/auth/me \
   -H "Authorization: Bearer <access_token>"
 ```
 
-- The token is an HS256 JWT with the claims `sub` (the user id as a string), `iat` and `exp`. Its
-  lifetime is `ACCESS_TOKEN_MINUTES`, 60 by default; the setting accepts 1 to 1440.
+- The token is an HS256 JWT with the claims `sub` (the user id as a string), `tv` (the token version of
+  the user), `iat` and `exp`; all four are required. Its lifetime is `ACCESS_TOKEN_MINUTES`, 60 by default;
+  the setting accepts 1 to 1440.
 - On every request the server decodes the token and loads the user from the database. The role comes
   from that row, never from the token. A user who is missing or inactive gets `401 unauthorized` at
   once. An admin who is demoted gets `403 forbidden` on the next admin call, and a customer who is
   promoted can use the admin routes on the next call.
-- A password change does not end existing sessions. An old token works until it expires. This is a
-  known limitation, described in the README.
+- `users.token_version` starts at 0 and goes up by one when the user changes the password, when an admin
+  sets a password for the user and when an admin deactivates the user. A token is valid only while its `tv`
+  equals the stored version, so all older tokens answer `401 unauthorized` at once. Changing the password
+  answers with a fresh token for the same user, so the browser that made the change stays logged in.
+  Tokens that were issued before the version existed have no `tv` and are refused (everybody logs in once
+  after the upgrade). Re-activating a user does not bring old tokens back.
 - The frontend keeps the token in `localStorage` under the key `ecommerce.token`.
 
 **Who may call an endpoint.** The endpoint tables use four labels:
@@ -126,7 +136,7 @@ Routes marked login or admin answer `401 unauthorized` without a valid token. Ad
 
 | Code | HTTP | Extra fields | When |
 |---|---|---|---|
-| `unauthorized` | 401 | | The token is missing, malformed or expired, or the user does not exist or is inactive. |
+| `unauthorized` | 401 | | The token is missing, malformed or expired, its token version is out of date, or the user does not exist or is inactive. |
 | `invalid_credentials` | 401 | | Login failed. An unknown e-mail, a wrong password and an inactive account get the same answer. |
 | `forbidden` | 403 | | The caller is logged in but is not an admin. |
 | `purchase_required` | 403 | | A customer tried to rate a product without a completed order that contains it. |
@@ -171,7 +181,7 @@ and 422) are not repeated in each row.
 | POST | `/api/auth/login` | public | Body: `email`, `password` (1 to 128 characters) | 200 `TokenOut` | 401 `invalid_credentials` |
 | GET | `/api/auth/me` | login | none | 200 `User` | |
 | PATCH | `/api/auth/me` | login | Body: `full_name?` (cannot be null), `phone?`, `address?` (null clears them). `role`, `email` and `is_active` are refused with 422. | 200 `User` | |
-| POST | `/api/auth/change-password` | login | Body: `current_password` (1 to 128 characters), `new_password` (8 to 128 characters) | 204 | 400 `wrong_password` |
+| POST | `/api/auth/change-password` | login | Body: `current_password` (1 to 128 characters), `new_password` (8 to 128 characters). Ends every other session of the user. | 200 `TokenOut` (a token for the new token version, the old one stops working) | 400 `wrong_password` |
 
 ### 4.3 Catalogue
 
@@ -179,7 +189,7 @@ and 422) are not repeated in each row.
 |---|---|---|---|---|---|
 | GET | `/api/categories` | public | none | 200 `Taxonomy[]`, sorted by name | |
 | GET | `/api/brands` | public | none | 200 `Taxonomy[]`, sorted by name | |
-| GET | `/api/site` | public | none | 200 `SiteSettings`. The first call creates the settings row, with empty values. | |
+| GET | `/api/site` | public | none | 200 `SiteSettings`. Without a settings row the answer holds empty texts, and nothing is written. | |
 | GET | `/api/products` | public | Query: `page`, `page_size`, `category_id?`, `brand_id?`, `is_new?` (true or false), `q?` (matches the name or the SKU, ignoring case), `sort?` (`newest` by default, `price_asc` or `price_desc`). Only active products are listed. | 200 `Page<ProductListItem>` | 422 for an unknown `sort` |
 | GET | `/api/products/{product_id}` | public | none | 200 `ProductDetail`, images in position order | 404 `not_found` (also for an inactive product) |
 
@@ -631,14 +641,14 @@ The implementation is in `backend/app/services/orders.py` (`place_order`, `admin
 ## 7. Database
 
 The schema is defined only by the files in `backend/migrations/`: `0001_init.sql` creates it and
-`0002_image_thumbnails.sql` adds `product_images.thumb_name` and `0003_ratings_and_favorites.sql` adds
-`product_ratings` and `favorites`. The tests and `seed.py` run against the
-schema that these files create. The schema has no triggers, so every `UPDATE` statement sets
+`0002_image_thumbnails.sql` adds `product_images.thumb_name`, `0003_ratings_and_favorites.sql` adds
+`product_ratings` and `favorites`, and `0004_token_version.sql` adds `users.token_version`. The tests and
+`seed.py` run against the schema that these files create. The schema has no triggers, so every `UPDATE` statement sets
 `updated_at` itself on the tables that have that column.
 
 | Table | Purpose and notable constraints |
 |---|---|
-| `users` | Customers and administrators. `role` is `customer` or `admin`. `is_active` deactivates an account instead of deleting it. E-mail addresses are unique ignoring case (`users_email_lower_key` on `lower(email)`). `password_hash` holds an Argon2 hash and is never returned. |
+| `users` | Customers and administrators. `role` is `customer` or `admin`. `is_active` deactivates an account instead of deleting it. `token_version` is explained in section 1 (Authentication). E-mail addresses are unique ignoring case (`users_email_lower_key` on `lower(email)`). `password_hash` holds an Argon2 hash and is never returned. |
 | `categories`, `brands` | Shared shape: `name` (unique, 1 to 100 characters) and `description` (up to 2000). Products reference them with `ON DELETE RESTRICT`. |
 | `products` | `sku` (unique, up to 64 characters). `brand_id` and `category_id` reference the taxonomy tables with `RESTRICT`. `price` and `cost_price` are `NUMERIC(12,2)` and not negative; `stock` is not negative. `is_active` hides a product from the shop. `updated_at` is the version that `PUT` compares with `expected_updated_at`. |
 | `product_images` | One row per image: a generated `file_name` and a `position`. `thumb_name` (empty for an image from before the resizing was added) names the card copy. The lowest position is the cover. The unique pair `(product_id, position)` is deferred, so a reorder can swap positions in one transaction. Rows cascade with the product. |
@@ -649,13 +659,13 @@ schema that these files create. The schema has no triggers, so every `UPDATE` st
 | `favorites` | One row per `(user_id, product_id)`, the primary key, with `created_at`. Rows cascade with the user and the product. Indexed by user and newest first. |
 | `comments` | `body` (1 to 2000 characters). Rows cascade with the product and with the author. Indexed by product and newest first. |
 | `messages` | Contact messages (`direction` inbound) and admin replies (`direction` outbound). `user_id` is empty for a guest and references `users` with `RESTRICT`. A CHECK requires a user on every outbound message. `status` is `new` or `read`. The name, e-mail, subject and body are stored trimmed (the e-mail also lowercased); the phone number is stored as sent. |
-| `site_settings` | One row, enforced by `id = 1`, with ten text columns. The migration creates no row; the first read creates it. |
+| `site_settings` | One row, enforced by `id = 1`, with ten text columns. The migration creates no row; reading never writes, and the first `PUT /api/admin/site` inserts it. |
 | `schema_migrations` | Kept by the migration runner, not by a migration file: `version` (primary key), `checksum` (SHA-256 of the file) and `applied_at`. |
 
 ### Adding a migration
 
 1. Create a new file in `backend/migrations/` whose name is four digits, an underscore, and a name in
-   lowercase letters, digits and underscores, for example `0004_price_alerts.sql`. The runner rejects other names.
+   lowercase letters, digits and underscores, for example `0005_price_alerts.sql`. The runner rejects other names.
 2. Never edit a file that has already been applied. The runner stores the SHA-256 checksum of each
    applied file, and when a stored checksum no longer matches, it stops with
    `MigrationError: <version> changed after it was applied`.
@@ -673,7 +683,7 @@ list is a finished feature of the same shape: `backend/app/repositories/favorite
 
 ### Backend
 
-1. **Migration.** `backend/migrations/0004_price_alerts.sql`:
+1. **Migration.** `backend/migrations/0005_price_alerts.sql`:
 
    ```sql
    CREATE TABLE price_alerts (
