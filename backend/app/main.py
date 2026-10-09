@@ -22,6 +22,8 @@ from app.errors import ApiError, api_error_handler
 from app.middleware import UPLOAD_OVERHEAD, BodySizeLimitMiddleware
 
 PLACEHOLDER = Path(__file__).resolve().parent / "static" / "placeholder.svg"
+DOCS_URL = "/api/docs"
+OPENAPI_URL = "/api/openapi.json"
 
 ROUTER_MODULES = (
     "auth", "users", "taxonomy", "site", "products", "cart", "orders", "comments",
@@ -48,9 +50,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(
         title="E-commerce API",
         lifespan=lifespan,
-        docs_url="/api/docs",
+        docs_url=DOCS_URL if settings.api_docs_enabled else None,
         redoc_url=None,
-        openapi_url="/api/openapi.json",
+        openapi_url=OPENAPI_URL if settings.api_docs_enabled else None,
     )
     # Innermost on purpose: its 413 answers still get the CORS and nosniff headers.
     app.add_middleware(
@@ -64,9 +66,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
 
     @app.middleware("http")
-    async def forbid_content_sniffing(request: Request, call_next) -> Response:
+    async def add_security_headers(request: Request, call_next) -> Response:
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
+        path = request.url.path
+        exempt = path.startswith("/api/media") or path in (DOCS_URL, OPENAPI_URL)
+        if path.startswith("/api/") and not exempt:
+            response.headers["X-Frame-Options"] = "DENY"
+            response.headers["Referrer-Policy"] = "no-referrer"
+            response.headers["Cache-Control"] = "no-store"
         return response
 
     app.add_exception_handler(ApiError, api_error_handler)

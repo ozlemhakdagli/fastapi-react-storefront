@@ -1,4 +1,4 @@
-"""SQL for the single site settings row (id 1). The first read creates the default row."""
+"""SQL for the single site settings row (id 1)."""
 
 import psycopg
 from psycopg import sql
@@ -16,13 +16,14 @@ _COLUMNS = (
     "about_text",
     "contact_text",
 )
+# The column defaults of the table (0001_init.sql): empty text, returned while no row exists.
+_DEFAULTS = dict.fromkeys(_COLUMNS, "")
 _COLUMN_LIST = sql.SQL(", ").join(sql.Identifier(column) for column in _COLUMNS)
 _PLACEHOLDERS = sql.SQL(", ").join(sql.Placeholder() for _ in _COLUMNS)
 _ASSIGNMENTS = sql.SQL(", ").join(
     sql.SQL("{0} = EXCLUDED.{0}").format(sql.Identifier(column)) for column in _COLUMNS
 )
 
-_ENSURE_ROW = "INSERT INTO site_settings (id) VALUES (1) ON CONFLICT DO NOTHING"
 _SELECT = sql.SQL("SELECT {} FROM site_settings WHERE id = 1").format(_COLUMN_LIST)
 _UPSERT = sql.SQL(
     "INSERT INTO site_settings (id, {columns}) VALUES (1, {values}) "
@@ -31,9 +32,8 @@ _UPSERT = sql.SQL(
 
 
 def get(conn: psycopg.Connection) -> dict:
-    """Return the ten data columns, creating the default row if it does not exist yet."""
-    conn.execute(_ENSURE_ROW)
-    return conn.execute(_SELECT).fetchone()
+    """Return the ten data columns, or the column defaults while no row exists. Never writes."""
+    return conn.execute(_SELECT).fetchone() or dict(_DEFAULTS)
 
 
 def put(conn: psycopg.Connection, data: dict) -> dict:

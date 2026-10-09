@@ -29,10 +29,16 @@ SITE_PAYLOAD = {
 }
 
 
-def test_site_get_returns_defaults_when_no_row_exists(client: TestClient) -> None:
+def test_site_get_returns_defaults_when_no_row_exists(
+    client: TestClient, admin_headers, conn
+) -> None:
     response = client.get("/api/site")
     assert response.status_code == 200
     assert response.json() == dict.fromkeys(SITE_KEYS, "")
+    assert conn.execute("SELECT count(*) AS n FROM site_settings").fetchone() == {"n": 0}
+    put = client.put("/api/admin/site", json=SITE_PAYLOAD, headers=admin_headers())
+    assert put.status_code == 200
+    assert conn.execute("SELECT count(*) AS n FROM site_settings").fetchone() == {"n": 1}
 
 
 def test_site_put_then_get_round_trips(client: TestClient, admin_headers) -> None:

@@ -14,6 +14,7 @@ SETTINGS_ENV_NAMES = (
     "CORS_ORIGINS",
     "UPLOAD_DIR",
     "MAX_UPLOAD_BYTES",
+    "API_DOCS_ENABLED",
 )
 
 
@@ -105,3 +106,11 @@ def test_token_lifetime_has_sane_bounds(clean_env):
             Settings()
     clean_env.setenv("ACCESS_TOKEN_MINUTES", "1440")
     assert Settings().access_token_minutes == 1440
+
+
+def test_api_docs_are_off_unless_enabled(clean_env):
+    clean_env.setenv("DATABASE_URL", DATABASE_URL)
+    clean_env.setenv("SECRET_KEY", SECRET_KEY)
+    assert Settings().api_docs_enabled is False
+    clean_env.setenv("API_DOCS_ENABLED", "true")
+    assert Settings().api_docs_enabled is True

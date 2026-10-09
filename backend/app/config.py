@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     cors_origins: Annotated[list[str], NoDecode] = []
     upload_dir: Path = Path("uploads")
     max_upload_bytes: int = 2_000_000
+    api_docs_enabled: bool = False
 
     @field_validator("cors_origins", mode="before")
     @classmethod

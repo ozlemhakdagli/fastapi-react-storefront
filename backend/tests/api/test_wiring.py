@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 
 from app.deps import AdminUser, CurrentUser, OptionalUser
 from app.errors import ApiError
+from app.main import create_app
 from app.security import create_access_token
 
 
@@ -34,6 +35,18 @@ def test_unknown_route_is_json_404(client: TestClient) -> None:
 
 def test_responses_forbid_content_type_sniffing(client: TestClient) -> None:
     assert client.get("/api/health").headers["x-content-type-options"] == "nosniff"
+
+
+def test_api_docs_are_served_only_when_enabled(settings) -> None:
+    for enabled, status in ((True, 200), (False, 404)):
+        app = create_app(settings.model_copy(update={"api_docs_enabled": enabled}))
+        with TestClient(app) as client:
+            assert client.get("/api/docs").status_code == status, enabled
+            assert client.get("/api/openapi.json").status_code == status, enabled
+            assert client.get("/api/health").status_code == 200
+        # The route-security tests walk the schema, so it must list the routes in both cases.
+        paths = app.openapi()["paths"]
+        assert "/api/site" in paths and "/api/admin/site" in paths
 
 
 def test_api_error_is_rendered(client: TestClient) -> None:
