@@ -40,7 +40,7 @@ def send_contact(body: ContactIn, conn: Conn, user: OptionalUser) -> dict:
 def list_my_messages(conn: Conn, user: CurrentUser, p: Pagination) -> dict:
     items = repo.list_for_user(conn, user["id"], p.limit, p.offset)
     total = repo.count_for_user(conn, user["id"])["total"]
-    return {"items": items, "total": total, "page": p.page, "page_size": p.page_size}
+    return p.page_of(items, total)
 
 
 @admin_router.get("/messages", response_model=Page[AdminMessageOut])
@@ -54,7 +54,7 @@ def list_messages(
         conn, status=status, direction=direction, limit=p.limit, offset=p.offset
     )
     total = repo.count_admin(conn, status=status, direction=direction)["total"]
-    return {"items": items, "total": total, "page": p.page, "page_size": p.page_size}
+    return p.page_of(items, total)
 
 
 @admin_router.post("/messages", status_code=201, response_model=AdminMessageOut)

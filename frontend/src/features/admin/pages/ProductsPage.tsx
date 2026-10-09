@@ -5,6 +5,7 @@ import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
 import { Money } from '@/components/Money'
+import { NativeSelect } from '@/components/NativeSelect'
 import { PageHeader } from '@/components/PageHeader'
 import { Pagination } from '@/components/Pagination'
 import { Badge } from '@/components/ui/badge'
@@ -16,9 +17,6 @@ import { t } from '@/lib/i18n'
 import type { AdminProduct } from '@/lib/types'
 
 // Native selects, styled like the inputs: the shadcn Select needs browser APIs that jsdom lacks.
-const selectClass =
-  'border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full min-w-0 rounded-lg border bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3'
-
 type FilterName = 'q' | 'category_id' | 'brand_id' | 'is_active'
 
 /** A positive integer from the URL, or undefined (no filter) for anything else. */
@@ -133,9 +131,8 @@ export default function ProductsPage() {
           onSubmit={(value) => changeFilter('q', value)}
         />
         <FormField label={t('adminproducts.filter_category')} htmlFor="filter-category">
-          <select
+          <NativeSelect
             id="filter-category"
-            className={selectClass}
             value={filters.category_id ?? ''}
             onChange={(event) => changeFilter('category_id', event.target.value)}
           >
@@ -145,12 +142,11 @@ export default function ProductsPage() {
                 {category.name}
               </option>
             ))}
-          </select>
+          </NativeSelect>
         </FormField>
         <FormField label={t('adminproducts.filter_brand')} htmlFor="filter-brand">
-          <select
+          <NativeSelect
             id="filter-brand"
-            className={selectClass}
             value={filters.brand_id ?? ''}
             onChange={(event) => changeFilter('brand_id', event.target.value)}
           >
@@ -160,19 +156,18 @@ export default function ProductsPage() {
                 {brand.name}
               </option>
             ))}
-          </select>
+          </NativeSelect>
         </FormField>
         <FormField label={t('adminproducts.filter_active')} htmlFor="filter-active">
-          <select
+          <NativeSelect
             id="filter-active"
-            className={selectClass}
             value={activeValue}
             onChange={(event) => changeFilter('is_active', event.target.value)}
           >
             <option value="">{t('adminproducts.all_statuses')}</option>
             <option value="true">{t('adminproducts.active_yes')}</option>
             <option value="false">{t('adminproducts.active_no')}</option>
-          </select>
+          </NativeSelect>
         </FormField>
       </div>
       <ErrorNotice error={products.error} />

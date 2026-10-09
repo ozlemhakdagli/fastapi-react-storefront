@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
+import { NativeSelect } from '@/components/NativeSelect'
 import { PageHeader } from '@/components/PageHeader'
 import { Pagination } from '@/components/Pagination'
 import { Badge } from '@/components/ui/badge'
@@ -29,9 +30,6 @@ import { t } from '@/lib/i18n'
 import type { User } from '@/lib/types'
 
 // Native selects: they behave the same in browsers and in jsdom tests, and match ui/input.
-const selectClass =
-  'border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full min-w-0 rounded-lg border bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3'
-
 export default function UsersPage() {
   const [role, setRole] = useState<'' | UserRole>('')
   const [draft, setDraft] = useState('')
@@ -85,9 +83,8 @@ export default function UsersPage() {
       />
       <div className="grid gap-4 md:grid-cols-[12rem_1fr]">
         <FormField label={t('adminusers.filter_role')} htmlFor="users-filter-role">
-          <select
+          <NativeSelect
             id="users-filter-role"
-            className={selectClass}
             value={role}
             onChange={(event) => {
               setRole(filterRole(event.target.value))
@@ -97,7 +94,7 @@ export default function UsersPage() {
             <option value="">{t('adminusers.role_all')}</option>
             <option value="customer">{t('adminusers.role_customer')}</option>
             <option value="admin">{t('adminusers.role_admin')}</option>
-          </select>
+          </NativeSelect>
         </FormField>
         <form role="search" onSubmit={applySearch} className="grid grid-cols-[1fr_auto] items-end gap-2">
           <FormField label={t('adminusers.filter_search')} htmlFor="users-filter-search">
@@ -232,15 +229,14 @@ function CreateUserForm({ onDone }: { onDone: () => void }) {
         />
       </FormField>
       <FormField label={t('adminusers.field_role')} htmlFor="user-create-role">
-        <select
+        <NativeSelect
           id="user-create-role"
-          className={selectClass}
           value={role}
           onChange={(event) => setRole(formRole(event.target.value))}
         >
           <option value="customer">{t('adminusers.role_customer')}</option>
           <option value="admin">{t('adminusers.role_admin')}</option>
-        </select>
+        </NativeSelect>
       </FormField>
       <FormField label={t('adminusers.field_phone')} htmlFor="user-create-phone">
         <Input
@@ -360,15 +356,14 @@ function EditUserForm({ user, onDone }: { user: User; onDone: () => void }) {
         />
       </FormField>
       <FormField label={t('adminusers.field_role')} htmlFor="user-edit-role">
-        <select
+        <NativeSelect
           id="user-edit-role"
-          className={selectClass}
           value={role}
           onChange={(event) => setRole(formRole(event.target.value))}
         >
           <option value="customer">{t('adminusers.role_customer')}</option>
           <option value="admin">{t('adminusers.role_admin')}</option>
-        </select>
+        </NativeSelect>
       </FormField>
       <label className="flex items-center gap-2 text-sm">
         <input

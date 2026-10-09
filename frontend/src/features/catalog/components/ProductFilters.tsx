@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { FormField } from '@/components/FormField'
+import { NativeSelect } from '@/components/NativeSelect'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { ProductSort } from '@/features/catalog/hooks/useProducts'
@@ -21,9 +22,6 @@ interface ProductFiltersProps {
 }
 
 // Native selects: they behave the same in browsers and in jsdom tests, and match ui/input.
-const selectClass =
-  'border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full min-w-0 rounded-lg border bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3'
-
 export function ProductFilters({
   categories,
   brands,
@@ -44,9 +42,8 @@ export function ProductFilters({
       {/* Keyed by the URL value so that the draft resets when the URL changes (e.g. browser back). */}
       <SearchForm key={q ?? ''} initialQuery={q ?? ''} onSubmit={(value) => onChange('q', value)} />
       <FormField label={t('catalog.filter_category')} htmlFor="filter-category">
-        <select
+        <NativeSelect
           id="filter-category"
-          className={selectClass}
           value={categoryId ?? ''}
           onChange={(event) => onChange('category_id', event.target.value)}
         >
@@ -56,12 +53,11 @@ export function ProductFilters({
               {category.name}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       </FormField>
       <FormField label={t('catalog.filter_brand')} htmlFor="filter-brand">
-        <select
+        <NativeSelect
           id="filter-brand"
-          className={selectClass}
           value={brandId ?? ''}
           onChange={(event) => onChange('brand_id', event.target.value)}
         >
@@ -71,12 +67,11 @@ export function ProductFilters({
               {brand.name}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       </FormField>
       <FormField label={t('catalog.filter_sort')} htmlFor="filter-sort">
-        <select
+        <NativeSelect
           id="filter-sort"
-          className={selectClass}
           value={sort ?? 'newest'}
           onChange={(event) => onChange('sort', event.target.value)}
         >
@@ -85,7 +80,7 @@ export function ProductFilters({
               {option.label}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       </FormField>
     </div>
   )

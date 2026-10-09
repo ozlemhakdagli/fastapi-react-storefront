@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import type { FormEvent, ReactNode } from 'react'
+import type { FormEvent } from 'react'
 import { Link, useParams } from 'react-router'
 import { type Column, DataTable } from '@/components/DataTable'
+import { DetailRow } from '@/components/DetailRow'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
 import { Money } from '@/components/Money'
+import { NativeSelect } from '@/components/NativeSelect'
 import { PageHeader } from '@/components/PageHeader'
 import { StatusBadge } from '@/components/StatusBadge'
 import { Button } from '@/components/ui/button'
@@ -21,9 +23,6 @@ import { t } from '@/lib/i18n'
 import type { AdminOrder, OrderItem, OrderStatus } from '@/lib/types'
 
 // Native select, styled like ui/input: the shadcn Select needs browser APIs that jsdom lacks.
-const selectClass =
-  'border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full min-w-0 rounded-lg border bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-50'
-
 export default function OrderDetailPage() {
   const { id } = useParams()
   const orderId = Number(id)
@@ -166,9 +165,8 @@ function OrderForm({ order, saving, onSave }: OrderFormProps) {
   return (
     <form className="grid max-w-xl gap-4" noValidate onSubmit={handleSubmit}>
       <FormField label={t('adminorders.status_label')} htmlFor="order-status">
-        <select
+        <NativeSelect
           id="order-status"
-          className={selectClass}
           value={status}
           disabled={statusFinal}
           onChange={(event) => setStatus(event.target.value as OrderStatus)}
@@ -178,7 +176,7 @@ function OrderForm({ order, saving, onSave }: OrderFormProps) {
               {t(`common.status_${option}`)}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       </FormField>
       {statusFinal ? (
         <p className="text-muted-foreground -mt-2 text-sm">{t('adminorders.status_final')}</p>
@@ -223,12 +221,3 @@ function clean(value: string | null): string | null {
   return trimmed === '' ? null : trimmed
 }
 
-/** One label and value of a details list. The value is plain text, never markup. */
-function DetailRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="grid gap-0.5 sm:grid-cols-[10rem_1fr] sm:gap-4">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="whitespace-pre-line">{children}</dd>
-    </div>
-  )
-}

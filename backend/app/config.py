@@ -16,7 +16,6 @@ class Settings(BaseSettings):
     )
 
     database_url: str
-    test_database_url: str | None = None
     secret_key: str
     access_token_minutes: Annotated[int, Field(ge=1, le=1440)] = 60
     cors_origins: Annotated[list[str], NoDecode] = []

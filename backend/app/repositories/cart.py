@@ -3,7 +3,7 @@
 import psycopg
 
 # Cart lines in product-id order. The first image is the one with the lowest position. It is
-# NULL for a product without images, and the router then uses the placeholder.
+# NULL for a product without images, and the service then uses the placeholder.
 _LINES_SQL = """
 SELECT ci.product_id, p.name, p.price AS unit_price, ci.quantity, p.stock,
        p.is_active AS available, first_image.file_name

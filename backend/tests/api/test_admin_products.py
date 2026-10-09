@@ -214,7 +214,7 @@ def _put_body(product: dict, **overrides) -> dict:
 def test_a_stale_edit_form_cannot_overwrite_stock_sold_in_the_meantime(
     client: TestClient, conn, admin_headers, make_product
 ) -> None:
-    """Saving a form opened before a sale must not undo the sale."""
+    """Saving a form that was opened before a sale must not undo the sale."""
     headers = admin_headers()
     product = make_product(stock=10)
     url = f"/api/admin/products/{product['id']}"
@@ -282,3 +282,12 @@ def test_the_version_is_optional_and_an_unknown_product_is_still_404(
         headers=headers,
     )
     assert missing.status_code == 404
+
+
+def test_creating_a_product_does_not_accept_an_update_version(
+    client: TestClient, admin_headers
+) -> None:
+    """expected_updated_at belongs to updates only; a create refuses it instead of ignoring it."""
+    body = _payload(sku="VER-1", expected_updated_at="2026-01-01T00:00:00Z")
+    response = client.post("/api/admin/products", json=body, headers=admin_headers())
+    assert response.status_code == 422

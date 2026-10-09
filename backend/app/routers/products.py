@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, File, UploadFile
 from psycopg.errors import ForeignKeyViolation, RestrictViolation, UniqueViolation
 
 from app.config import get_settings
-from app.deps import Conn, PageParams, Pagination, require_admin
+from app.deps import Conn, Pagination, require_admin
 from app.errors import ApiError
 from app.media import image_url
 from app.repositories import products
@@ -19,6 +19,7 @@ from app.schemas.products import (
     ProductImageOut,
     ProductIn,
     ProductListItem,
+    ProductReplaceIn,
 )
 from app.services.images import detect_image_type, remove_image_file, store_image
 
@@ -32,10 +33,6 @@ _REFERENCE_FIELDS = {
     "products_brand_id_fkey": "brand_id",
     "products_category_id_fkey": "category_id",
 }
-
-
-def _page(items: list[dict], total: int, p: PageParams) -> dict:
-    return {"items": items, "total": total, "page": p.page, "page_size": p.page_size}
 
 
 def _named(item_id: int | None, name: str | None) -> dict | None:
@@ -125,7 +122,7 @@ def list_products(
         offset=p.offset,
     )
     images = products.images_for(conn, [row["id"] for row in rows])
-    return _page([_list_item(row, images.get(row["id"], [])) for row in rows], total, p)
+    return p.page_of([_list_item(row, images.get(row["id"], [])) for row in rows], total)
 
 
 @router.get("/products/{product_id}", response_model=ProductDetail)
@@ -155,7 +152,7 @@ def list_admin_products(
         offset=p.offset,
     )
     images = products.images_for(conn, [row["id"] for row in rows])
-    return _page([_admin(row, images.get(row["id"], [])) for row in rows], total, p)
+    return p.page_of([_admin(row, images.get(row["id"], [])) for row in rows], total)
 
 
 @admin_router.post("/products", status_code=201, response_model=AdminProduct)
@@ -175,7 +172,7 @@ def get_admin_product(product_id: int, conn: Conn) -> dict:
 
 
 @admin_router.put("/products/{product_id}", response_model=AdminProduct)
-def replace_product(product_id: int, body: ProductIn, conn: Conn) -> dict:
+def replace_product(product_id: int, body: ProductReplaceIn, conn: Conn) -> dict:
     data = body.model_dump()
     expected_updated_at = data.pop("expected_updated_at")
     _require_references(conn, data["brand_id"], data["category_id"])

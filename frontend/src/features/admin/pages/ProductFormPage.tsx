@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
+import { NativeSelect } from '@/components/NativeSelect'
 import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -33,9 +34,6 @@ function isValidMoney(text: string): boolean {
 const MAX_STOCK = 1000000
 
 // Native selects, styled like the inputs: the shadcn Select needs browser APIs that jsdom lacks.
-const selectClass =
-  'border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full min-w-0 rounded-lg border bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3'
-
 // The inputs hold text. Money and stock stay text until they are sent.
 interface FormValues {
   sku: string
@@ -265,9 +263,8 @@ function ProductForm({ productId, product, categories, brands }: ProductFormProp
             />
           </FormField>
           <FormField label={t('adminproducts.field_brand')} htmlFor="product-brand">
-            <select
+            <NativeSelect
               id="product-brand"
-              className={selectClass}
               value={values.brand_id}
               onChange={(event) => setValue('brand_id', event.target.value)}
             >
@@ -277,12 +274,11 @@ function ProductForm({ productId, product, categories, brands }: ProductFormProp
                   {brand.name}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </FormField>
           <FormField label={t('adminproducts.field_category')} htmlFor="product-category">
-            <select
+            <NativeSelect
               id="product-category"
-              className={selectClass}
               value={values.category_id}
               onChange={(event) => setValue('category_id', event.target.value)}
             >
@@ -292,7 +288,7 @@ function ProductForm({ productId, product, categories, brands }: ProductFormProp
                   {category.name}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </FormField>
           <FormField
             label={t('adminproducts.field_price')}

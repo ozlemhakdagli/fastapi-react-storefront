@@ -4,6 +4,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
+import { NativeSelect } from '@/components/NativeSelect'
 import { PageHeader } from '@/components/PageHeader'
 import { Pagination } from '@/components/Pagination'
 import { Badge } from '@/components/ui/badge'
@@ -22,9 +23,6 @@ import { t } from '@/lib/i18n'
 import type { AdminMessage, Message } from '@/lib/types'
 
 // Native selects: they behave the same in browsers and in jsdom tests, and match ui/input.
-const selectClass =
-  'border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full min-w-0 rounded-lg border bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3'
-
 export default function MessagesPage() {
   const [status, setStatus] = useState<'' | Message['status']>('')
   const [direction, setDirection] = useState<'' | Message['direction']>('')
@@ -84,9 +82,8 @@ export default function MessagesPage() {
       <PageHeader title={t('adminmessages.title')} />
       <div className="grid gap-4 md:grid-cols-2">
         <FormField label={t('adminmessages.filter_status')} htmlFor="messages-filter-status">
-          <select
+          <NativeSelect
             id="messages-filter-status"
-            className={selectClass}
             value={status}
             onChange={(event) => {
               setStatus(filterStatus(event.target.value))
@@ -96,12 +93,11 @@ export default function MessagesPage() {
             <option value="">{t('adminmessages.status_all')}</option>
             <option value="new">{t('adminmessages.status_new')}</option>
             <option value="read">{t('adminmessages.status_read')}</option>
-          </select>
+          </NativeSelect>
         </FormField>
         <FormField label={t('adminmessages.filter_direction')} htmlFor="messages-filter-direction">
-          <select
+          <NativeSelect
             id="messages-filter-direction"
-            className={selectClass}
             value={direction}
             onChange={(event) => {
               setDirection(filterDirection(event.target.value))
@@ -111,7 +107,7 @@ export default function MessagesPage() {
             <option value="">{t('adminmessages.direction_all')}</option>
             <option value="inbound">{t('adminmessages.direction_inbound')}</option>
             <option value="outbound">{t('adminmessages.direction_outbound')}</option>
-          </select>
+          </NativeSelect>
         </FormField>
       </div>
 

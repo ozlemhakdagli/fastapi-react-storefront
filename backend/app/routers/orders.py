@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from app.deps import AdminUser, Conn, CurrentUser, Pagination, require_admin
+from app.deps import Conn, CurrentUser, Pagination, require_admin
 from app.errors import ApiError
 from app.repositories import orders as repo
 from app.schemas.common import Page
@@ -29,7 +29,7 @@ def place_order(body: OrderCreateIn, conn: Conn, user: CurrentUser) -> dict:
 @router.get("/orders", response_model=Page[OrderListItem])
 def list_my_orders(conn: Conn, user: CurrentUser, p: Pagination) -> dict:
     rows, total = repo.list_for_user(conn, user["id"], limit=p.limit, offset=p.offset)
-    return {"items": rows, "total": total, "page": p.page, "page_size": p.page_size}
+    return p.page_of(rows, total)
 
 
 @router.get("/orders/{order_id}", response_model=OrderOut)
@@ -46,15 +46,13 @@ def cancel_my_order(order_id: int, conn: Conn, user: CurrentUser) -> dict:
 
 
 @admin_router.get("/orders", response_model=Page[AdminOrderListItem])
-def list_orders(
-    conn: Conn, _admin: AdminUser, p: Pagination, status: OrderStatus | None = None
-) -> dict:
+def list_orders(conn: Conn, p: Pagination, status: OrderStatus | None = None) -> dict:
     rows, total = repo.list_admin(conn, status=status, limit=p.limit, offset=p.offset)
-    return {"items": rows, "total": total, "page": p.page, "page_size": p.page_size}
+    return p.page_of(rows, total)
 
 
 @admin_router.get("/orders/{order_id}", response_model=AdminOrderOut)
-def get_order(order_id: int, conn: Conn, _admin: AdminUser) -> dict:
+def get_order(order_id: int, conn: Conn) -> dict:
     order = repo.get_with_items(conn, order_id)
     if order is None:
         raise ApiError(404, "not_found")
@@ -62,5 +60,5 @@ def get_order(order_id: int, conn: Conn, _admin: AdminUser) -> dict:
 
 
 @admin_router.patch("/orders/{order_id}", response_model=AdminOrderOut)
-def update_order(order_id: int, body: AdminOrderUpdateIn, conn: Conn, _admin: AdminUser) -> dict:
+def update_order(order_id: int, body: AdminOrderUpdateIn, conn: Conn) -> dict:
     return service.admin_update_order(conn, order_id, body.model_dump(exclude_unset=True))

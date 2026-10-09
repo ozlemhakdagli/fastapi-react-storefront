@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import type { ReactNode } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { type Column, DataTable } from '@/components/DataTable'
+import { DetailRow } from '@/components/DetailRow'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { Money } from '@/components/Money'
 import { PageHeader } from '@/components/PageHeader'
@@ -134,12 +134,3 @@ export default function OrderDetailPage() {
   )
 }
 
-/** One label and value of the shipping block. The value is plain text, never markup. */
-function DetailRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="grid gap-0.5 sm:grid-cols-[10rem_1fr] sm:gap-4">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="whitespace-pre-line">{children}</dd>
-    </div>
-  )
-}

@@ -31,7 +31,7 @@ import ContactPage from '@/features/pages/ContactPage'
 import NotFoundPage from '@/features/pages/NotFoundPage'
 
 // Browser URL -> page. This is React Router; it is unrelated to the FastAPI routers, which map
-// HTTP requests to Python functions. Page tasks edit only their own page file, never this one.
+// HTTP requests to Python functions.
 export function AppRoutes() {
   return (
     <Routes>

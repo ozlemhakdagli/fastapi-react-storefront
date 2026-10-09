@@ -20,8 +20,8 @@ const site: SiteSettings = {
   contact_text: '',
 }
 
-// These tests check guards, redirects and layouts through the URL, never through page content,
-// so they keep passing when page tasks replace the stub pages.
+// These tests check guards, redirects and layouts through the URL, not through page content,
+// so they keep passing when a page is redesigned.
 function Pathname() {
   return <div data-testid="pathname">{useLocation().pathname}</div>
 }
@@ -59,8 +59,13 @@ describe('AppRoutes', () => {
     expect(screen.getByTestId('pathname')).toHaveTextContent('/login')
   })
 
-  it('sends an anonymous visitor of /account and /cart to /login', () => {
+  it('sends an anonymous visitor of /account to /login', () => {
     renderAt('/account')
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/login')
+  })
+
+  it('sends an anonymous visitor of /cart to /login', () => {
+    renderAt('/cart')
     expect(screen.getByTestId('pathname')).toHaveTextContent('/login')
   })
 

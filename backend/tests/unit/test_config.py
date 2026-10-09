@@ -9,7 +9,6 @@ SECRET_KEY = "0123456789abcdef" * 4  # 64 characters
 # Every variable Settings reads. They are cleared so a developer's shell never changes a test.
 SETTINGS_ENV_NAMES = (
     "DATABASE_URL",
-    "TEST_DATABASE_URL",
     "SECRET_KEY",
     "ACCESS_TOKEN_MINUTES",
     "CORS_ORIGINS",

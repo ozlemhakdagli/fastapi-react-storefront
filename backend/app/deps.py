@@ -8,15 +8,10 @@ from fastapi import Depends, Header, Query
 
 from app.db import get_conn
 from app.errors import ApiError
+from app.repositories import users
 from app.security import decode_access_token
 
 Conn = Annotated[psycopg.Connection, Depends(get_conn)]
-
-# The user row without password_hash, so a router can never leak it by returning the dict.
-_USER_QUERY = (
-    "SELECT id, email, full_name, role, phone, address, is_active, created_at "
-    "FROM users WHERE id = %s"
-)
 
 
 def _token_from_header(authorization: str | None) -> str:
@@ -29,7 +24,7 @@ def _token_from_header(authorization: str | None) -> str:
 def get_current_user(conn: Conn, authorization: Annotated[str | None, Header()] = None) -> dict:
     """The authenticated, active user. The role is read from the database, never from the token."""
     user_id = decode_access_token(_token_from_header(authorization))
-    user = conn.execute(_USER_QUERY, (user_id,)).fetchone()
+    user = users.get_by_id(conn, user_id)  # the public columns, never password_hash
     if user is None or not user["is_active"]:
         raise ApiError(401, "unauthorized")
     return user
@@ -72,6 +67,10 @@ class PageParams:
     @property
     def offset(self) -> int:
         return (self.page - 1) * self.page_size
+
+    def page_of(self, items: list, total: int) -> dict:
+        """The body of every list endpoint: the rows of this page and where they sit."""
+        return {"items": items, "total": total, "page": self.page, "page_size": self.page_size}
 
 
 def page_params(

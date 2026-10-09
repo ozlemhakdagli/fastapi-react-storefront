@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_there_is_no_order_deletion_endpoint(client: TestClient) -> None:
-    """There is no admin 'delete order' action that could delete a product."""
+    """There is no way to delete an order (the old "delete order" button deleted a product)."""
     paths = client.app.openapi()["paths"]
     for path, operations in paths.items():
         if "/orders" in path:
@@ -19,9 +19,9 @@ def test_there_is_no_order_deletion_endpoint(client: TestClient) -> None:
 
 
 def test_no_env_file_is_tracked_by_git() -> None:
-    """Secrets live in .env, and only .env.example files are committed."""
+    """Secrets live in .env files; only the .env.example files are committed."""
     try:
-        listing = subprocess.run(  # noqa: S603
+        listing = subprocess.run(
             ["git", "ls-files"],  # noqa: S607
             cwd=REPO_ROOT,
             capture_output=True,

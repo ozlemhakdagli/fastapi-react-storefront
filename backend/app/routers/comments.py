@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Response
 
-from app.deps import AdminUser, Conn, CurrentUser, Pagination, require_admin
+from app.deps import Conn, CurrentUser, Pagination, require_admin
 from app.errors import ApiError
 from app.repositories import comments as repo
 from app.schemas.comments import AdminCommentOut, CommentIn, CommentOut, MyCommentOut
@@ -19,7 +19,7 @@ def list_product_comments(product_id: int, conn: Conn, p: Pagination) -> dict:
         raise ApiError(404, "not_found")
     items = repo.list_for_product(conn, product_id, p.limit, p.offset)
     total = repo.count_for_product(conn, product_id)
-    return {"items": items, "total": total, "page": p.page, "page_size": p.page_size}
+    return p.page_of(items, total)
 
 
 @router.post("/products/{product_id}/comments", response_model=CommentOut, status_code=201)
@@ -45,11 +45,11 @@ def delete_comment(comment_id: int, conn: Conn, user: CurrentUser) -> Response:
 def list_my_comments(conn: Conn, user: CurrentUser, p: Pagination) -> dict:
     items = repo.list_for_user(conn, user["id"], p.limit, p.offset)
     total = repo.count_for_user(conn, user["id"])
-    return {"items": items, "total": total, "page": p.page, "page_size": p.page_size}
+    return p.page_of(items, total)
 
 
 @admin_router.get("/comments", response_model=Page[AdminCommentOut])
-def list_all_comments(conn: Conn, _admin: AdminUser, p: Pagination) -> dict:
+def list_all_comments(conn: Conn, p: Pagination) -> dict:
     items = repo.list_admin(conn, p.limit, p.offset)
     total = repo.count_admin(conn)
-    return {"items": items, "total": total, "page": p.page, "page_size": p.page_size}
+    return p.page_of(items, total)

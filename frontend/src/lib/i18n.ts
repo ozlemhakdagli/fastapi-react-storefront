@@ -1,6 +1,6 @@
 import { ApiError } from '@/lib/api'
 
-// Every file in src/locales/tr/ is a namespace: `catalog.json` key `title` is t("catalog.title").
+// Every file in src/locales/tr/ is a namespace: `catalog.json` key `list_title` is t("catalog.list_title").
 const files = import.meta.glob<Record<string, string>>('../locales/tr/*.json', {
   eager: true,
   import: 'default',

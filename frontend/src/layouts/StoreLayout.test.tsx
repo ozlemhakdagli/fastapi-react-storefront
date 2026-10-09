@@ -43,6 +43,6 @@ describe('StoreLayout', () => {
   it('shows the site name in the header and the footer', async () => {
     vi.spyOn(api, 'get').mockResolvedValue(site)
     renderLayout()
-    expect(await screen.findAllByText('Örnek Mağaza')).not.toHaveLength(0)
+    expect(await screen.findAllByText('Örnek Mağaza')).toHaveLength(2) // header and footer
   })
 })

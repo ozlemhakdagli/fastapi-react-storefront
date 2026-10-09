@@ -17,7 +17,7 @@ def list_users(
     conn: Conn, p: Pagination, role: UserRole | None = None, q: str | None = None
 ) -> dict:
     items, total = users.list_page(conn, role=role, q=q, limit=p.limit, offset=p.offset)
-    return {"items": items, "total": total, "page": p.page, "page_size": p.page_size}
+    return p.page_of(items, total)
 
 
 @admin_router.post("/users", status_code=201, response_model=UserOut)

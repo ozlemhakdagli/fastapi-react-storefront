@@ -183,7 +183,8 @@ def test_no_response_contains_password_hash(client: TestClient, make_user, auth_
 def test_login_and_register_hash_without_holding_a_database_connection(
     client, make_user, monkeypatch
 ) -> None:
-    """Argon2 takes ~40 ms; a pooled connection must not be held meanwhile."""
+    """Argon2 takes about 40 ms; holding a pooled connection meanwhile would let a login flood
+    starve every other request."""
     from app.services import auth as auth_service
 
     pool = client.app.state.pool
@@ -218,7 +219,7 @@ def test_login_and_register_hash_without_holding_a_database_connection(
 
 
 def test_login_works_for_reserved_domains_and_wrong_credentials_are_401(client, make_user) -> None:
-    """A seeded admin like admin@shop.local must be able to log in."""
+    """A seeded admin such as admin@shop.local must be able to log in."""
     user = make_user(email="admin@shop.local", role="admin")
     for address in ("admin@shop.local", "  ADMIN@Shop.Local  ", "root@localhost"):
         wrong = client.post(
