@@ -6,10 +6,13 @@ import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
 import { LoadingNotice } from '@/components/LoadingNotice'
 import { Pagination } from '@/components/Pagination'
+import { RatingInput } from '@/components/RatingInput'
+import { RatingStars } from '@/components/RatingStars'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useAddComment, useComments, useDeleteComment } from '@/features/catalog/hooks/useComments'
+import { useMyRating, useRemoveRating, useSetRating } from '@/features/catalog/hooks/useRating'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
 
@@ -29,6 +32,10 @@ export function ProductComments({ productId }: ProductCommentsProps) {
   const comments = useComments(productId, page)
   const addComment = useAddComment(productId)
   const deleteComment = useDeleteComment(productId)
+  const myRating = useMyRating(productId, Boolean(user))
+  const setRating = useSetRating(productId)
+  const removeRating = useRemoveRating(productId)
+  const ratingPending = setRating.isPending || removeRating.isPending
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -45,6 +52,34 @@ export function ProductComments({ productId }: ProductCommentsProps) {
   return (
     <section className="grid gap-4 rounded-xl border bg-card p-6">
       <h2 className="text-xl font-semibold">{t('catalog.comments_title')}</h2>
+
+      {user && myRating.data?.can_rate ? (
+        <div className="grid gap-2">
+          <p className="text-sm font-medium">{t('catalog.rating_your')}</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <RatingInput
+              label={t('catalog.rating_your')}
+              value={myRating.data.rating}
+              onChange={(rating) => setRating.mutate(rating)}
+              disabled={ratingPending}
+            />
+            {myRating.data.rating !== null ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={ratingPending}
+                onClick={() => removeRating.mutate()}
+              >
+                {t('catalog.rating_remove')}
+              </Button>
+            ) : null}
+          </div>
+          <ErrorNotice error={setRating.error ?? removeRating.error} />
+        </div>
+      ) : null}
+      {user && myRating.data && !myRating.data.can_rate ? (
+        <p className="text-muted-foreground text-sm">{t('catalog.rating_purchase_hint')}</p>
+      ) : null}
 
       {user ? (
         <form onSubmit={handleSubmit} className="grid gap-2">
@@ -83,7 +118,10 @@ export function ProductComments({ productId }: ProductCommentsProps) {
           {comments.data.items.map((comment) => (
             <li key={comment.id} className="grid gap-1.5 border-b pb-4">
               <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                <span className="font-medium">{comment.author_name}</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium">{comment.author_name}</span>
+                  {comment.rating !== null ? <RatingStars value={comment.rating} className="text-xs" /> : null}
+                </div>
                 <time dateTime={comment.created_at} className="text-muted-foreground">
                   {formatDate(comment.created_at)}
                 </time>

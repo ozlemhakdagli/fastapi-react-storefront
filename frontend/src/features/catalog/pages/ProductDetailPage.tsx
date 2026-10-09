@@ -6,12 +6,14 @@ import { FormField } from '@/components/FormField'
 import { LoadingNotice } from '@/components/LoadingNotice'
 import { Money } from '@/components/Money'
 import { ProductImage } from '@/components/ProductImage'
+import { RatingStars } from '@/components/RatingStars'
 import { StockBadge } from '@/components/StockBadge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/features/auth/AuthContext'
 import { ProductComments } from '@/features/catalog/components/ProductComments'
 import { useAddToCart, useProduct } from '@/features/catalog/hooks/useProduct'
+import { FavoriteButton } from '@/features/favorites/components/FavoriteButton'
 import { ApiError } from '@/lib/api'
 import { t } from '@/lib/i18n'
 
@@ -130,6 +132,7 @@ function ProductContent({ productId }: { productId: number }) {
             </div>
           </dl>
           <h1 className="text-3xl font-semibold tracking-tight">{item.name}</h1>
+          <RatingStars value={item.rating_avg} count={item.rating_count} />
           <p className="text-muted-foreground">{item.short_description}</p>
           <div className="grid justify-items-start gap-2">
             <Money value={item.price} className="text-3xl font-semibold text-primary" />
@@ -160,6 +163,7 @@ function ProductContent({ productId }: { productId: number }) {
               <ShoppingCart aria-hidden="true" />
               {addToCart.isPending ? t('catalog.adding_to_cart') : t('catalog.add_to_cart')}
             </Button>
+            <FavoriteButton productId={item.id} name={item.name} className="size-9" />
           </div>
           {addToCart.isSuccess ? (
             <p role="status" className="text-sm">

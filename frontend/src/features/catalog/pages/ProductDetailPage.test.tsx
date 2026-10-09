@@ -47,11 +47,19 @@ function commentsPage(items: Comment[]): Page<Comment> {
   return { items, total: items.length, page: 1, page_size: 20 }
 }
 
-/** Answers each GET by its path; an unexpected path fails the test. */
+/**
+ * Answers each GET by its path; an unexpected path fails the test. A logged-in caller starts with
+ * no favourites and no rating of the product.
+ */
 function mockGet(responses: Record<string, unknown>) {
+  const answers: Record<string, unknown> = {
+    '/me/favorites/ids': { ids: [] },
+    '/me/ratings/5': { rating: null, can_rate: false },
+    ...responses,
+  }
   return vi.spyOn(api, 'get').mockImplementation(async (path: string) => {
-    if (!(path in responses)) throw new Error(`unexpected GET ${path}`)
-    return responses[path]
+    if (!(path in answers)) throw new Error(`unexpected GET ${path}`)
+    return answers[path]
   })
 }
 
@@ -149,6 +157,33 @@ describe('ProductDetailPage', () => {
     renderDetail({ user: testCustomer })
     expect(await screen.findByRole('button', { name: t('catalog.add_to_cart') })).toBeDisabled()
     expect(screen.getByText(t('common.stock_out'))).toBeInTheDocument()
+  })
+
+  it('shows the average rating under the title', async () => {
+    mockGet({
+      '/products/5': { ...product, rating_avg: 4.3, rating_count: 12 },
+      '/products/5/comments': commentsPage([]),
+    })
+    renderDetail()
+    expect(
+      await screen.findByRole('img', { name: t('catalog.rating_aria', { value: '4,3', count: 12 }) }),
+    ).toBeInTheDocument()
+  })
+
+  it('says that the product has no ratings yet', async () => {
+    mockGet({ '/products/5': product, '/products/5/comments': commentsPage([]) })
+    renderDetail()
+    expect(await screen.findByText(t('catalog.rating_none'))).toBeInTheDocument()
+  })
+
+  it('shows a favourite button in the row of the add-to-cart button', async () => {
+    mockGet({ '/products/5': product, '/products/5/comments': commentsPage([]) })
+    renderDetail()
+    const heart = await screen.findByRole('button', {
+      name: t('favorites.add', { name: 'Mekanik Klavye' }),
+    })
+    const add = screen.getByRole('button', { name: t('catalog.add_to_cart') })
+    expect(heart.parentElement).toBe(add.parentElement)
   })
 
   it('renders comment markup as plain text', async () => {
