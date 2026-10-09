@@ -4,10 +4,11 @@ import { t } from '@/lib/i18n'
 
 export default function NotFoundPage() {
   return (
-    <div className="mx-auto grid max-w-md justify-items-center gap-4 py-12 text-center">
-      <h1 className="text-2xl font-semibold">{t('pages.not_found_title')}</h1>
+    <div className="mx-auto grid max-w-md justify-items-center gap-4 py-16 text-center">
+      <p className="text-primary text-6xl font-bold">{t('pages.not_found_code')}</p>
+      <h1 className="text-2xl font-semibold tracking-tight">{t('pages.not_found_title')}</h1>
       <p className="text-muted-foreground">{t('pages.not_found_text')}</p>
-      <Button asChild>
+      <Button asChild size="lg">
         <Link to="/">{t('pages.not_found_home')}</Link>
       </Button>
     </div>

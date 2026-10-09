@@ -13,8 +13,10 @@ export default function AboutPage() {
       {site.isPending ? (
         <p className="text-muted-foreground text-sm">{t('common.loading')}</p>
       ) : null}
-      {site.data ? (
-        <p className="leading-7 whitespace-pre-line">{site.data.about_text}</p>
+      {site.data?.about_text ? (
+        <div className="rounded-xl border bg-card p-6 sm:p-8">
+          <p className="leading-7 whitespace-pre-line">{site.data.about_text}</p>
+        </div>
       ) : null}
     </div>
   )

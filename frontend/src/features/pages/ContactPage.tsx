@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
+import { Mail, MapPin, Phone, type LucideIcon } from 'lucide-react'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
 import { PageHeader } from '@/components/PageHeader'
@@ -32,7 +33,7 @@ export default function ContactPage() {
   return (
     <div className="grid gap-8">
       <PageHeader title={t('pages.contact_title')} />
-      <div className="grid items-start gap-10 md:grid-cols-2">
+      <div className="grid items-start gap-6 md:grid-cols-2">
         <div className="grid gap-6">
           <ErrorNotice error={site.error} />
           {site.isPending ? (
@@ -59,14 +60,26 @@ function SiteDetails({ site }: { site: SiteSettings }) {
   })).filter((network) => network.value !== '')
 
   return (
-    <>
+    <div className="grid gap-6 rounded-xl border bg-card p-6 sm:p-8">
       {site.contact_text ? (
         <p className="leading-7 whitespace-pre-line">{site.contact_text}</p>
       ) : null}
-      <dl className="grid gap-4">
-        {site.address ? <Detail label={t('pages.info_address')}>{site.address}</Detail> : null}
-        {site.phone ? <Detail label={t('pages.info_phone')}>{site.phone}</Detail> : null}
-        {site.email ? <Detail label={t('pages.info_email')}>{site.email}</Detail> : null}
+      <div className="grid gap-5">
+        {site.address ? (
+          <Detail label={t('pages.info_address')} icon={MapPin}>
+            {site.address}
+          </Detail>
+        ) : null}
+        {site.phone ? (
+          <Detail label={t('pages.info_phone')} icon={Phone}>
+            {site.phone}
+          </Detail>
+        ) : null}
+        {site.email ? (
+          <Detail label={t('pages.info_email')} icon={Mail}>
+            {site.email}
+          </Detail>
+        ) : null}
         {socials.map(({ field, label, value }) => (
           <Detail key={field} label={label}>
             {isWebAddress(value) ? (
@@ -83,16 +96,34 @@ function SiteDetails({ site }: { site: SiteSettings }) {
             )}
           </Detail>
         ))}
-      </dl>
-    </>
+      </div>
+    </div>
   )
 }
 
-function Detail({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="grid gap-1">
+interface DetailProps {
+  label: string
+  /** Shown in a tile beside the value; rows without one are indented to line up. */
+  icon?: LucideIcon
+  children: ReactNode
+}
+
+function Detail({ label, icon: Icon, children }: DetailProps) {
+  const term = (
+    <dl className="grid min-w-0 gap-1">
       <dt className="text-muted-foreground text-sm">{label}</dt>
       <dd className="wrap-break-word whitespace-pre-line">{children}</dd>
+    </dl>
+  )
+
+  if (!Icon) return <div className="ps-12">{term}</div>
+
+  return (
+    <div className="flex items-start gap-3">
+      <span className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
+        <Icon aria-hidden="true" className="size-4" />
+      </span>
+      {term}
     </div>
   )
 }
@@ -157,14 +188,16 @@ function ContactForm({ user }: { user: User | null }) {
 
   if (send.isSuccess) {
     return (
-      <p role="status" className="leading-7">
-        {t('pages.form_thanks')}
-      </p>
+      <div className="rounded-xl border bg-card p-6 sm:p-8">
+        <p role="status" className="leading-7">
+          {t('pages.form_thanks')}
+        </p>
+      </div>
     )
   }
 
   return (
-    <div className="grid content-start gap-4">
+    <section className="grid content-start gap-4 rounded-xl border bg-card p-6 sm:p-8">
       <h2 className="text-lg font-semibold">{t('pages.contact_form_title')}</h2>
       {/* noValidate: the messages come from our own validation, not from the browser. */}
       <form className="grid gap-4" noValidate onSubmit={handleSubmit}>
@@ -228,6 +261,6 @@ function ContactForm({ user }: { user: User | null }) {
           {t('pages.form_submit')}
         </Button>
       </form>
-    </div>
+    </section>
   )
 }

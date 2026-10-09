@@ -16,6 +16,7 @@
   "form_submit": "Gönder",
   "form_thanks": "Mesajınız alındı. Teşekkür ederiz!",
   "field_required": "Bu alan zorunludur.",
+  "not_found_code": "404",
   "not_found_title": "Sayfa bulunamadı",
   "not_found_text": "Aradığınız sayfa taşınmış, kaldırılmış ya da hiç var olmamış olabilir.",
   "not_found_home": "Ana sayfaya dön"
