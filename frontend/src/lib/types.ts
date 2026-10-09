@@ -186,10 +186,3 @@ export interface SiteSettings {
   about_text: string
   contact_text: string
 }
-
-export interface Dashboard {
-  new_orders: number
-  unread_messages: number
-  products: number
-  customers: number
-}

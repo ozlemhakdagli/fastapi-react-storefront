@@ -122,7 +122,7 @@ describe('DashboardPage', () => {
     expect(
       screen.getByText(t('admindashboard.chart_revenue', { amount: price('1500.90') })),
     ).toBeInTheDocument()
-    expect(screen.getByText('26 Eyl')).toBeInTheDocument()
+    expect(screen.getByText('9 Eki')).toBeInTheDocument() // today is the last bar and has a label
   })
 
   it('lists every order status with its count and its share of all orders', async () => {

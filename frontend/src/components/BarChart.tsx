@@ -11,13 +11,13 @@ interface BarChartProps {
 
 // The chart is drawn in these user units; the svg scales to the width of its card.
 const WIDTH = 600
-const HEIGHT = 220
+const HEIGHT = 230
 const SIDE = 8 // gutter left and right
 const TOP = 24 // room above the tallest bar for its value label
-const BOTTOM = 28 // room below the baseline for the axis labels
+const BOTTOM = 36 // room below the baseline for the axis labels
 const BASELINE = HEIGHT - BOTTOM
 const PLOT_HEIGHT = BASELINE - TOP
-const LABEL_SIZE = 14
+const LABEL_SIZE = 18 // about 10 px on a phone
 
 /** Zero, negative and invalid values are drawn as empty bars. */
 function positive(value: number): number {
@@ -66,10 +66,10 @@ export function BarChart({ data, ariaLabel, formatValue = String }: BarChartProp
                 {text}
               </text>
             ) : null}
-            {index % 2 === 0 ? (
+            {(data.length - 1 - index) % 2 === 0 ? (
               <text
                 x={centerX}
-                y={HEIGHT - 8}
+                y={HEIGHT - 10}
                 textAnchor="middle"
                 fontSize={LABEL_SIZE}
                 className="fill-muted-foreground"

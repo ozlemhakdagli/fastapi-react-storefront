@@ -75,11 +75,11 @@ describe('BarChart', () => {
     expect(screen.queryByText('0')).not.toBeInTheDocument()
   })
 
-  it('labels every second bar with its day', () => {
+  it('labels every second bar with its day, counting back from the last one', () => {
     render(<BarChart data={days} ariaLabel="Grafik" />)
-    expect(screen.getByText('1 Eki')).toBeInTheDocument()
-    expect(screen.queryByText('2 Eki')).not.toBeInTheDocument()
-    expect(screen.getByText('3 Eki')).toBeInTheDocument()
-    expect(screen.queryByText('4 Eki')).not.toBeInTheDocument()
+    expect(screen.queryByText('1 Eki')).not.toBeInTheDocument()
+    expect(screen.getByText('2 Eki')).toBeInTheDocument()
+    expect(screen.queryByText('3 Eki')).not.toBeInTheDocument()
+    expect(screen.getByText('4 Eki')).toBeInTheDocument()
   })
 })
