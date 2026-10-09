@@ -16,5 +16,8 @@
   "status_rejected": "Reddedildi",
   "status_cancelled": "İptal Edildi",
   "status_shipped": "Kargoda",
-  "status_completed": "Tamamlandı"
+  "status_completed": "Tamamlandı",
+  "stock_in": "Stokta",
+  "stock_low": "Son {count} adet",
+  "stock_out": "Tükendi"
 }
