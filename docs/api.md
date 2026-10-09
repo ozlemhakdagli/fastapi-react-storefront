@@ -33,7 +33,8 @@ curl -s http://localhost:8000/api/auth/me \
   lifetime is `ACCESS_TOKEN_MINUTES`, 60 by default; the setting accepts 1 to 1440.
 - On every request the server decodes the token and loads the user from the database. The role comes
   from that row, never from the token. A user who is missing or inactive gets `401 unauthorized` at
-  once, and an admin whose role was changed gets `403 forbidden` on the next admin call.
+  once. An admin who is demoted gets `403 forbidden` on the next admin call, and a customer who is
+  promoted can use the admin routes on the next call.
 - A password change does not end existing sessions. An old token works until it expires. This is a
   known limitation, described in the README.
 - The frontend keeps the token in `localStorage` under the key `ecommerce.token`.
