@@ -26,6 +26,21 @@ describe('ProductImage', () => {
     )
     expect(screen.getByRole('img', { name: longName })).toBeInTheDocument()
   })
+
+  it('loads the main photo eagerly and first', () => {
+    render(<ProductImage name="Seagate 1 TB" imageUrl="/api/media/a.webp" priority />)
+    const image = screen.getByRole('img', { name: 'Seagate 1 TB' })
+    expect(image).toHaveAttribute('loading', 'eager')
+    expect(image).toHaveAttribute('fetchpriority', 'high')
+  })
+
+  it('loads other photos lazily', () => {
+    render(<ProductImage name="Seagate 1 TB" imageUrl="/api/media/a.webp" />)
+    const image = screen.getByRole('img', { name: 'Seagate 1 TB' })
+    expect(image).toHaveAttribute('loading', 'lazy')
+    expect(image).toHaveAttribute('decoding', 'async')
+    expect(image).not.toHaveAttribute('fetchpriority')
+  })
 })
 
 describe('categoryIcon', () => {

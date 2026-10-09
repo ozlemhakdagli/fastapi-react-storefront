@@ -1,5 +1,5 @@
 import { Cable, HardDrive, MemoryStick, Package, Usb, Zap, type LucideIcon } from 'lucide-react'
-import { cn } from 'cn'
+import { cn } from '@/lib/utils'
 import type { Named } from '@/lib/types'
 
 // Written out in full: Tailwind only generates classes whose complete names appear in the source.
@@ -28,10 +28,17 @@ interface ProductImageProps {
   imageUrl: string
   category?: Named | null
   className?: string
+  priority?: boolean
 }
 
 // A coloured icon tile while the product has no real photo, otherwise the photo.
-export function ProductImage({ name, imageUrl, category, className }: ProductImageProps) {
+export function ProductImage({
+  name,
+  imageUrl,
+  category,
+  className,
+  priority = false,
+}: ProductImageProps) {
   if (imageUrl.endsWith('/placeholder.svg')) {
     const Icon = categoryIcon(category?.name)
     const tone = TONES[(category?.id ?? 0) % TONES.length]
@@ -50,6 +57,14 @@ export function ProductImage({ name, imageUrl, category, className }: ProductIma
     )
   }
   return (
-    <img src={imageUrl} alt={name} loading="lazy" className={cn('object-cover', className)} />
+    <img
+      src={imageUrl}
+      alt={name}
+      loading={priority ? 'eager' : 'lazy'}
+      fetchPriority={priority ? 'high' : undefined}
+      decoding="async"
+      className={cn('object-cover', className)}
+    />
   )
 }
+

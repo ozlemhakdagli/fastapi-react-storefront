@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useLocation } from 'react-router'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
 import { LoadingNotice } from '@/components/LoadingNotice'
@@ -16,6 +15,11 @@ import { useMyRating, useRemoveRating, useSetRating } from '@/features/catalog/h
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
 
+// Loaded on the first delete, so the product page's first download does not carry the dialog library.
+const ConfirmDialog = lazy(() =>
+  import('@/components/ConfirmDialog').then((module) => ({ default: module.ConfirmDialog })),
+)
+
 // The API accepts a comment body of 1 to 2000 characters.
 const COMMENT_MAX_LENGTH = 2000
 
@@ -29,6 +33,7 @@ export function ProductComments({ productId }: ProductCommentsProps) {
   const [page, setPage] = useState(1)
   const [draft, setDraft] = useState('')
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null)
+  const [dialogUsed, setDialogUsed] = useState(false)
   const comments = useComments(productId, page)
   const addComment = useAddComment(productId)
   const deleteComment = useDeleteComment(productId)
@@ -130,7 +135,14 @@ export function ProductComments({ productId }: ProductCommentsProps) {
               <p className="text-sm whitespace-pre-line">{comment.body}</p>
               {user && user.id === comment.user_id ? (
                 <div>
-                  <Button variant="ghost" size="sm" onClick={() => setPendingDeleteId(comment.id)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setDialogUsed(true)
+                      setPendingDeleteId(comment.id)
+                    }}
+                  >
                     {t('common.delete')}
                   </Button>
                 </div>
@@ -149,13 +161,17 @@ export function ProductComments({ productId }: ProductCommentsProps) {
         />
       ) : null}
 
-      <ConfirmDialog
-        open={pendingDeleteId !== null}
-        title={t('catalog.comment_delete_title')}
-        description={t('catalog.comment_delete_description')}
-        onConfirm={confirmDelete}
-        onCancel={() => setPendingDeleteId(null)}
-      />
+      {dialogUsed ? (
+        <Suspense fallback={null}>
+          <ConfirmDialog
+            open={pendingDeleteId !== null}
+            title={t('catalog.comment_delete_title')}
+            description={t('catalog.comment_delete_description')}
+            onConfirm={confirmDelete}
+            onCancel={() => setPendingDeleteId(null)}
+          />
+        </Suspense>
+      ) : null}
     </section>
   )
 }

@@ -121,4 +121,20 @@ describe('ProductComments', () => {
     const unrated = screen.getByText('Kargo ne zaman?').closest('li')!
     expect(within(unrated).queryByRole('img')).not.toBeInTheDocument()
   })
+
+  it('deletes the comment of its author after the confirmation, once', async () => {
+    mockGet({
+      '/products/5/comments': commentsPage([
+        comment({ id: 7, user_id: testCustomer.id, body: 'Benim yorumum' }),
+      ]),
+      '/me/ratings/5': { rating: null, can_rate: false },
+    })
+    const del = vi.spyOn(api, 'delete').mockResolvedValue(undefined)
+    renderWithProviders(<ProductComments productId={5} />, { user: testCustomer })
+    await userEvent.click(await screen.findByRole('button', { name: t('common.delete') }))
+    const dialog = await screen.findByRole('dialog', { name: t('catalog.comment_delete_title') })
+    await userEvent.click(within(dialog).getByRole('button', { name: t('common.delete') }))
+    await waitFor(() => expect(del).toHaveBeenCalledWith('/comments/7'))
+    expect(del).toHaveBeenCalledTimes(1)
+  })
 })

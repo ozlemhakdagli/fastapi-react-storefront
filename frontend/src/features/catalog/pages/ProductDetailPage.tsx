@@ -81,6 +81,7 @@ function ProductContent({ productId }: { productId: number }) {
             imageUrl={image.url}
             category={item.category}
             className="aspect-square w-full rounded-xl"
+            priority
           />
           {gallery.length > 1 ? (
             <div role="group" aria-label={t('catalog.gallery_label')} className="flex flex-wrap gap-2">
