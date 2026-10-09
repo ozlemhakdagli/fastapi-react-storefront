@@ -39,16 +39,15 @@ describe('useMyRating', () => {
 })
 
 describe('useSetRating', () => {
-  it('puts the rating and refreshes the product, the list and the comments', async () => {
+  it('puts the rating and refreshes the product and the list', async () => {
     const put = vi.spyOn(api, 'put').mockResolvedValue({ rating: 4, can_rate: true })
     const { queryClient } = renderWithProviders(<SetProbe />)
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
     await userEvent.click(screen.getByRole('button', { name: 'Puanla' }))
-    await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(3))
+    await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(2))
     expect(put).toHaveBeenCalledWith('/me/ratings/7', { rating: 4 })
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['product', 7] })
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['products'] })
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['product', 7, 'comments'] })
   })
 })
 
@@ -58,7 +57,7 @@ describe('useRemoveRating', () => {
     const { queryClient } = renderWithProviders(<RemoveProbe />)
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
     await userEvent.click(screen.getByRole('button', { name: 'Kaldır' }))
-    await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(3))
+    await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(2))
     expect(del).toHaveBeenCalledWith('/me/ratings/7')
   })
 })

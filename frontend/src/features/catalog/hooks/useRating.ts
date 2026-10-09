@@ -31,11 +31,11 @@ export function useRemoveRating(productId: number) {
   })
 }
 
-// The average (product and list) and the stars shown on the comments depend on every rating.
+// The average (product and list) and the stars shown on the comments depend on every rating. The
+// key ['product', id] also covers the comments, my rating and the other queries of that product.
 function invalidateRatings(queryClient: QueryClient, productId: number) {
   return Promise.all([
     queryClient.invalidateQueries({ queryKey: ['product', productId] }),
     queryClient.invalidateQueries({ queryKey: ['products'] }),
-    queryClient.invalidateQueries({ queryKey: ['product', productId, 'comments'] }),
   ])
 }

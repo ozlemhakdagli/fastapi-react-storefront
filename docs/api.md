@@ -313,7 +313,7 @@ product; it can be changed and removed. Comments are separate: every logged-in u
 | Method | Path | Who | Input | Success | Errors |
 |---|---|---|---|---|---|
 | GET | `/api/me/ratings/{product_id}` | login | none | 200 `MyRating` | 404 `not_found` (missing or inactive product) |
-| PUT | `/api/me/ratings/{product_id}` | login | Body: `rating`, an integer from 1 to 5 | 200 `MyRating` | 403 `purchase_required`; 404 `not_found` (missing or inactive product); 422 `validation_error` (not an integer from 1 to 5) |
+| PUT | `/api/me/ratings/{product_id}` | login | Body: `rating`, an integer from 1 to 5 | 200 `MyRating` | 403 `purchase_required`; 404 `not_found` (missing or inactive product); 422 (the body is not an integer from 1 to 5) |
 | DELETE | `/api/me/ratings/{product_id}` | login | none. Idempotent, and allowed without a purchase. | 204 | |
 
 ### 4.17 Favourites
