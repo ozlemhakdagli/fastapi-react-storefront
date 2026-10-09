@@ -6,6 +6,7 @@ CREATE TABLE users (
     role          TEXT        NOT NULL DEFAULT 'customer' CHECK (role IN ('customer', 'admin')),
     phone         TEXT        CHECK (char_length(phone) <= 30),
     address       TEXT        CHECK (char_length(address) <= 500),
+    token_version INTEGER     NOT NULL DEFAULT 0,
     is_active     BOOLEAN     NOT NULL DEFAULT TRUE,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -47,6 +48,7 @@ CREATE TABLE product_images (
     id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     product_id BIGINT      NOT NULL REFERENCES products (id) ON DELETE CASCADE,
     file_name  TEXT        NOT NULL,
+    thumb_name TEXT,
     position   INTEGER     NOT NULL DEFAULT 0 CHECK (position >= 0),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT product_images_position_key UNIQUE (product_id, position) DEFERRABLE INITIALLY DEFERRED
@@ -79,6 +81,7 @@ CREATE TABLE orders (
 );
 CREATE INDEX orders_user_idx ON orders (user_id, created_at DESC);
 CREATE INDEX orders_status_idx ON orders (status, created_at DESC);
+CREATE INDEX orders_created_idx ON orders (created_at DESC, id DESC);
 
 CREATE TABLE order_items (
     id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -101,6 +104,24 @@ CREATE TABLE comments (
 );
 CREATE INDEX comments_product_idx ON comments (product_id, created_at DESC);
 CREATE INDEX comments_user_idx ON comments (user_id);
+
+CREATE TABLE product_ratings (
+    user_id    BIGINT      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    product_id BIGINT      NOT NULL REFERENCES products (id) ON DELETE CASCADE,
+    rating     SMALLINT    NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (user_id, product_id)
+);
+CREATE INDEX product_ratings_product_idx ON product_ratings (product_id);
+
+CREATE TABLE favorites (
+    user_id    BIGINT      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    product_id BIGINT      NOT NULL REFERENCES products (id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (user_id, product_id)
+);
+CREATE INDEX favorites_user_idx ON favorites (user_id, created_at DESC);
 
 CREATE TABLE messages (
     id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
