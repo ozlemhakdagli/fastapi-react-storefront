@@ -7,7 +7,7 @@ so small, clear changes are better than clever ones.
 
 Follow the [README](README.md): two conda environments, the local PostgreSQL server
 (`scripts/db.sh`), `python -m app.migrate`, `python seed.py`, then the API and the frontend.
-[docs/api.md](docs/api.md) describes the API, the database and how to add a feature.
+Interactive API documentation is at `/api/docs`.
 
 ## Before you open a pull request
 

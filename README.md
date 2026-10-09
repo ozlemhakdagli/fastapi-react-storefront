@@ -6,7 +6,7 @@ in `legacy/` as a reference only.
 
 Students clone the project, run it and adapt it to their own project.
 
-- [docs/api.md](docs/api.md): the API reference, the database overview and a walkthrough for adding a feature
+- Interactive API documentation (Swagger UI): http://localhost:8000/api/docs (available when running)
 
 ## What is included
 
