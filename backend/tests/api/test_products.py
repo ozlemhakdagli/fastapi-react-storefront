@@ -134,6 +134,27 @@ def test_detail_has_images_in_order_and_placeholder_fallback(
     assert bare_body["image_url"] == "/api/media/placeholder.svg"
 
 
+def test_list_and_detail_use_the_card_copy_and_fall_back_to_the_full_file(
+    client: TestClient, make_product, make_image
+) -> None:
+    resized = make_product()
+    legacy = make_product()  # uploaded before resizing existed, so it has no thumb_name
+    make_image(resized["id"], file_name="new.webp", thumb_name="new-sm.webp", position=0)
+    make_image(legacy["id"], file_name="old.png", position=0)
+
+    items = {item["id"]: item for item in client.get("/api/products").json()["items"]}
+    assert items[resized["id"]]["image_url"] == "/api/media/new-sm.webp"
+    assert items[legacy["id"]]["image_url"] == "/api/media/old.png"
+
+    [image] = client.get(f"/api/products/{resized['id']}").json()["images"]
+    assert (image["url"], image["thumb_url"]) == ("/api/media/new.webp", "/api/media/new-sm.webp")
+    [legacy_image] = client.get(f"/api/products/{legacy['id']}").json()["images"]
+    assert (legacy_image["url"], legacy_image["thumb_url"]) == (
+        "/api/media/old.png",
+        "/api/media/old.png",
+    )
+
+
 def test_public_json_never_contains_cost_price_or_is_active(
     client: TestClient, make_product
 ) -> None:

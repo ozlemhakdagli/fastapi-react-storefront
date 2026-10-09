@@ -17,6 +17,7 @@ MAX_PRICE = Decimal("1000000.00")
 class ProductImageOut(BaseModel):
     id: int
     url: str
+    thumb_url: str
     position: int
 
 

@@ -225,7 +225,7 @@ def images_for(conn: psycopg.Connection, product_ids: list[int]) -> dict[int, li
     if not product_ids:
         return grouped
     rows = conn.execute(
-        "SELECT id, product_id, file_name, position FROM product_images "
+        "SELECT id, product_id, file_name, thumb_name, position FROM product_images "
         "WHERE product_id = ANY(%s) ORDER BY product_id, position, id",
         (product_ids,),
     ).fetchall()
@@ -234,7 +234,9 @@ def images_for(conn: psycopg.Connection, product_ids: list[int]) -> dict[int, li
     return grouped
 
 
-def add_image(conn: psycopg.Connection, product_id: int, file_name: str) -> dict | None:
+def add_image(
+    conn: psycopg.Connection, product_id: int, file_name: str, thumb_name: str
+) -> dict | None:
     """Append an image after the current last position. Returns None when the product is missing.
 
     The product row is locked first, so two uploads for one product cannot take the same position.
@@ -246,10 +248,10 @@ def add_image(conn: psycopg.Connection, product_id: int, file_name: str) -> dict
         if locked is None:
             return None
         return conn.execute(
-            "INSERT INTO product_images (product_id, file_name, position) "
-            "SELECT %s, %s, COALESCE(MAX(position) + 1, 0) FROM product_images "
-            "WHERE product_id = %s RETURNING id, file_name, position",
-            (product_id, file_name, product_id),
+            "INSERT INTO product_images (product_id, file_name, thumb_name, position) "
+            "SELECT %s, %s, %s, COALESCE(MAX(position) + 1, 0) FROM product_images "
+            "WHERE product_id = %s RETURNING id, file_name, thumb_name, position",
+            (product_id, file_name, thumb_name, product_id),
         ).fetchone()
 
 
@@ -274,10 +276,10 @@ def set_image_order(conn: psycopg.Connection, product_id: int, image_ids: list[i
     return True
 
 
-def delete_image(conn: psycopg.Connection, product_id: int, image_id: int) -> str | None:
-    """Delete one image and return its file name, or None if it is not this product's image."""
-    row = conn.execute(
-        "DELETE FROM product_images WHERE id = %s AND product_id = %s RETURNING file_name",
+def delete_image(conn: psycopg.Connection, product_id: int, image_id: int) -> dict | None:
+    """Delete one image and return its file names, or None if it is not this product's image."""
+    return conn.execute(
+        "DELETE FROM product_images WHERE id = %s AND product_id = %s "
+        "RETURNING file_name, thumb_name",
         (image_id, product_id),
     ).fetchone()
-    return None if row is None else row["file_name"]

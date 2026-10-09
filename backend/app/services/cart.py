@@ -6,7 +6,7 @@ import psycopg
 from psycopg import errors
 
 from app.errors import ApiError
-from app.media import image_url
+from app.media import card_image_url
 from app.repositories import cart as repo
 from app.schemas.cart import CartItemOut, CartOut
 
@@ -30,7 +30,7 @@ def get_cart(conn: psycopg.Connection, user_id: int) -> CartOut:
                 line_total=line_total,
                 stock=line["stock"],
                 available=line["available"],
-                image_url=image_url(line["file_name"]),
+                image_url=card_image_url(line["file_name"], line["thumb_name"]),
             )
         )
     return CartOut(items=items, total=total)

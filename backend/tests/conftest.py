@@ -217,11 +217,16 @@ def make_product(conn: psycopg.Connection) -> Callable[..., dict]:
 
 @pytest.fixture
 def make_image(conn: psycopg.Connection) -> Callable[..., dict]:
-    def factory(product_id: int, file_name: str = "placeholder.svg", position: int = 0) -> dict:
+    def factory(
+        product_id: int,
+        file_name: str = "placeholder.svg",
+        position: int = 0,
+        thumb_name: str | None = None,
+    ) -> dict:
         row = conn.execute(
-            "INSERT INTO product_images (product_id, file_name, position) "
-            "VALUES (%s, %s, %s) RETURNING *",
-            (product_id, file_name, position),
+            "INSERT INTO product_images (product_id, file_name, thumb_name, position) "
+            "VALUES (%s, %s, %s, %s) RETURNING *",
+            (product_id, file_name, thumb_name, position),
         ).fetchone()
         assert row is not None
         return row

@@ -6,11 +6,11 @@ import psycopg
 # NULL for a product without images, and the service then uses the placeholder.
 _LINES_SQL = """
 SELECT ci.product_id, p.name, p.price AS unit_price, ci.quantity, p.stock,
-       p.is_active AS available, first_image.file_name
+       p.is_active AS available, first_image.file_name, first_image.thumb_name
 FROM cart_items AS ci
 JOIN products AS p ON p.id = ci.product_id
 LEFT JOIN LATERAL (
-    SELECT pi.file_name
+    SELECT pi.file_name, pi.thumb_name
     FROM product_images AS pi
     WHERE pi.product_id = p.id
     ORDER BY pi.position

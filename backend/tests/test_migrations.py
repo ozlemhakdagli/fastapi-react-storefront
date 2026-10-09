@@ -68,7 +68,7 @@ def _query(dsn: str, query: str) -> list[tuple]:
 
 
 def test_applies_all_migrations_to_empty_database(db_dsn: str) -> None:
-    assert apply_migrations(db_dsn) == ["0001_init"]
+    assert apply_migrations(db_dsn) == ["0001_init", "0002_image_thumbnails"]
     rows = _query(db_dsn, "SELECT tablename FROM pg_tables WHERE schemaname = 'public'")
     assert EXPECTED_TABLES <= {row[0] for row in rows}
 
@@ -76,7 +76,7 @@ def test_applies_all_migrations_to_empty_database(db_dsn: str) -> None:
 def test_second_run_is_a_noop(db_dsn: str) -> None:
     apply_migrations(db_dsn)
     assert apply_migrations(db_dsn) == []
-    assert _query(db_dsn, "SELECT count(*) FROM schema_migrations") == [(1,)]
+    assert _query(db_dsn, "SELECT count(*) FROM schema_migrations") == [(2,)]
 
 
 def test_checksum_change_raises(db_dsn: str, tmp_path: Path) -> None:
@@ -188,7 +188,7 @@ def test_main_applies_pending_migrations_and_prints_them(
 ) -> None:
     monkeypatch.setenv("DATABASE_URL", db_dsn)
     main()
-    assert capsys.readouterr().out == "applied 0001_init\n"
+    assert capsys.readouterr().out == "applied 0001_init\napplied 0002_image_thumbnails\n"
     main()
     assert capsys.readouterr().out == ""
 
@@ -210,4 +210,34 @@ def test_main_falls_back_to_database_url_in_dot_env(
     (tmp_path / ".env").write_text(f'DATABASE_URL="{db_dsn}"\n')
     monkeypatch.chdir(tmp_path)
     main()
-    assert capsys.readouterr().out == "applied 0001_init\n"
+    assert capsys.readouterr().out == "applied 0001_init\napplied 0002_image_thumbnails\n"
+
+
+def test_thumb_name_is_a_nullable_text_column(db_dsn: str) -> None:
+    apply_migrations(db_dsn)
+    rows = _query(
+        db_dsn,
+        "SELECT data_type, is_nullable FROM information_schema.columns "
+        "WHERE table_name = 'product_images' AND column_name = 'thumb_name'",
+    )
+    assert rows == [("text", "YES")]
+
+
+def test_images_uploaded_before_the_upgrade_keep_a_null_thumb_name(
+    db_dsn: str, tmp_path: Path
+) -> None:
+    migrations = tmp_path / "migrations"
+    migrations.mkdir()
+    shutil.copy(DEFAULT_DIR / "0001_init.sql", migrations / "0001_init.sql")
+    apply_migrations(db_dsn, migrations)
+    with psycopg.connect(db_dsn, autocommit=True) as conn:
+        product_id = conn.execute(
+            "INSERT INTO products (sku, name, price) VALUES ('OLD-1', 'Old', 1) RETURNING id"
+        ).fetchone()[0]
+        conn.execute(
+            "INSERT INTO product_images (product_id, file_name, position) "
+            "VALUES (%s, 'old.png', 0)",
+            (product_id,),
+        )
+    assert apply_migrations(db_dsn) == ["0002_image_thumbnails"]
+    assert _query(db_dsn, "SELECT file_name, thumb_name FROM product_images") == [("old.png", None)]

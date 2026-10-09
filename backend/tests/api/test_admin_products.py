@@ -35,6 +35,21 @@ def test_admin_products_require_admin(
         assert response.json() == {"detail": "forbidden"}
 
 
+def test_admin_product_images_carry_the_card_url(
+    client: TestClient, admin_headers, make_product, make_image
+) -> None:
+    headers = admin_headers()
+    product = make_product()
+    make_image(product["id"], file_name="photo.webp", thumb_name="photo-sm.webp", position=0)
+    body = client.get(f"/api/admin/products/{product['id']}", headers=headers).json()
+    assert body["image_url"] == "/api/media/photo-sm.webp"
+    [image] = body["images"]
+    assert (image["url"], image["thumb_url"]) == (
+        "/api/media/photo.webp",
+        "/api/media/photo-sm.webp",
+    )
+
+
 def test_admin_list_includes_inactive_and_cost_price(
     client: TestClient, admin_headers, make_product
 ) -> None:

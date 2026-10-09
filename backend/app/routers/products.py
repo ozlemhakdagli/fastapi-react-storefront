@@ -9,7 +9,7 @@ from psycopg.errors import ForeignKeyViolation, RestrictViolation, UniqueViolati
 from app.config import get_settings
 from app.deps import Conn, Pagination, require_admin
 from app.errors import ApiError
-from app.media import image_url
+from app.media import card_image_url, image_url
 from app.repositories import products
 from app.schemas.common import Page
 from app.schemas.products import (
@@ -21,7 +21,13 @@ from app.schemas.products import (
     ProductListItem,
     ProductReplaceIn,
 )
-from app.services.images import detect_image_type, remove_image_file, store_image
+from app.services.images import (
+    InvalidImage,
+    detect_image_type,
+    process_image,
+    remove_image_files,
+    store_image,
+)
 
 # Public and customer endpoints are mounted at /api.
 router = APIRouter()
@@ -40,12 +46,17 @@ def _named(item_id: int | None, name: str | None) -> dict | None:
 
 
 def _image_out(image: dict) -> dict:
-    return {"id": image["id"], "url": image_url(image["file_name"]), "position": image["position"]}
+    return {
+        "id": image["id"],
+        "url": image_url(image["file_name"]),
+        "thumb_url": card_image_url(image["file_name"], image["thumb_name"]),
+        "position": image["position"],
+    }
 
 
 def _list_item(row: dict, images: list[dict]) -> dict:
     # Images come in position order, so the first one is the cover. No image means the placeholder.
-    cover = images[0]["file_name"] if images else None
+    cover = images[0] if images else {}
     return {
         "id": row["id"],
         "sku": row["sku"],
@@ -56,7 +67,7 @@ def _list_item(row: dict, images: list[dict]) -> dict:
         "is_new": row["is_new"],
         "brand": _named(row["brand_id"], row["brand_name"]),
         "category": _named(row["category_id"], row["category_name"]),
-        "image_url": image_url(cover),
+        "image_url": card_image_url(cover.get("file_name"), cover.get("thumb_name")),
     }
 
 
@@ -200,7 +211,7 @@ def delete_product(product_id: int, conn: Conn) -> None:
         raise ApiError(404, "not_found")
     upload_dir = get_settings().upload_dir
     for image in images:
-        remove_image_file(upload_dir, image["file_name"])
+        remove_image_files(upload_dir, image["file_name"], image["thumb_name"])
 
 
 @admin_router.post("/products/{product_id}/images", status_code=201, response_model=ProductImageOut)
@@ -212,13 +223,20 @@ def upload_image(product_id: int, conn: Conn, file: Annotated[UploadFile, File()
     data = file.file.read(settings.max_upload_bytes + 1)
     if len(data) > settings.max_upload_bytes:
         raise ApiError(413, "file_too_large")
-    kind = detect_image_type(data)
-    if kind is None:
+    if detect_image_type(data) is None:
         raise ApiError(415, "unsupported_media_type")
-    file_name = store_image(settings.upload_dir, data, kind)
-    image = products.add_image(conn, product_id, file_name)
+    try:
+        full, card = process_image(data)
+    except InvalidImage:
+        raise ApiError(415, "unsupported_media_type") from None
+    file_name, thumb_name = store_image(settings.upload_dir, full, card)
+    try:
+        image = products.add_image(conn, product_id, file_name, thumb_name)
+    except Exception:  # no row was stored, so the new files must not stay behind
+        remove_image_files(settings.upload_dir, file_name, thumb_name)
+        raise
     if image is None:  # the product was deleted while the upload was in progress
-        remove_image_file(settings.upload_dir, file_name)
+        remove_image_files(settings.upload_dir, file_name, thumb_name)
         raise ApiError(404, "not_found")
     return _image_out(image)
 
@@ -234,7 +252,7 @@ def reorder_images(product_id: int, body: ImageOrderIn, conn: Conn) -> dict:
 
 @admin_router.delete("/products/{product_id}/images/{image_id}", status_code=204)
 def delete_image(product_id: int, image_id: int, conn: Conn) -> None:
-    file_name = products.delete_image(conn, product_id, image_id)
-    if file_name is None:
+    image = products.delete_image(conn, product_id, image_id)
+    if image is None:
         raise ApiError(404, "not_found")
-    remove_image_file(get_settings().upload_dir, file_name)
+    remove_image_files(get_settings().upload_dir, image["file_name"], image["thumb_name"])
