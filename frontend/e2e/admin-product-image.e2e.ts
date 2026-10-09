@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
-import type { APIRequestContext, Page } from '@playwright/test'
-import { apiUrl } from './support'
+import type { APIRequestContext } from '@playwright/test'
+import { apiUrl, loginAsAdmin } from './support'
 
 const SKU = 'SEED-006'
 const IMAGE_FIELD = 'Görsel dosyası (JPEG, PNG veya WebP, en fazla 2 MB)'
@@ -26,26 +26,6 @@ async function getProduct(request: APIRequestContext, productId: number): Promis
   const response = await request.get(apiUrl(`/api/products/${productId}`))
   expect(response.ok()).toBe(true)
   return (await response.json()) as Product
-}
-
-/** The seeded administrator, from the variables that scripts/e2e.sh sets. */
-function adminAccount(): { email: string; password: string } {
-  const email = process.env.E2E_ADMIN_EMAIL
-  const password = process.env.E2E_ADMIN_PASSWORD
-  if (!email || !password) {
-    throw new Error('E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD are not set: use scripts/e2e.sh')
-  }
-  return { email, password }
-}
-
-/** Signs in on the login page; the admin link in the header shows that the sign-in worked. */
-async function loginAsAdmin(page: Page): Promise<void> {
-  const { email, password } = adminAccount()
-  await page.goto('/login')
-  await page.getByLabel('E-posta', { exact: true }).fill(email)
-  await page.getByLabel('Şifre', { exact: true }).fill(password)
-  await page.getByRole('button', { name: 'Giriş yap', exact: true }).click()
-  await expect(page.getByRole('link', { name: 'Yönetim Paneli', exact: true })).toBeVisible()
 }
 
 test('the admin uploads a photo for a product, and the store card and page show it', async ({

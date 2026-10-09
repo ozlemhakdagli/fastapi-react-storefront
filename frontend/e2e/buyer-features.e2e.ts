@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
   adminToken,
   advanceOrder,
@@ -6,35 +6,9 @@ import {
   apiUrl,
   placeOrder,
   registerAndLogin,
-  uniqueEmail,
+  registerCustomer,
+  seededSsd,
 } from './support'
-
-// The seeded Samsung T7 500 GB SSD, found by its SKU: no id or price is written in the tests.
-const SSD_SKU = 'SEED-006'
-
-/** Registers a customer through the API and returns the account. */
-async function registerCustomer(request: APIRequestContext) {
-  const account = { email: uniqueEmail(), password: 'E2e-Buyer-2026!' }
-  const response = await request.post(apiUrl('/api/auth/register'), {
-    data: { ...account, full_name: 'E2E Alıcı' },
-  })
-  expect(response.status()).toBe(201)
-  return account
-}
-
-/** The seeded SSD as the catalogue lists it. */
-async function seededSsd(request: APIRequestContext) {
-  const response = await request.get(apiUrl(`/api/products?q=${SSD_SKU}`))
-  expect(response.ok()).toBe(true)
-  const page = (await response.json()) as {
-    items: { id: number; sku: string; name: string; price: string }[]
-  }
-  const product = page.items.find((item) => item.sku === SSD_SKU)
-  if (!product) {
-    throw new Error(`${SSD_SKU} is missing: run the browser tests with scripts/e2e.sh`)
-  }
-  return product
-}
 
 /** A price the way the shop shows it, for example 1.899,90 TL with the lira sign. */
 function formatTry(price: string): string {

@@ -1,18 +1,8 @@
 import { expect, test } from '@playwright/test'
 import type { APIRequestContext } from '@playwright/test'
-import { apiUrl, registerAndLogin } from './support'
+import { apiUrl, registerAndLogin, seededSsd } from './support'
 
 const SSD_NAME = 'Samsung T7 500 GB Taşınabilir SSD'
-
-/** The id of the seeded SSD (SKU SEED-006), found through the product search of the API. */
-async function seededSsdId(request: APIRequestContext): Promise<number> {
-  const response = await request.get(apiUrl('/api/products?q=SEED-006'))
-  expect(response.ok()).toBe(true)
-  const { items } = (await response.json()) as { items: { id: number; sku: string }[] }
-  const ssd = items.find((item) => item.sku === 'SEED-006')
-  if (!ssd) throw new Error('SEED-006 is missing: the seed did not run')
-  return ssd.id
-}
 
 /** The stock of a product, as the API reports it now. */
 async function stockOf(request: APIRequestContext, productId: number): Promise<number> {
@@ -22,7 +12,7 @@ async function stockOf(request: APIRequestContext, productId: number): Promise<n
 }
 
 test('a customer buys the SSD, sees the order as new and cancels it', async ({ page, request }) => {
-  const productId = await seededSsdId(request)
+  const productId = (await seededSsd(request)).id
   const stockBefore = await stockOf(request, productId)
 
   // The customer registers on the page and lands on the home page, logged in.

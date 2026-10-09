@@ -1,40 +1,10 @@
 import { expect, test } from '@playwright/test'
-import type { APIRequestContext, Locator, Page } from '@playwright/test'
-import { apiLogin, apiUrl, placeOrder, uniqueEmail } from './support'
+import type { Locator, Page } from '@playwright/test'
+import { apiLogin, apiUrl, loginAsAdmin, placeOrder, seededSsd, uniqueEmail } from './support'
 
 const CUSTOMER_PASSWORD = 'E2e-Register-2026!'
 const CARGO_COMPANY = 'Yurtiçi Kargo'
 const TRACKING_NO = 'E2E-TAKIP-0001'
-
-/** The id of the seeded SSD (SKU SEED-006), found through the product search of the API. */
-async function seededSsdId(request: APIRequestContext): Promise<number> {
-  const response = await request.get(apiUrl('/api/products?q=SEED-006'))
-  expect(response.ok()).toBe(true)
-  const { items } = (await response.json()) as { items: { id: number; sku: string }[] }
-  const ssd = items.find((item) => item.sku === 'SEED-006')
-  if (!ssd) throw new Error('SEED-006 is missing: the seed did not run')
-  return ssd.id
-}
-
-/** The seeded administrator, from the variables that scripts/e2e.sh sets. */
-function adminAccount(): { email: string; password: string } {
-  const email = process.env.E2E_ADMIN_EMAIL
-  const password = process.env.E2E_ADMIN_PASSWORD
-  if (!email || !password) {
-    throw new Error('E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD are not set: use scripts/e2e.sh')
-  }
-  return { email, password }
-}
-
-/** Signs in on the login page; the admin link in the header shows that the sign-in worked. */
-async function loginAsAdmin(page: Page): Promise<void> {
-  const { email, password } = adminAccount()
-  await page.goto('/login')
-  await page.getByLabel('E-posta', { exact: true }).fill(email)
-  await page.getByLabel('Şifre', { exact: true }).fill(password)
-  await page.getByRole('button', { name: 'Giriş yap', exact: true }).click()
-  await expect(page.getByRole('link', { name: 'Yönetim Paneli', exact: true })).toBeVisible()
-}
 
 /**
  * The status badge of the order page. The status select lists the same words, but as options,
@@ -57,7 +27,7 @@ test('the admin moves a customer order to completed, and the customer sees it', 
   expect(registered.status()).toBe(201)
   const token = await apiLogin(request, email, CUSTOMER_PASSWORD)
   const order = await placeOrder(request, token, [
-    { product_id: await seededSsdId(request), quantity: 1 },
+    { product_id: (await seededSsd(request)).id, quantity: 1 },
   ])
   expect(order.status).toBe('new')
 

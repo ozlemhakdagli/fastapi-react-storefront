@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { expect } from '@playwright/test'
 import type { APIRequestContext, APIResponse, Page } from '@playwright/test'
 
 export interface Account {
@@ -108,4 +109,37 @@ export async function advanceOrder(
       data: { status },
     }),
   )
+}
+
+/** A customer registered through the API (the page is not involved). */
+export async function registerCustomer(request: APIRequestContext): Promise<Account> {
+  const account = { email: uniqueEmail(), password: 'E2e-Customer-2026!' }
+  const response = await request.post(apiUrl('/api/auth/register'), {
+    data: { ...account, full_name: 'E2E Müşteri' },
+  })
+  expect(response.status()).toBe(201)
+  return account
+}
+
+/** The seeded Samsung T7 500 GB SSD (SKU SEED-006), as the catalogue lists it. */
+export async function seededSsd(
+  request: APIRequestContext,
+): Promise<{ id: number; sku: string; name: string; price: string }> {
+  const response = await request.get(apiUrl('/api/products?q=SEED-006'))
+  expect(response.ok()).toBe(true)
+  const { items } = (await response.json()) as {
+    items: { id: number; sku: string; name: string; price: string }[]
+  }
+  const ssd = items.find((item) => item.sku === 'SEED-006')
+  if (!ssd) throw new Error('SEED-006 is missing: run the browser tests with scripts/e2e.sh')
+  return ssd
+}
+
+/** Signs the seeded administrator in on the login page; the admin link shows that it worked. */
+export async function loginAsAdmin(page: Page): Promise<void> {
+  await page.goto('/login')
+  await page.getByLabel('E-posta', { exact: true }).fill(env('E2E_ADMIN_EMAIL'))
+  await page.getByLabel('Şifre', { exact: true }).fill(env('E2E_ADMIN_PASSWORD'))
+  await page.getByRole('button', { name: 'Giriş yap', exact: true }).click()
+  await expect(page.getByRole('link', { name: 'Yönetim Paneli', exact: true })).toBeVisible()
 }
