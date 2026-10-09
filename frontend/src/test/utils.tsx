@@ -3,6 +3,7 @@ import { render, type RenderResult } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { AuthContext, type AuthValue } from '@/features/auth/AuthContext'
+import { ThemeProvider } from '@/lib/theme'
 import { formatMoney } from '@/lib/format'
 import type { User } from '@/lib/types'
 
@@ -64,9 +65,11 @@ export function renderWithProviders(
   )
   const result = render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[route]}>
-        <AuthContext.Provider value={auth}>{content}</AuthContext.Provider>
-      </MemoryRouter>
+      <ThemeProvider>
+        <MemoryRouter initialEntries={[route]}>
+          <AuthContext.Provider value={auth}>{content}</AuthContext.Provider>
+        </MemoryRouter>
+      </ThemeProvider>
     </QueryClientProvider>,
   )
   return { ...result, queryClient, auth }
