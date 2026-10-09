@@ -54,7 +54,7 @@ def _image_out(image: dict) -> dict:
     }
 
 
-def _list_item(row: dict, images: list[dict]) -> dict:
+def list_item(row: dict, images: list[dict]) -> dict:
     # Images come in position order, so the first one is the cover. No image means the placeholder.
     cover = images[0] if images else {}
     return {
@@ -75,7 +75,7 @@ def _list_item(row: dict, images: list[dict]) -> dict:
 
 def _detail(row: dict, images: list[dict]) -> dict:
     return {
-        **_list_item(row, images),
+        **list_item(row, images),
         "description": row["description"],
         "images": [_image_out(image) for image in images],
         "created_at": row["created_at"],
@@ -135,7 +135,7 @@ def list_products(
         offset=p.offset,
     )
     images = products.images_for(conn, [row["id"] for row in rows])
-    return p.page_of([_list_item(row, images.get(row["id"], [])) for row in rows], total)
+    return p.page_of([list_item(row, images.get(row["id"], [])) for row in rows], total)
 
 
 @router.get("/products/{product_id}", response_model=ProductDetail)

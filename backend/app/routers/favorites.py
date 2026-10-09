@@ -6,7 +6,7 @@ from app.deps import Conn, CurrentUser, Pagination, require_admin
 from app.errors import ApiError
 from app.repositories import favorites as repo
 from app.repositories import products
-from app.routers.products import _list_item
+from app.routers.products import list_item
 from app.schemas.common import Page
 from app.schemas.favorites import FavoriteIdsOut
 from app.schemas.products import ProductListItem
@@ -21,7 +21,7 @@ admin_router = APIRouter(dependencies=[Depends(require_admin)])
 def list_favorites(conn: Conn, user: CurrentUser, p: Pagination) -> dict:
     rows, total = products.list_favorites(conn, user["id"], p.limit, p.offset)
     images = products.images_for(conn, [row["id"] for row in rows])
-    return p.page_of([_list_item(row, images.get(row["id"], [])) for row in rows], total)
+    return p.page_of([list_item(row, images.get(row["id"], [])) for row in rows], total)
 
 
 # Declared before the /{product_id} routes so that "ids" is never read as a product id.
