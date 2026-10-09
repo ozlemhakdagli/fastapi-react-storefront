@@ -1,4 +1,4 @@
-import { Mail, MessageCircle, ShoppingBag, User } from 'lucide-react'
+import { Heart, Mail, MessageCircle, ShoppingBag, User } from 'lucide-react'
 import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router'
 import { cn } from 'cn'
@@ -10,6 +10,7 @@ const links = [
   { to: '/account/orders', label: 'layout.account_orders', end: false, icon: ShoppingBag },
   { to: '/account/comments', label: 'layout.account_comments', end: false, icon: MessageCircle },
   { to: '/account/messages', label: 'layout.account_messages', end: false, icon: Mail },
+  { to: '/account/favorites', label: 'layout.account_favorites', end: false, icon: Heart },
 ]
 
 // A vertical menu beside the content from md up. Below md it is one row that scrolls sideways
