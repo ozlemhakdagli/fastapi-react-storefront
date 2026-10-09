@@ -15,6 +15,7 @@ function comment(overrides: Partial<MyComment> = {}): MyComment {
     body: 'Çok memnun kaldım',
     created_at: '2026-10-08T12:00:00Z',
     product_name: 'Mekanik Klavye',
+    rating: null,
     ...overrides,
   }
 }

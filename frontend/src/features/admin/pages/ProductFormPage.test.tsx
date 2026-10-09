@@ -21,6 +21,8 @@ const product: AdminProduct = {
   brand: { id: 7, name: 'Logitech' },
   category: { id: 1, name: 'Klavyeler' },
   image_url: '/api/media/a.jpg',
+  rating_avg: null,
+  rating_count: 0,
   images: [
     { id: 11, url: '/api/media/a.jpg', thumb_url: '/api/media/a-sm.jpg', position: 0 },
     { id: 12, url: '/api/media/b.jpg', thumb_url: '/api/media/b-sm.jpg', position: 1 },

@@ -16,6 +16,8 @@ const newProduct: ProductListItem = {
   brand: { id: 7, name: 'Logitech' },
   category: { id: 3, name: 'Klavyeler' },
   image_url: '/api/media/placeholder.svg',
+  rating_avg: null,
+  rating_count: 0,
 }
 
 const newProducts: Page<ProductListItem> = { items: [newProduct], total: 1, page: 1, page_size: 8 }

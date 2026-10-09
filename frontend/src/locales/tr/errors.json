@@ -20,5 +20,6 @@
   "network": "Sunucuya ulaşılamıyor. Bağlantınızı kontrol edin.",
   "unknown": "Beklenmeyen bir hata oluştu.",
   "payload_too_large": "Gönderilen veri çok büyük.",
-  "product_changed": "Bu ürün siz düzenlerken değişti (örneğin bir satış stoğu güncelledi). Sayfayı yenileyip değişikliklerinizi tekrar yapın."
+  "product_changed": "Bu ürün siz düzenlerken değişti (örneğin bir satış stoğu güncelledi). Sayfayı yenileyip değişikliklerinizi tekrar yapın.",
+  "purchase_required": "Yalnızca bu ürünü satın alanlar puan verebilir."
 }

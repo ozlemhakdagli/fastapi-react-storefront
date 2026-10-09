@@ -31,12 +31,19 @@
   "brand_label": "Marka",
   "category_label": "Kategori",
   "description_title": "Ürün açıklaması",
-  "comments_title": "Yorumlar",
+  "comments_title": "Yorumlar ve sorular",
   "comments_empty": "Bu ürün için henüz yorum yapılmamış.",
-  "comment_body": "Yorumunuz",
+  "comment_body": "Yorumunuz veya sorunuz",
   "comment_submit": "Yorum yap",
   "comment_login_hint": "Yorum yazmak için giriş yapın.",
   "login_link": "Giriş yap",
   "comment_delete_title": "Yorum silinsin mi?",
-  "comment_delete_description": "Bu yorum kalıcı olarak silinecek."
+  "comment_delete_description": "Bu yorum kalıcı olarak silinecek.",
+  "rating_none": "Henüz puan yok",
+  "rating_value": "5 üzerinden {value} puan",
+  "rating_aria": "5 üzerinden {value} puan, {count} değerlendirme",
+  "rating_input_star": "{count} yıldız",
+  "rating_your": "Puanınız",
+  "rating_remove": "Puanı kaldır",
+  "rating_purchase_hint": "Puan vermek için bu ürünü satın almış olmalısınız."
 }

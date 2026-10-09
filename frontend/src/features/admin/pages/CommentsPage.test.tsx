@@ -15,6 +15,7 @@ const comment: AdminComment = {
   body: 'Klavye çok rahat, tavsiye ederim.',
   created_at: '2026-10-08T12:00:00Z',
   product_name: 'Mekanik Klavye',
+  rating: null,
 }
 
 const second: AdminComment = {

@@ -18,6 +18,8 @@ const product: ProductDetail = {
   brand: { id: 7, name: 'Logitech' },
   category: { id: 1, name: 'Klavyeler' },
   image_url: '/api/media/k1.jpg',
+  rating_avg: null,
+  rating_count: 0,
   description: 'Uzun açıklama',
   images: [
     { id: 1, url: '/api/media/k1.jpg', thumb_url: '/api/media/k1-sm.jpg', position: 0 },
@@ -36,6 +38,7 @@ function comment(overrides: Partial<Comment> = {}): Comment {
     author_name: 'Mehmet Kaya',
     body: 'Çok memnun kaldım',
     created_at: '2026-10-08T12:00:00Z',
+    rating: null,
     ...overrides,
   }
 }

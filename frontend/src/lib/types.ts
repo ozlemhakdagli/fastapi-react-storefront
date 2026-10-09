@@ -57,6 +57,8 @@ export interface ProductListItem {
   brand: Named | null
   category: Named | null
   image_url: string
+  rating_avg: number | null
+  rating_count: number
 }
 
 export interface ProductDetail extends ProductListItem {
@@ -147,6 +149,8 @@ export interface Comment {
   author_name: string
   body: string
   created_at: Iso
+  /** The current rating of the author for this product; null when the author has not rated it. */
+  rating: number | null
 }
 
 export interface MyComment extends Comment {
