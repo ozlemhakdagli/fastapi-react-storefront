@@ -21,6 +21,7 @@ function line(overrides: Partial<CartItem> = {}): CartItem {
     quantity: 2,
     line_total: '2599.80',
     stock: 10,
+    available: true,
     image_url: '/api/media/klavye.jpg',
     ...overrides,
   }
@@ -122,6 +123,29 @@ describe('CartPage', () => {
     renderWithProviders(<CartPage />, { user: testCustomer })
     expect(await screen.findByText(t('cart.stock_warning', { stock: 2 }))).toBeInTheDocument()
     expect(screen.queryByText(t('cart.stock_warning', { stock: 5 }))).not.toBeInTheDocument()
+  })
+
+  it('test_cart_flags_unavailable_lines_and_blocks_checkout', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({
+      items: [line(), line({ product_id: 6, name: 'Eski Fare', available: false })],
+      total: '3899.70',
+    })
+    renderWithProviders(<CartPage />, { user: testCustomer })
+    expect(await screen.findByText('Eski Fare')).toBeInTheDocument()
+    expect(screen.getAllByText(t('cart.unavailable_warning'))).toHaveLength(1)
+    // The checkout link is replaced by an explanation until the line is removed.
+    expect(screen.queryByRole('link', { name: t('cart.checkout') })).not.toBeInTheDocument()
+    expect(screen.getByText(t('cart.checkout_blocked'))).toBeInTheDocument()
+  })
+
+  it('test_cart_without_unavailable_lines_keeps_the_checkout_link', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue(cart)
+    renderWithProviders(<CartPage />, { user: testCustomer })
+    expect(await screen.findByRole('link', { name: t('cart.checkout') })).toHaveAttribute(
+      'href',
+      '/checkout',
+    )
+    expect(screen.queryByText(t('cart.checkout_blocked'))).not.toBeInTheDocument()
   })
 
   it('test_cart_stepper_respects_one_and_stock', async () => {

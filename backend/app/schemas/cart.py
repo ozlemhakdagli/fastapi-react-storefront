@@ -21,6 +21,8 @@ class CartItemOut(BaseModel):
     quantity: int
     line_total: Money
     stock: int
+    # False when the product was deactivated after it was added; such a line blocks checkout.
+    available: bool
     image_url: str
 
 

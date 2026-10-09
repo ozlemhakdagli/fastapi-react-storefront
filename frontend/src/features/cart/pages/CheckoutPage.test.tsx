@@ -110,6 +110,18 @@ describe('CheckoutPage', () => {
     )
   })
 
+  it('test_checkout_unavailable_product_shows_error_and_cart_link', async () => {
+    const error = new ApiError(409, 'product_unavailable', { product_id: 6 })
+    vi.spyOn(api, 'post').mockRejectedValue(error)
+    renderCheckout()
+    await userEvent.click(screen.getByRole('button', { name: t('cart.checkout_submit') }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(errorMessage(error))
+    expect(screen.getByRole('link', { name: t('cart.checkout_back_to_cart') })).toHaveAttribute(
+      'href',
+      '/cart',
+    )
+  })
+
   it('test_checkout_empty_cart_redirects_to_cart', async () => {
     vi.spyOn(api, 'post').mockRejectedValue(new ApiError(400, 'empty_cart'))
     renderCheckout()

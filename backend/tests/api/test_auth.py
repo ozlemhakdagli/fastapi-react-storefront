@@ -215,3 +215,22 @@ def test_login_and_register_hash_without_holding_a_database_connection(
     assert (known.status_code, unknown.status_code, registered.status_code) == (200, 401, 201)
     assert len(in_use) >= 3, "the hashing functions were not observed"
     assert set(in_use) == {0}, f"connections held while hashing: {in_use}"
+
+
+def test_login_works_for_reserved_domains_and_wrong_credentials_are_401(client, make_user) -> None:
+    """A seeded admin like admin@shop.local must be able to log in."""
+    user = make_user(email="admin@shop.local", role="admin")
+    for address in ("admin@shop.local", "  ADMIN@Shop.Local  ", "root@localhost"):
+        wrong = client.post(
+            "/api/auth/login", json={"email": address, "password": "Wrong-passw0rd"}
+        )
+        assert wrong.status_code == 401, address
+        assert wrong.json() == {"detail": "invalid_credentials"}
+    ok = client.post(
+        "/api/auth/login", json={"email": "  ADMIN@Shop.Local  ", "password": user["password"]}
+    )
+    assert ok.status_code == 200
+    token = ok.json()["access_token"]
+    me = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert me.status_code == 200
+    assert me.json()["email"] == "admin@shop.local"

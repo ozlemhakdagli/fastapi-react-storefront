@@ -167,6 +167,16 @@ def test_line_for_deactivated_product_is_still_listed(
     assert [item["product_id"] for item in body["items"]] == [product["id"]]
     assert body["items"][0]["name"] == "Discontinued lamp"
     assert body["total"] == body["items"][0]["line_total"]
+    assert body["items"][0]["available"] is False
+
+
+def test_lines_of_active_products_are_available(
+    client: TestClient, make_user, make_product, auth_headers
+) -> None:
+    headers = auth_headers(make_user())
+    product = make_product()
+    response = _post(client, headers, product["id"], 1)
+    assert response.json()["items"][0]["available"] is True
 
 
 def test_lines_are_ordered_by_product_id(

@@ -18,5 +18,7 @@
   "checkout_address": "Teslimat adresi",
   "checkout_required": "Bu alan zorunludur.",
   "checkout_submit": "Siparişi onayla",
-  "checkout_back_to_cart": "Sepete dön"
+  "checkout_back_to_cart": "Sepete dön",
+  "unavailable_warning": "Bu ürün artık satışta değil. Siparişe devam etmek için sepetten kaldırın.",
+  "checkout_blocked": "Satışta olmayan ürünleri sepetten kaldırdıktan sonra siparişi tamamlayabilirsiniz."
 }

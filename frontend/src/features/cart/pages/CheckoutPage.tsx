@@ -42,7 +42,8 @@ export default function CheckoutPage() {
 
   const errors: FieldErrors = attempted ? validate(values) : {}
   const stockProblem =
-    checkout.error instanceof ApiError && checkout.error.code === 'insufficient_stock'
+    checkout.error instanceof ApiError &&
+    (checkout.error.code === 'insufficient_stock' || checkout.error.code === 'product_unavailable')
 
   function update(field: Field, value: string) {
     setValues((current) => ({ ...current, [field]: value }))

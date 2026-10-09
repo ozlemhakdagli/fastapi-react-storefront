@@ -77,6 +77,8 @@ export interface CartItem {
   quantity: number
   line_total: Money
   stock: number
+  /** False when the product was deactivated after it was added; such a line blocks checkout. */
+  available: boolean
   image_url: string
 }
 

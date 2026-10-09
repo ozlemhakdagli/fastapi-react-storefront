@@ -29,6 +29,7 @@ def get_cart(conn: psycopg.Connection, user_id: int) -> CartOut:
                 quantity=line["quantity"],
                 line_total=line_total,
                 stock=line["stock"],
+                available=line["available"],
                 image_url=image_url(line["file_name"]),
             )
         )

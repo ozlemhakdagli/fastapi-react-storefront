@@ -21,6 +21,7 @@ export default function CartPage() {
   if (cart.isError) return <ErrorNotice error={cart.error} />
 
   const { items, total } = cart.data
+  const hasUnavailable = items.some((item) => !item.available)
 
   const columns: Column<CartItem>[] = [
     {
@@ -35,7 +36,9 @@ export default function CartPage() {
           />
           <div className="grid gap-1">
             <span className="font-medium">{item.name}</span>
-            {item.quantity > item.stock ? (
+            {!item.available ? (
+              <span className="text-destructive text-sm">{t('cart.unavailable_warning')}</span>
+            ) : item.quantity > item.stock ? (
               <span className="text-destructive text-sm">
                 {t('cart.stock_warning', { stock: item.stock })}
               </span>
@@ -127,9 +130,13 @@ export default function CartPage() {
               <span className="text-muted-foreground">{t('cart.total')}</span>
               <Money value={total} className="font-semibold" />
             </div>
-            <Button asChild>
-              <Link to="/checkout">{t('cart.checkout')}</Link>
-            </Button>
+            {hasUnavailable ? (
+              <p className="text-destructive text-sm">{t('cart.checkout_blocked')}</p>
+            ) : (
+              <Button asChild>
+                <Link to="/checkout">{t('cart.checkout')}</Link>
+              </Button>
+            )}
           </div>
         </>
       )}

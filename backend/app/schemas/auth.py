@@ -1,8 +1,8 @@
 """Schemas for registration, login, the current profile and password changes."""
 
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, StringConstraints, model_validator
 
 from app.schemas.common import Email, FullName, InputModel, Password, reject_null_fields
 from app.schemas.users import UserOut
@@ -17,7 +17,12 @@ class RegisterIn(InputModel):
 
 
 class LoginIn(InputModel):
-    email: Email
+    # Only trimmed and lowercased, not syntax-checked like new addresses: an account created by the
+    # seed with a reserved domain such as admin@shop.local must still be able to log in, and a
+    # wrong address must give 401 invalid_credentials, not a validation error.
+    email: Annotated[
+        str, StringConstraints(strip_whitespace=True, to_lower=True, min_length=1, max_length=254)
+    ]
     # Not 8..128 like new passwords, so a short wrong password gets 401 invalid_credentials.
     password: str = Field(min_length=1, max_length=128)
 
