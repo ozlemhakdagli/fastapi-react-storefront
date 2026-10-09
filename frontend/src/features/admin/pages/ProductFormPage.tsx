@@ -34,7 +34,6 @@ function isValidMoney(text: string): boolean {
 }
 const MAX_STOCK = 1000000
 
-// Native selects, styled like the inputs: the shadcn Select needs browser APIs that jsdom lacks.
 // The inputs hold text. Money and stock stay text until they are sent.
 interface FormValues {
   sku: string

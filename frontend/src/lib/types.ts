@@ -124,7 +124,7 @@ export interface Order extends OrderListItem {
   items: OrderItem[]
 }
 
-export interface Customer {
+interface Customer {
   id: number
   email: string
   full_name: string

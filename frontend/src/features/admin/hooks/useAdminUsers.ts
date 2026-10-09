@@ -8,7 +8,7 @@ const PAGE_SIZE = 20
 
 export type UserRole = User['role']
 
-export interface AdminUserFilters {
+interface AdminUserFilters {
   role?: UserRole
   /** Matches the e-mail or the name. */
   q?: string

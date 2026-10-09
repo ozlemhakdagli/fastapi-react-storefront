@@ -18,7 +18,6 @@ import { useAdminTaxonomyOptions } from '@/features/admin/hooks/useAdminTaxonomy
 import { t } from '@/lib/i18n'
 import type { AdminProduct } from '@/lib/types'
 
-// Native selects, styled like the inputs: the shadcn Select needs browser APIs that jsdom lacks.
 type FilterName = 'q' | 'category_id' | 'brand_id' | 'is_active'
 
 /** A positive integer from the URL, or undefined (no filter) for anything else. */

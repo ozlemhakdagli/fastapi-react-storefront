@@ -5,7 +5,7 @@ import type { Taxonomy } from '@/lib/types'
 /** The two admin taxonomy lists. Both have the same shape (docs/api.md). */
 export type TaxonomyEndpoint = '/admin/categories' | '/admin/brands'
 
-export interface TaxonomyInput {
+interface TaxonomyInput {
   name: string
   description: string
 }

@@ -6,18 +6,18 @@ import type { AdminMessage, Message, Page } from '@/lib/types'
 
 const PAGE_SIZE = 20
 
-export interface AdminMessageFilters {
+interface AdminMessageFilters {
   status?: Message['status']
   direction?: Message['direction']
   page: number
 }
 
-export interface AdminMessageUpdateInput {
+interface AdminMessageUpdateInput {
   status?: Message['status']
   admin_note?: string | null
 }
 
-export interface AdminMessageReplyInput {
+interface AdminMessageReplyInput {
   user_id: number
   subject: string
   body: string

@@ -2,13 +2,13 @@ import { useMutation } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import type { User } from '@/lib/types'
 
-export interface ProfileInput {
+interface ProfileInput {
   full_name: string
   phone: string | null
   address: string | null
 }
 
-export interface PasswordInput {
+interface PasswordInput {
   current_password: string
   new_password: string
 }

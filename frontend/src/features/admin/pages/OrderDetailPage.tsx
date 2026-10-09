@@ -23,7 +23,6 @@ import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
 import type { AdminOrder, OrderItem, OrderStatus } from '@/lib/types'
 
-// Native select, styled like ui/input: the shadcn Select needs browser APIs that jsdom lacks.
 export default function OrderDetailPage() {
   const { id } = useParams()
   const orderId = Number(id)

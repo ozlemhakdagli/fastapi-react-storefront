@@ -24,8 +24,6 @@
   "gallery_label": "Ürün görselleri",
   "thumbnail": "Görsel {number}",
   "sku": "Ürün kodu: {sku}",
-  "in_stock": "Stokta {count} adet",
-  "out_of_stock": "Stokta yok",
   "quantity": "Adet",
   "add_to_cart": "Sepete ekle",
   "adding_to_cart": "Ekleniyor…",
