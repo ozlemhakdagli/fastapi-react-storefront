@@ -278,8 +278,8 @@ application does not do for you:
   behind your own login.
 - **Real secrets:** a generated `SECRET_KEY`, a strong database password and a strong admin password.
 - **Known limitations:** a password change does not sign out other sessions (tokens live up to
-  `ACCESS_TOKEN_MINUTES`), and saving a product in the admin form overwrites its stock with the value
-  in the form.
+  `ACCESS_TOKEN_MINUTES`), and the admin form refuses to save a product that changed since it was
+  opened (for example after a sale) instead of merging the two versions: reload and edit again.
 
 ## Common errors
 
