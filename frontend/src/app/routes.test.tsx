@@ -21,7 +21,7 @@ const site: SiteSettings = {
 }
 
 // These tests check guards, redirects and layouts through the URL, not through page content,
-// so they keep passing when a page is redesigned.
+// so they do not depend on page markup.
 function Pathname() {
   return <div data-testid="pathname">{useLocation().pathname}</div>
 }
@@ -51,7 +51,7 @@ describe('AppRoutes', () => {
   it('serves the home page to an anonymous visitor inside the store layout', async () => {
     renderAt('/')
     expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/$/)
-    expect(await screen.findAllByText('Örnek Mağaza')).not.toHaveLength(0)
+    expect(await screen.findAllByText('Örnek Mağaza')).toHaveLength(2) // header and footer
   })
 
   it('sends an anonymous visitor of /admin/products to /login', () => {
@@ -74,21 +74,23 @@ describe('AppRoutes', () => {
     expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/$/)
   })
 
-  it('keeps an admin on /admin/products inside the admin layout', () => {
+  it('keeps an admin on /admin/products inside the admin layout', async () => {
     renderAt('/admin/products', testAdmin)
     expect(screen.getByTestId('pathname')).toHaveTextContent('/admin/products')
-    expect(screen.getByRole('heading', { name: t('admin.title') })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: t('admin.title') })).toBeInTheDocument()
   })
 
-  it('keeps a customer on /account/orders inside the account layout', () => {
+  it('keeps a customer on /account/orders inside the account layout', async () => {
     renderAt('/account/orders', testCustomer)
     expect(screen.getByTestId('pathname')).toHaveTextContent('/account/orders')
-    expect(screen.getByRole('heading', { name: t('layout.account_title') })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: t('layout.account_title') }),
+    ).toBeInTheDocument()
   })
 
   it('keeps an unknown URL where it is and still shows the store layout', async () => {
     renderAt('/no/such/page')
     expect(screen.getByTestId('pathname')).toHaveTextContent('/no/such/page')
-    expect(await screen.findAllByText('Örnek Mağaza')).not.toHaveLength(0)
+    expect(await screen.findAllByText('Örnek Mağaza')).toHaveLength(2) // header and footer
   })
 })

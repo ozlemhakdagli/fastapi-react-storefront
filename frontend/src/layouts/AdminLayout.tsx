@@ -9,7 +9,9 @@ import {
   Tags,
   Users,
 } from 'lucide-react'
+import { Suspense } from 'react'
 import { Link, NavLink, Outlet } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { t } from '@/lib/i18n'
 
 const links = [
@@ -61,7 +63,9 @@ export default function AdminLayout() {
         </Link>
       </aside>
       <section className="bg-background min-w-0 p-6">
-        <Outlet />
+        <Suspense fallback={<LoadingNotice />}>
+          <Outlet />
+        </Suspense>
       </section>
     </div>
   )

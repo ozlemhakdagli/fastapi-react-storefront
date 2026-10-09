@@ -1,6 +1,8 @@
 import { Mail, MessageCircle, ShoppingBag, User } from 'lucide-react'
+import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router'
 import { cn } from 'cn'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { t } from '@/lib/i18n'
 
 const links = [
@@ -42,7 +44,9 @@ export default function AccountLayout() {
         </nav>
       </aside>
       <section className="min-w-0">
-        <Outlet />
+        <Suspense fallback={<LoadingNotice />}>
+          <Outlet />
+        </Suspense>
       </section>
     </div>
   )

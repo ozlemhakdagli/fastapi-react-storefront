@@ -1,4 +1,6 @@
+import { Suspense } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { useAuth } from '@/features/auth/AuthContext'
 
 // These guards only decide what the browser shows. The real checks are in the API
@@ -20,5 +22,9 @@ export function RequireAdmin() {
   if (loading) return null
   if (!user) return <Navigate to="/login" replace state={{ from: location }} />
   if (user.role !== 'admin') return <Navigate to="/" replace />
-  return <Outlet />
+  return (
+    <Suspense fallback={<LoadingNotice />}>
+      <Outlet />
+    </Suspense>
+  )
 }

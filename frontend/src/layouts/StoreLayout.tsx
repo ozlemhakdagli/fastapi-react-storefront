@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { cn } from 'cn'
 import { ShoppingCart, Store } from 'lucide-react'
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useCartCount } from '@/features/cart/hooks/useCart'
@@ -119,7 +120,9 @@ export default function StoreLayout() {
       </header>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
-        <Outlet />
+        <Suspense fallback={<LoadingNotice />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       <footer className="bg-sidebar text-sm text-sidebar-foreground">

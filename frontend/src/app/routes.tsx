@@ -1,34 +1,38 @@
+import { lazy } from 'react'
 import { Route, Routes } from 'react-router'
 import { RequireAdmin, RequireAuth } from '@/components/guards'
-import MyCommentsPage from '@/features/account/pages/MyCommentsPage'
-import MyMessagesPage from '@/features/account/pages/MyMessagesPage'
-import AccountOrderDetailPage from '@/features/account/pages/OrderDetailPage'
-import AccountOrdersPage from '@/features/account/pages/OrdersPage'
-import ProfilePage from '@/features/account/pages/ProfilePage'
-import AdminBrandsPage from '@/features/admin/pages/BrandsPage'
-import AdminCategoriesPage from '@/features/admin/pages/CategoriesPage'
-import AdminCommentsPage from '@/features/admin/pages/CommentsPage'
-import AdminDashboardPage from '@/features/admin/pages/DashboardPage'
-import AdminMessagesPage from '@/features/admin/pages/MessagesPage'
-import AdminOrderDetailPage from '@/features/admin/pages/OrderDetailPage'
-import AdminOrdersPage from '@/features/admin/pages/OrdersPage'
-import AdminProductFormPage from '@/features/admin/pages/ProductFormPage'
-import AdminProductsPage from '@/features/admin/pages/ProductsPage'
-import AdminSettingsPage from '@/features/admin/pages/SettingsPage'
-import AdminUsersPage from '@/features/admin/pages/UsersPage'
 import LoginPage from '@/features/auth/pages/LoginPage'
 import RegisterPage from '@/features/auth/pages/RegisterPage'
-import CartPage from '@/features/cart/pages/CartPage'
-import CheckoutPage from '@/features/cart/pages/CheckoutPage'
 import HomePage from '@/features/catalog/pages/HomePage'
 import ProductDetailPage from '@/features/catalog/pages/ProductDetailPage'
 import ProductListPage from '@/features/catalog/pages/ProductListPage'
-import AccountLayout from '@/layouts/AccountLayout'
-import AdminLayout from '@/layouts/AdminLayout'
 import StoreLayout from '@/layouts/StoreLayout'
 import AboutPage from '@/features/pages/AboutPage'
 import ContactPage from '@/features/pages/ContactPage'
 import NotFoundPage from '@/features/pages/NotFoundPage'
+
+// The storefront pages are in the first download. The account, cart, checkout and admin screens are
+// loaded the first time someone opens them, so visitors who only browse do not pay for them.
+const MyCommentsPage = lazy(() => import('@/features/account/pages/MyCommentsPage'))
+const MyMessagesPage = lazy(() => import('@/features/account/pages/MyMessagesPage'))
+const AccountOrderDetailPage = lazy(() => import('@/features/account/pages/OrderDetailPage'))
+const AccountOrdersPage = lazy(() => import('@/features/account/pages/OrdersPage'))
+const ProfilePage = lazy(() => import('@/features/account/pages/ProfilePage'))
+const AdminBrandsPage = lazy(() => import('@/features/admin/pages/BrandsPage'))
+const AdminCategoriesPage = lazy(() => import('@/features/admin/pages/CategoriesPage'))
+const AdminCommentsPage = lazy(() => import('@/features/admin/pages/CommentsPage'))
+const AdminDashboardPage = lazy(() => import('@/features/admin/pages/DashboardPage'))
+const AdminMessagesPage = lazy(() => import('@/features/admin/pages/MessagesPage'))
+const AdminOrderDetailPage = lazy(() => import('@/features/admin/pages/OrderDetailPage'))
+const AdminOrdersPage = lazy(() => import('@/features/admin/pages/OrdersPage'))
+const AdminProductFormPage = lazy(() => import('@/features/admin/pages/ProductFormPage'))
+const AdminProductsPage = lazy(() => import('@/features/admin/pages/ProductsPage'))
+const AdminSettingsPage = lazy(() => import('@/features/admin/pages/SettingsPage'))
+const AdminUsersPage = lazy(() => import('@/features/admin/pages/UsersPage'))
+const CartPage = lazy(() => import('@/features/cart/pages/CartPage'))
+const CheckoutPage = lazy(() => import('@/features/cart/pages/CheckoutPage'))
+const AccountLayout = lazy(() => import('@/layouts/AccountLayout'))
+const AdminLayout = lazy(() => import('@/layouts/AdminLayout'))
 
 // Browser URL -> page. This is React Router; it is unrelated to the FastAPI routers, which map
 // HTTP requests to Python functions.
