@@ -136,6 +136,8 @@ WORK="$(mktemp -d)"
 (
   cd "$REPO/backend"
   export DATABASE_URL="$E2E_DSN" UPLOAD_DIR="$WORK" CORS_ORIGINS="$E2E_BASE_URL"
+  # Like a public server: the API documentation is off, whatever backend/.env says.
+  export API_DOCS_ENABLED=false
   exec setsid $RUN uvicorn app.main:create_app --factory --port "$API_PORT" --log-level warning
 ) </dev/null &
 API_PID=$!
