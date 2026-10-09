@@ -397,3 +397,20 @@ def test_a_failed_second_write_removes_the_first_file(tmp_path: Path, monkeypatc
     with pytest.raises(OSError):
         images.store_image(tmp_path, b"full", b"card")
     assert not (tmp_path / f"{token}.webp").exists()
+
+
+def test_first_real_photo_replaces_the_placeholder_row(
+    client: TestClient, admin_headers, make_product, make_image, conn, settings
+) -> None:
+    """Seed products carry one row for the placeholder; a real upload becomes the cover instead."""
+    product = make_product()
+    make_image(product["id"], file_name="placeholder.svg", position=0)
+    response = _upload(client, admin_headers(), product["id"])
+    assert response.status_code == 201
+    assert response.json()["position"] == 0
+    rows = conn.execute(
+        "SELECT file_name FROM product_images WHERE product_id = %s", (product["id"],)
+    ).fetchall()
+    assert [row["file_name"] for row in rows] == [_stored_name(response)]
+    listed = client.get(f"/api/products/{product['id']}").json()
+    assert listed["image_url"] == response.json()["thumb_url"]
