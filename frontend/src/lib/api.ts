@@ -105,8 +105,10 @@ async function request<T>(method: string, path: string, options: RequestOptions 
 
   if (response.status === 401 && token) {
     tokenStore.clear()
-    // Login and the startup session check handle their own 401s.
-    if (!path.startsWith('/auth/')) onUnauthorized()
+    // Only the login form and the startup session check handle their own 401s. Any other call,
+    // for example a password change from a session that another device has ended, goes to /login.
+    const handlesItsOwn401 = path === '/auth/login' || (path === '/auth/me' && method === 'GET')
+    if (!handlesItsOwn401) onUnauthorized()
   }
   if (!response.ok) throw await toApiError(response)
   if (response.status === 204) return undefined as T

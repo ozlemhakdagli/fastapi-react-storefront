@@ -121,7 +121,15 @@ describe('api', () => {
     expect(redirect).toHaveBeenCalledTimes(1)
   })
 
-  it('does not redirect on a 401 from /auth/ calls (login form, startup check)', async () => {
+  it('redirects on a 401 of a password change from an ended session', async () => {
+    localStorage.setItem('ecommerce.token', 'ended')
+    fetchMock.mockResolvedValue(jsonResponse(401, { detail: 'unauthorized' }))
+    await api.post('/auth/change-password', {}).catch(() => undefined)
+    expect(localStorage.getItem('ecommerce.token')).toBeNull()
+    expect(redirect).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not redirect on a 401 from the startup session check', async () => {
     localStorage.setItem('ecommerce.token', 'stale')
     fetchMock.mockResolvedValue(jsonResponse(401, { detail: 'unauthorized' }))
     await api.get('/auth/me').catch(() => undefined)
