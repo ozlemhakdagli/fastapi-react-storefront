@@ -291,3 +291,22 @@ def delete_image(conn: psycopg.Connection, product_id: int, image_id: int) -> di
         "RETURNING file_name, thumb_name",
         (image_id, product_id),
     ).fetchone()
+
+
+def list_favorites(
+    conn: psycopg.Connection, user_id: int, limit: int, offset: int
+) -> tuple[list[dict], int]:
+    """One page of the user's active favourite products, newest favourite first, with the total."""
+    total = conn.execute(
+        "SELECT count(*) AS total FROM favorites AS f "
+        "JOIN products AS p ON p.id = f.product_id "
+        "WHERE f.user_id = %s AND p.is_active",
+        (user_id,),
+    ).fetchone()["total"]
+    query = sql.SQL(
+        "SELECT {columns} {from_} JOIN favorites AS f ON f.product_id = p.id "
+        "WHERE f.user_id = %s AND p.is_active ORDER BY f.created_at DESC, p.id DESC "
+        "LIMIT %s OFFSET %s"
+    ).format(columns=_PUBLIC_COLUMNS, from_=_FROM)
+    rows = conn.execute(query, (user_id, limit, offset)).fetchall()
+    return rows, total
