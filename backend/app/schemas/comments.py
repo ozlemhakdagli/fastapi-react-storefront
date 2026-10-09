@@ -18,6 +18,8 @@ class CommentOut(BaseModel):
     author_name: str
     body: str
     created_at: Iso
+    # The current star rating of the author for this product, or None when the author has not rated.
+    rating: int | None
 
 
 class MyCommentOut(CommentOut):

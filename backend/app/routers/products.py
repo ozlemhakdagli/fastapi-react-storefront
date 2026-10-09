@@ -68,6 +68,8 @@ def _list_item(row: dict, images: list[dict]) -> dict:
         "brand": _named(row["brand_id"], row["brand_name"]),
         "category": _named(row["category_id"], row["category_name"]),
         "image_url": card_image_url(cover.get("file_name"), cover.get("thumb_name")),
+        "rating_avg": None if row["rating_avg"] is None else float(row["rating_avg"]),
+        "rating_count": row["rating_count"],
     }
 
 

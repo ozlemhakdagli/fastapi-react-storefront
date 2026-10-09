@@ -26,6 +26,8 @@ def product_row(**overrides: object) -> dict[str, object]:
         "brand": {"id": 2, "name": "Samsung"},
         "category": None,
         "image_url": "/api/media/placeholder.svg",
+        "rating_avg": None,
+        "rating_count": 0,
     }
     row.update(overrides)
     return row
@@ -119,6 +121,7 @@ def test_timestamps_serialize_as_utc_strings() -> None:
             "author_name": "Ada",
             "body": "Nice",
             "created_at": "2026-10-08T15:00:00+03:00",
+            "rating": None,
         }
     )
     assert comment.model_dump(mode="json")["created_at"] == "2026-10-08T12:00:00Z"

@@ -30,6 +30,8 @@ def test_list_returns_only_active_products_with_pagination_fields(
         "brand",
         "category",
         "image_url",
+        "rating_avg",
+        "rating_count",
     }
 
 

@@ -46,6 +46,7 @@ def test_list_is_public_paginated_newest_first_with_author_name_and_user_id(
         "author_name": "Alice",
         "body": "Third",
         "created_at": "2026-10-03T10:00:00Z",
+        "rating": None,
     }
 
     second = client.get(_comments_url(product["id"]), params={"page": 2, "page_size": 2})

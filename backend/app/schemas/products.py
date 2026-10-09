@@ -32,6 +32,8 @@ class ProductListItem(BaseModel):
     brand: Named | None
     category: Named | None
     image_url: str
+    rating_avg: float | None
+    rating_count: int
 
 
 class ProductDetail(ProductListItem):

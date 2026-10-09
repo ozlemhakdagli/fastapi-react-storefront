@@ -10,15 +10,19 @@ from app.media import PLACEHOLDER_FILE
 # Public reads never select cost_price, is_active or updated_at.
 _PUBLIC_COLUMNS = sql.SQL(
     "p.id, p.sku, p.name, p.short_description, p.description, p.price, p.stock, p.is_new, "
-    "p.created_at, p.brand_id, b.name AS brand_name, p.category_id, c.name AS category_name"
+    "p.created_at, p.brand_id, b.name AS brand_name, p.category_id, c.name AS category_name, "
+    "rt.rating_avg, rt.rating_count"
 )
 _ADMIN_COLUMNS = sql.SQL("{public}, p.cost_price, p.is_active, p.updated_at").format(
     public=_PUBLIC_COLUMNS
 )
+# rt has one row per product, read through the product_id index: rating_avg is NULL without ratings.
 _FROM = sql.SQL(
     "FROM products p "
     "LEFT JOIN brands b ON b.id = p.brand_id "
-    "LEFT JOIN categories c ON c.id = p.category_id"
+    "LEFT JOIN categories c ON c.id = p.category_id "
+    "LEFT JOIN LATERAL (SELECT round(avg(rating), 1) AS rating_avg, count(*) AS rating_count "
+    "FROM product_ratings WHERE product_id = p.id) AS rt ON TRUE"
 )
 # API sort keys map to these fixed clauses. Nothing from the request reaches the SQL text.
 _PUBLIC_SORTS = {

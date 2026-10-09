@@ -18,9 +18,11 @@ def list_for_product(
     """One page of a product's comments, newest first. Email is never selected here."""
     return conn.execute(
         """
-        SELECT c.id, c.product_id, c.user_id, u.full_name AS author_name, c.body, c.created_at
+        SELECT c.id, c.product_id, c.user_id, u.full_name AS author_name, c.body, c.created_at,
+               pr.rating
         FROM comments AS c
         JOIN users AS u ON u.id = c.user_id
+        LEFT JOIN product_ratings AS pr ON pr.user_id = c.user_id AND pr.product_id = c.product_id
         WHERE c.product_id = %s
         ORDER BY c.created_at DESC, c.id DESC
         LIMIT %s OFFSET %s
@@ -49,9 +51,11 @@ def create(conn: psycopg.Connection, product_id: int, user_id: int, body: str) -
             WHERE p.id = %s AND p.is_active
             RETURNING id, product_id, user_id, body, created_at
         )
-        SELECT i.id, i.product_id, i.user_id, u.full_name AS author_name, i.body, i.created_at
+        SELECT i.id, i.product_id, i.user_id, u.full_name AS author_name, i.body, i.created_at,
+               pr.rating
         FROM inserted AS i
         JOIN users AS u ON u.id = i.user_id
+        LEFT JOIN product_ratings AS pr ON pr.user_id = i.user_id AND pr.product_id = i.product_id
         """,
         (user_id, body, product_id),
     ).fetchone()
@@ -74,10 +78,11 @@ def list_for_user(conn: psycopg.Connection, user_id: int, limit: int, offset: in
     return conn.execute(
         """
         SELECT c.id, c.product_id, c.user_id, u.full_name AS author_name, c.body, c.created_at,
-               p.name AS product_name
+               p.name AS product_name, pr.rating
         FROM comments AS c
         JOIN users AS u ON u.id = c.user_id
         JOIN products AS p ON p.id = c.product_id
+        LEFT JOIN product_ratings AS pr ON pr.user_id = c.user_id AND pr.product_id = c.product_id
         WHERE c.user_id = %s
         ORDER BY c.created_at DESC, c.id DESC
         LIMIT %s OFFSET %s
@@ -98,10 +103,11 @@ def list_admin(conn: psycopg.Connection, limit: int, offset: int) -> list[dict]:
     return conn.execute(
         """
         SELECT c.id, c.product_id, c.user_id, u.full_name AS author_name, c.body, c.created_at,
-               p.name AS product_name, u.email AS author_email
+               p.name AS product_name, u.email AS author_email, pr.rating
         FROM comments AS c
         JOIN users AS u ON u.id = c.user_id
         JOIN products AS p ON p.id = c.product_id
+        LEFT JOIN product_ratings AS pr ON pr.user_id = c.user_id AND pr.product_id = c.product_id
         ORDER BY c.created_at DESC, c.id DESC
         LIMIT %s OFFSET %s
         """,
