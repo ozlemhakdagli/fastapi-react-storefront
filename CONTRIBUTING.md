@@ -24,7 +24,7 @@ npm test
 npm run build
 ```
 
-GitHub Actions runs the same commands for every pull request.
+Nothing runs automatically on GitHub, so run these commands yourself before you submit a change.
 
 ## Conventions
 
