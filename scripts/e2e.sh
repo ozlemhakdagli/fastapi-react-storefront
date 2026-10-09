@@ -14,9 +14,10 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO"
 
-API_PORT=8100
-WEB_PORT=5273
-DB_NAME=ecommerce_e2e
+# The defaults can be changed (E2E_API_PORT, E2E_WEB_PORT, E2E_DB) so that two runs can use one machine.
+API_PORT=${E2E_API_PORT:-8100}
+WEB_PORT=${E2E_WEB_PORT:-5273}
+DB_NAME=${E2E_DB:-ecommerce_e2e}
 # Python and Node tools run in the conda environment. E2E_RUN replaces that prefix; set it to an
 # empty value when the environment is already active.
 RUN=${E2E_RUN-conda run -n ecommerce --no-capture-output}
