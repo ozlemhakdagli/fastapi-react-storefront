@@ -6,6 +6,7 @@ import psycopg
 from psycopg import sql
 
 from app.media import PLACEHOLDER_FILE
+from app.repositories.like import like_pattern
 
 # Public reads never select cost_price, is_active or updated_at.
 _PUBLIC_COLUMNS = sql.SQL(
@@ -68,12 +69,6 @@ _UPDATE_PRODUCT = """
 """
 
 
-def _like_pattern(term: str) -> str:
-    """A LIKE pattern that finds term anywhere. The wildcard characters in term match literally."""
-    escaped = term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
-    return "%" + escaped + "%"
-
-
 def _where(base: str, filters: list[_Filter]) -> tuple[sql.Composable, list[object]]:
     clauses = [sql.SQL(base), *(sql.SQL(condition) for condition, _ in filters)]
     params = [value for _, values in filters for value in values]
@@ -84,7 +79,7 @@ def _shared_filters(q: str | None, category_id: int | None, brand_id: int | None
     filters: list[_Filter] = []
     term = (q or "").strip()
     if term:
-        pattern = _like_pattern(term)
+        pattern = like_pattern(term)
         filters.append(("(p.name ILIKE %s OR p.sku ILIKE %s)", (pattern, pattern)))
     if category_id is not None:
         filters.append(("p.category_id = %s", (category_id,)))
@@ -163,6 +158,12 @@ def get_admin(conn: psycopg.Connection, product_id: int) -> dict | None:
         columns=_ADMIN_COLUMNS, from_=_FROM
     )
     return conn.execute(query, (product_id,)).fetchone()
+
+
+def is_active(conn: psycopg.Connection, product_id: int) -> bool | None:
+    """True or False for an existing product, None when no product has this id."""
+    row = conn.execute("SELECT is_active FROM products WHERE id = %s", (product_id,)).fetchone()
+    return None if row is None else row["is_active"]
 
 
 def missing_reference(

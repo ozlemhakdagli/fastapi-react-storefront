@@ -6,6 +6,7 @@ import psycopg
 
 from app.errors import ApiError
 from app.repositories import orders as repo
+from app.repositories import products
 
 # The order status machine (docs/api.md).
 ALLOWED_TRANSITIONS: dict[str, frozenset[str]] = {
@@ -39,7 +40,7 @@ def place_order(
         for line in lines:
             product = repo.decrement_stock(conn, line["product_id"], line["quantity"])
             if product is None:
-                if repo.product_is_active(conn, line["product_id"]) is False:
+                if products.is_active(conn, line["product_id"]) is False:
                     raise ApiError(409, "product_unavailable", product_id=line["product_id"])
                 raise ApiError(409, "insufficient_stock", product_id=line["product_id"])
             priced.append((line, product))

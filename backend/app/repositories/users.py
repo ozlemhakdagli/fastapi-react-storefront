@@ -6,13 +6,10 @@ function returns the public columns, which leave it out.
 
 from psycopg import Connection, sql
 
+from app.repositories.like import like_pattern
+
 # Columns that update() may set. email is deliberately absent: no endpoint may change it.
 _UPDATABLE = frozenset({"full_name", "phone", "address", "role", "is_active", "password_hash"})
-
-
-def _escape_like(text: str) -> str:
-    """Escape LIKE wildcards so that a search term matches literally (the default escape is \\)."""
-    return text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
 def get_by_id(conn: Connection, user_id: int) -> dict | None:
@@ -84,7 +81,7 @@ def list_page(
         params["role"] = role
     if q:
         conditions.append(sql.SQL("(email ILIKE %(pattern)s OR full_name ILIKE %(pattern)s)"))
-        params["pattern"] = "%" + _escape_like(q) + "%"
+        params["pattern"] = like_pattern(q)
     where = sql.SQL(" WHERE ") + sql.SQL(" AND ").join(conditions) if conditions else sql.SQL("")
 
     count_row = conn.execute(

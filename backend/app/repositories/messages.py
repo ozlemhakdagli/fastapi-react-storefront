@@ -50,11 +50,11 @@ def list_for_user(conn: psycopg.Connection, user_id: int, limit: int, offset: in
     ).fetchall()
 
 
-def count_for_user(conn: psycopg.Connection, user_id: int) -> dict:
-    """The number of the user's messages, as a row: {"total": n}."""
+def count_for_user(conn: psycopg.Connection, user_id: int) -> int:
+    """The number of the user's messages."""
     return conn.execute(
         "SELECT count(*) AS total FROM messages WHERE user_id = %s", (user_id,)
-    ).fetchone()
+    ).fetchone()["total"]
 
 
 def list_admin(
@@ -74,13 +74,13 @@ def list_admin(
     ).fetchall()
 
 
-def count_admin(conn: psycopg.Connection, *, status: str | None, direction: str | None) -> dict:
-    """The number of messages matching the same filters as list_admin, as a row: {"total": n}."""
+def count_admin(conn: psycopg.Connection, *, status: str | None, direction: str | None) -> int:
+    """The number of messages matching the same filters as list_admin."""
     return conn.execute(
         "SELECT count(*) AS total FROM messages "
         "WHERE (%s::text IS NULL OR status = %s) AND (%s::text IS NULL OR direction = %s)",
         (status, status, direction, direction),
-    ).fetchone()
+    ).fetchone()["total"]
 
 
 def get(conn: psycopg.Connection, message_id: int) -> dict | None:

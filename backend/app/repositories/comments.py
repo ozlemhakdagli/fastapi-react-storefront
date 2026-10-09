@@ -3,15 +3,6 @@
 import psycopg
 
 
-def product_is_active(conn: psycopg.Connection, product_id: int) -> bool:
-    """True when the product exists and is active. A missing or inactive product gives False."""
-    row = conn.execute(
-        "SELECT EXISTS (SELECT 1 FROM products WHERE id = %s AND is_active) AS active",
-        (product_id,),
-    ).fetchone()
-    return row["active"]
-
-
 def list_for_product(
     conn: psycopg.Connection, product_id: int, limit: int, offset: int
 ) -> list[dict]:

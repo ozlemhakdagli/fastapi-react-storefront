@@ -3,6 +3,8 @@
 import psycopg
 from fastapi.testclient import TestClient
 
+from app.repositories import ratings
+
 # An id that no product has (the test database is truncated after every test).
 MISSING_PRODUCT_ID = 999_999_999
 
@@ -278,3 +280,31 @@ def test_deleting_a_product_removes_its_ratings(
     response = client.delete(f"/api/admin/products/{product['id']}", headers=admin_headers())
     assert response.status_code == 204
     assert conn.execute("SELECT count(*) AS n FROM product_ratings").fetchone()["n"] == 0
+
+
+def test_status_answers_existence_activity_rating_and_purchase_in_one_row(
+    conn, make_user, make_product, make_order, make_rating
+) -> None:
+    user = make_user()
+    bought = make_product()
+    other = make_product()
+    inactive = make_product(is_active=False)
+    make_order(user["id"], status="completed", items=((bought["id"], 1),))
+    make_rating(user["id"], bought["id"], 4)
+
+    assert ratings.status(conn, user["id"], 999_999) is None
+    assert ratings.status(conn, user["id"], inactive["id"]) == {
+        "is_active": False,
+        "rating": None,
+        "can_rate": False,
+    }
+    assert ratings.status(conn, user["id"], other["id"]) == {
+        "is_active": True,
+        "rating": None,
+        "can_rate": False,
+    }
+    assert ratings.status(conn, user["id"], bought["id"]) == {
+        "is_active": True,
+        "rating": 4,
+        "can_rate": True,
+    }

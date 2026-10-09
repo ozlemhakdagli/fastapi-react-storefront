@@ -92,26 +92,9 @@ def _removes_active_admin(target: dict, fields: dict) -> bool:
     return fields.get("role") == "customer" or fields.get("is_active") is False
 
 
-def _insert(
-    conn: Connection,
-    *,
-    email: str,
-    password_hash: str,
-    full_name: str,
-    role: str,
-    phone: str | None,
-    address: str | None,
-) -> dict:
+def _insert(conn: Connection, **fields: object) -> dict:
     try:
-        return users.create(
-            conn,
-            email=email,
-            password_hash=password_hash,
-            full_name=full_name,
-            role=role,
-            phone=phone,
-            address=address,
-        )
+        return users.create(conn, **fields)
     except UniqueViolation as exc:
         # The only unique constraint on users is the case-insensitive email index.
         raise ApiError(409, "email_taken") from exc

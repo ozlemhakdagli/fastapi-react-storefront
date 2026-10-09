@@ -13,20 +13,20 @@ admin_router = APIRouter(dependencies=[Depends(require_admin)])
 
 
 @router.get("/cart", response_model=CartOut)
-def get_cart(conn: Conn, user: CurrentUser) -> CartOut:
+def get_cart(conn: Conn, user: CurrentUser) -> dict:
     return service.get_cart(conn, user["id"])
 
 
 @router.post("/cart/items", response_model=CartOut)
-def add_item(body: CartItemIn, conn: Conn, user: CurrentUser) -> CartOut:
+def add_item(body: CartItemIn, conn: Conn, user: CurrentUser) -> dict:
     return service.add_item(conn, user["id"], body.product_id, body.quantity)
 
 
 @router.put("/cart/items/{product_id}", response_model=CartOut)
-def set_item(product_id: int, body: CartItemSetIn, conn: Conn, user: CurrentUser) -> CartOut:
+def set_item(product_id: int, body: CartItemSetIn, conn: Conn, user: CurrentUser) -> dict:
     return service.set_item(conn, user["id"], product_id, body.quantity)
 
 
 @router.delete("/cart/items/{product_id}", response_model=CartOut)
-def remove_item(product_id: int, conn: Conn, user: CurrentUser) -> CartOut:
+def remove_item(product_id: int, conn: Conn, user: CurrentUser) -> dict:
     return service.remove_item(conn, user["id"], product_id)

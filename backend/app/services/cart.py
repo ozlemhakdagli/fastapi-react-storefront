@@ -8,32 +8,31 @@ from psycopg import errors
 from app.errors import ApiError
 from app.media import card_image_url
 from app.repositories import cart as repo
-from app.schemas.cart import CartItemOut, CartOut
 
 # A cart line never holds more than this, matching the quantity limit of the cart schemas.
 MAX_LINE_QUANTITY = 99
 
 
-def get_cart(conn: psycopg.Connection, user_id: int) -> CartOut:
+def get_cart(conn: psycopg.Connection, user_id: int) -> dict:
     """The user's lines in product id order. Lines of inactive products stay listed."""
-    items: list[CartItemOut] = []
+    items: list[dict] = []
     total = Decimal("0.00")
     for line in repo.lines(conn, user_id):
         line_total = line["unit_price"] * line["quantity"]
         total += line_total
         items.append(
-            CartItemOut(
-                product_id=line["product_id"],
-                name=line["name"],
-                unit_price=line["unit_price"],
-                quantity=line["quantity"],
-                line_total=line_total,
-                stock=line["stock"],
-                available=line["available"],
-                image_url=card_image_url(line["file_name"], line["thumb_name"]),
-            )
+            {
+                "product_id": line["product_id"],
+                "name": line["name"],
+                "unit_price": line["unit_price"],
+                "quantity": line["quantity"],
+                "line_total": line_total,
+                "stock": line["stock"],
+                "available": line["available"],
+                "image_url": card_image_url(line["file_name"], line["thumb_name"]),
+            }
         )
-    return CartOut(items=items, total=total)
+    return {"items": items, "total": total}
 
 
 def _active_product(conn: psycopg.Connection, user_id: int, product_id: int) -> dict:
@@ -50,7 +49,7 @@ def _check_stock(product: dict, product_id: int, quantity: int) -> None:
         raise ApiError(409, "insufficient_stock", product_id=product_id)
 
 
-def add_item(conn: psycopg.Connection, user_id: int, product_id: int, quantity: int) -> CartOut:
+def add_item(conn: psycopg.Connection, user_id: int, product_id: int, quantity: int) -> dict:
     """Add to the current quantity of the line."""
     product = _active_product(conn, user_id, product_id)
     _check_stock(product, product_id, product["cart_quantity"] + quantity)
@@ -63,7 +62,7 @@ def add_item(conn: psycopg.Connection, user_id: int, product_id: int, quantity: 
     return get_cart(conn, user_id)
 
 
-def set_item(conn: psycopg.Connection, user_id: int, product_id: int, quantity: int) -> CartOut:
+def set_item(conn: psycopg.Connection, user_id: int, product_id: int, quantity: int) -> dict:
     """Set the quantity of the line."""
     product = _active_product(conn, user_id, product_id)
     _check_stock(product, product_id, quantity)
@@ -71,7 +70,7 @@ def set_item(conn: psycopg.Connection, user_id: int, product_id: int, quantity: 
     return get_cart(conn, user_id)
 
 
-def remove_item(conn: psycopg.Connection, user_id: int, product_id: int) -> CartOut:
+def remove_item(conn: psycopg.Connection, user_id: int, product_id: int) -> dict:
     """Delete the line. Deleting a line that does not exist is fine."""
     repo.remove(conn, user_id, product_id)
     return get_cart(conn, user_id)

@@ -55,12 +55,6 @@ def decrement_stock(conn: psycopg.Connection, product_id: int, quantity: int) ->
     ).fetchone()
 
 
-def product_is_active(conn: psycopg.Connection, product_id: int) -> bool | None:
-    """True or False for an existing product, None when it does not exist."""
-    row = conn.execute("SELECT is_active FROM products WHERE id = %s", (product_id,)).fetchone()
-    return None if row is None else row["is_active"]
-
-
 def insert_order(
     conn: psycopg.Connection,
     *,

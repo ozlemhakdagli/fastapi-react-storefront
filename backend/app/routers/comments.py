@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Response
 from app.deps import Conn, CurrentUser, Pagination, require_admin
 from app.errors import ApiError
 from app.repositories import comments as repo
+from app.repositories import products
 from app.schemas.comments import AdminCommentOut, CommentIn, CommentOut, MyCommentOut
 from app.schemas.common import Page
 
@@ -15,7 +16,7 @@ admin_router = APIRouter(dependencies=[Depends(require_admin)])
 @router.get("/products/{product_id}/comments", response_model=Page[CommentOut])
 def list_product_comments(product_id: int, conn: Conn, p: Pagination) -> dict:
     # A missing or inactive product has no public comments, just like the product itself.
-    if not repo.product_is_active(conn, product_id):
+    if not products.is_active(conn, product_id):
         raise ApiError(404, "not_found")
     items = repo.list_for_product(conn, product_id, p.limit, p.offset)
     total = repo.count_for_product(conn, product_id)
