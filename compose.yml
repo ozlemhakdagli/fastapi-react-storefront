@@ -3,7 +3,8 @@
 #
 # Three services: the database, the API and the web server (built frontend plus a proxy for /api).
 # Compared with running everything by hand, only the host in DATABASE_URL changes: "localhost"
-# becomes the service name "db".
+# becomes the service name "db". The API logs in as the non-superuser role ecommerce, created by
+# scripts/docker-db-init.sh.
 #
 # Settings come from a file named .env next to this one (copy .env.example). It is git-ignored.
 
@@ -11,13 +12,13 @@ services:
   db:
     image: postgres:18
     environment:
-      POSTGRES_USER: ecommerce
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
-      POSTGRES_DB: ecommerce
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
     volumes:
       - db-data:/var/lib/postgresql
+      - ./scripts/docker-db-init.sh:/docker-entrypoint-initdb.d/10-app-role.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ecommerce -d ecommerce"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecommerce"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -26,7 +27,7 @@ services:
   backend:
     build: ./backend
     environment:
-      DATABASE_URL: postgresql://ecommerce:${POSTGRES_PASSWORD}@db:5432/ecommerce
+      DATABASE_URL: postgresql://ecommerce:${APP_DB_PASSWORD}@db:5432/ecommerce
       SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
       UPLOAD_DIR: /app/uploads
       # Read by seed.py (see the README): docker compose exec backend python seed.py

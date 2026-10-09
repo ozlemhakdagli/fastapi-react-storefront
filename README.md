@@ -292,7 +292,7 @@ with the setup above, only the host in `DATABASE_URL` changes: `localhost` becom
 `db`.
 
 ```bash
-cp .env.example .env     # then edit it: POSTGRES_PASSWORD, SECRET_KEY, ADMIN_EMAIL, ADMIN_PASSWORD
+cp .env.example .env     # then edit it: POSTGRES_PASSWORD, APP_DB_PASSWORD, SECRET_KEY, ADMIN_EMAIL, ADMIN_PASSWORD
 docker compose up --build
 docker compose exec backend python seed.py     # once: sample data and the admin account
 ```
@@ -304,10 +304,13 @@ the data as well.
 Notes:
 
 - The root `.env` is for Docker only. When you run the API by hand it reads `backend/.env`.
-- Use letters and digits in `POSTGRES_PASSWORD`: it is placed inside the `DATABASE_URL`.
-- The nginx configuration limits login and registration to a few requests per second and sets
-  security headers (`Content-Security-Policy`, `X-Frame-Options`, `Referrer-Policy`) that the API does
-  not send (see
+- Use letters and digits in `APP_DB_PASSWORD`: it is placed inside the `DATABASE_URL`.
+- The API logs in as the role `ecommerce`, which is not a superuser. The init script runs only when
+  the `db-data` volume is created. A stack started before this change keeps its old superuser login
+  until `docker compose down -v` (which deletes the data).
+- The nginx configuration limits login and registration to a few requests per second. The API now
+  sends `X-Frame-Options`, `Referrer-Policy` and `Cache-Control: no-store` itself; nginx adds
+  `Content-Security-Policy` and repeats the others for the pages (see
   [Before you put it on the internet](#before-you-put-it-on-the-internet)). It does not provide TLS:
   put a TLS-terminating proxy or your hosting provider's load balancer in front for a public server.
 - The Content-Security-Policy blocks the Swagger UI at `/api/docs`, which loads a script from a CDN.
