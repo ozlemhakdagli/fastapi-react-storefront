@@ -33,7 +33,7 @@ def test_seed_creates_expected_data(conn: psycopg.Connection) -> None:
         "categories": 5,
         "brands": 5,
         "products": 20,
-        "images": 20,
+        "images": 0,
         "site_settings": 1,
         "admins": 1,
         "customers": 0,
@@ -57,14 +57,8 @@ def test_seed_creates_expected_data(conn: psycopg.Connection) -> None:
     assert sum(row["stock"] == 0 for row in products) >= 2
     assert sum(not row["is_active"] for row in products) == 1
 
-    # Each product has exactly one image row, and it points at the placeholder file.
-    per_product = conn.execute(
-        "SELECT p.sku, count(i.id) AS images, "
-        "bool_and(i.file_name = 'placeholder.svg') AS placeholder "
-        "FROM products p LEFT JOIN product_images i ON i.product_id = p.id GROUP BY p.sku"
-    ).fetchall()
-    assert len(per_product) == 20
-    assert all(row["images"] == 1 and row["placeholder"] for row in per_product)
+    # Seeded products have no image rows; the API shows the placeholder for them.
+    assert conn.execute("SELECT count(*) AS n FROM product_images").fetchone()["n"] == 0
 
     admin = conn.execute(
         "SELECT email, is_active, password_hash FROM users WHERE role = 'admin'"

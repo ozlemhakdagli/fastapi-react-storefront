@@ -75,6 +75,7 @@ def test_applies_all_migrations_to_empty_database(db_dsn: str) -> None:
         "0002_image_thumbnails",
         "0003_ratings_and_favorites",
         "0004_token_version",
+        "0005_order_index_and_image_cleanup",
     ]
     rows = _query(db_dsn, "SELECT tablename FROM pg_tables WHERE schemaname = 'public'")
     assert EXPECTED_TABLES <= {row[0] for row in rows}
@@ -83,7 +84,7 @@ def test_applies_all_migrations_to_empty_database(db_dsn: str) -> None:
 def test_second_run_is_a_noop(db_dsn: str) -> None:
     apply_migrations(db_dsn)
     assert apply_migrations(db_dsn) == []
-    assert _query(db_dsn, "SELECT count(*) FROM schema_migrations") == [(4,)]
+    assert _query(db_dsn, "SELECT count(*) FROM schema_migrations") == [(5,)]
 
 
 def test_checksum_change_raises(db_dsn: str, tmp_path: Path) -> None:
@@ -197,7 +198,7 @@ def test_main_applies_pending_migrations_and_prints_them(
     main()
     assert capsys.readouterr().out == (
         "applied 0001_init\napplied 0002_image_thumbnails\napplied 0003_ratings_and_favorites\n"
-        "applied 0004_token_version\n"
+        "applied 0004_token_version\napplied 0005_order_index_and_image_cleanup\n"
     )
     main()
     assert capsys.readouterr().out == ""
@@ -222,7 +223,7 @@ def test_main_falls_back_to_database_url_in_dot_env(
     main()
     assert capsys.readouterr().out == (
         "applied 0001_init\napplied 0002_image_thumbnails\napplied 0003_ratings_and_favorites\n"
-        "applied 0004_token_version\n"
+        "applied 0004_token_version\napplied 0005_order_index_and_image_cleanup\n"
     )
 
 
@@ -256,8 +257,46 @@ def test_images_uploaded_before_the_upgrade_keep_a_null_thumb_name(
         "0002_image_thumbnails",
         "0003_ratings_and_favorites",
         "0004_token_version",
+        "0005_order_index_and_image_cleanup",
     ]
     assert _query(db_dsn, "SELECT file_name, thumb_name FROM product_images") == [("old.png", None)]
+
+
+def test_0005_removes_only_placeholder_rows_and_adds_the_order_index(
+    db_dsn: str, tmp_path: Path
+) -> None:
+    migrations = tmp_path / "migrations"
+    migrations.mkdir()
+    for name in (
+        "0001_init",
+        "0002_image_thumbnails",
+        "0003_ratings_and_favorites",
+        "0004_token_version",
+    ):
+        shutil.copy(DEFAULT_DIR / f"{name}.sql", migrations / f"{name}.sql")
+    apply_migrations(db_dsn, migrations)
+    with psycopg.connect(db_dsn, autocommit=True) as conn:
+        for sku, file_name in (
+            ("A", "placeholder.svg"),
+            ("B", "photo.webp"),
+            ("C", "my-placeholder.svg"),
+        ):
+            product_id = conn.execute(
+                "INSERT INTO products (sku, name, price) VALUES (%s, %s, 1) RETURNING id",
+                (sku, sku),
+            ).fetchone()[0]
+            conn.execute(
+                "INSERT INTO product_images (product_id, file_name, position) VALUES (%s, %s, 0)",
+                (product_id, file_name),
+            )
+    assert apply_migrations(db_dsn) == ["0005_order_index_and_image_cleanup"]
+    assert sorted(_query(db_dsn, "SELECT file_name FROM product_images")) == [
+        ("my-placeholder.svg",),
+        ("photo.webp",),
+    ]
+    assert _query(
+        db_dsn, "SELECT indexname FROM pg_indexes WHERE indexname = 'orders_created_idx'"
+    ) == [("orders_created_idx",)]
 
 
 def test_ratings_and_favorites_tables_have_their_constraints(db_dsn: str) -> None:

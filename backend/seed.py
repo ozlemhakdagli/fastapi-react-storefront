@@ -13,7 +13,6 @@ from psycopg.rows import dict_row
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.config import get_settings
-from app.media import PLACEHOLDER_FILE
 from app.security import hash_password
 
 
@@ -277,10 +276,10 @@ def _insert_products(
     conn: psycopg.Connection, category_ids: dict[str, int], brand_ids: dict[str, int]
 ) -> None:
     for number, product in enumerate(PRODUCTS, start=1):
-        row = conn.execute(
+        conn.execute(
             "INSERT INTO products (sku, name, brand_id, category_id, short_description, price, "
             "stock, is_new, is_active) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) "
-            "ON CONFLICT (sku) DO NOTHING RETURNING id",
+            "ON CONFLICT (sku) DO NOTHING",
             (
                 f"SEED-{number:03d}",
                 product.name,
@@ -292,13 +291,7 @@ def _insert_products(
                 product.is_new,
                 product.is_active,
             ),
-        ).fetchone()
-        # Only a product inserted by this run gets its image, so a re-run never adds one back.
-        if row is not None:
-            conn.execute(
-                "INSERT INTO product_images (product_id, file_name, position) VALUES (%s, %s, 0)",
-                (row["id"], PLACEHOLDER_FILE),
-            )
+        )
 
 
 def _insert_site_settings(conn: psycopg.Connection) -> None:

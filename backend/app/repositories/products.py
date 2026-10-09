@@ -5,7 +5,6 @@ from datetime import datetime
 import psycopg
 from psycopg import sql
 
-from app.media import PLACEHOLDER_FILE
 from app.repositories.like import like_pattern
 
 # Public reads never select cost_price, is_active or updated_at.
@@ -251,8 +250,6 @@ def add_image(
     """Append an image after the current last position. Returns None when the product is missing.
 
     The product row is locked first, so two uploads for one product cannot take the same position.
-    A row that only stands for the shared placeholder file is removed first, so that the first real
-    photo becomes the cover.
     """
     with conn.transaction():
         locked = conn.execute(
@@ -260,10 +257,6 @@ def add_image(
         ).fetchone()
         if locked is None:
             return None
-        conn.execute(
-            "DELETE FROM product_images WHERE product_id = %s AND file_name = %s",
-            (product_id, PLACEHOLDER_FILE),
-        )
         return conn.execute(
             "INSERT INTO product_images (product_id, file_name, thumb_name, position) "
             "SELECT %s, %s, %s, COALESCE(MAX(position) + 1, 0) FROM product_images "

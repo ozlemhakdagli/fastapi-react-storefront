@@ -27,17 +27,20 @@ _ORDERS_BY_STATUS = (
 # One row per calendar day of the window, oldest first, ending today. The days come from
 # generate_series and the orders are grouped by created_at::date, both in the database's time zone,
 # so days without orders are zero-filled by the left join. Rejected and cancelled orders count as
-# orders but not as revenue.
+# orders but not as revenue. Only the orders of the window are grouped, through the
+# orders_created_idx index.
 _ORDERS_PER_DAY = (
     "SELECT days.day::date AS date, "
     "COALESCE(daily.orders, 0) AS orders, "
     "COALESCE(daily.revenue, 0) AS revenue "
-    "FROM generate_series(current_date - (%s::int - 1), current_date, interval '1 day') "
+    "FROM generate_series(current_date - (%(days)s::int - 1), current_date, interval '1 day') "
     "AS days(day) "
     "LEFT JOIN ("
     "  SELECT created_at::date AS day, count(*) AS orders, "
     "  sum(total) FILTER (WHERE status IN ('new', 'approved', 'shipped', 'completed')) AS revenue "
-    "  FROM orders GROUP BY created_at::date"
+    "  FROM orders "
+    "  WHERE created_at >= current_date - (%(days)s::int - 1) "
+    "  GROUP BY created_at::date"
     ") AS daily ON daily.day = days.day::date "
     "ORDER BY days.day"
 )
@@ -66,7 +69,7 @@ def orders_by_status(conn: psycopg.Connection) -> dict:
 
 def orders_per_day(conn: psycopg.Connection, days: int = 14) -> list[dict]:
     """Return date, orders and revenue for each of the last `days` days, oldest first."""
-    return conn.execute(_ORDERS_PER_DAY, (days,)).fetchall()
+    return conn.execute(_ORDERS_PER_DAY, {"days": days}).fetchall()
 
 
 def recent_orders(conn: psycopg.Connection, limit: int = 5) -> list[dict]:

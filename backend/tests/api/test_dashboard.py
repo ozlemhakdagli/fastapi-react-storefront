@@ -201,3 +201,16 @@ def test_low_stock_is_capped_at_eight(client, admin_headers, make_product) -> No
     low = client.get("/api/admin/dashboard", headers=admin_headers()).json()["low_stock"]
 
     assert [row["name"] for row in low] == [f"Cap {number:02d}" for number in range(8)]
+
+
+def test_orders_older_than_the_chart_window_are_left_out(
+    client, admin_headers, make_user, make_order, conn
+) -> None:
+    order = make_order(make_user()["id"])
+    conn.execute(
+        "UPDATE orders SET created_at = now() - interval '20 days' WHERE id = %s", (order["id"],)
+    )
+    body = client.get("/api/admin/dashboard", headers=admin_headers()).json()
+    assert len(body["orders_per_day"]) == 14
+    assert sum(day["orders"] for day in body["orders_per_day"]) == 0
+    assert body["orders_by_status"]["new"] == 1

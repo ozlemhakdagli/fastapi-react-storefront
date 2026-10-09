@@ -55,7 +55,7 @@ test('the admin uploads a photo for a product, and the store card and page show 
     buffer: Buffer.from(PNG_BASE64, 'base64'),
   })
   await page.getByRole('button', { name: 'Görseli yükle', exact: true }).click()
-  // The first real photo replaces the placeholder row, so the new photo is the first image.
+  // Seeded products have no image rows, so the new photo is the first image.
   await expect(page.getByRole('img', { name: 'Ürün görseli 1', exact: true })).toHaveAttribute(
     'src',
     /-sm\.webp$/,
