@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { type Column, DataTable } from '@/components/DataTable'
+import { type Column } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
-import { LoadingNotice } from '@/components/LoadingNotice'
 import { PageHeader } from '@/components/PageHeader'
-import { Pagination } from '@/components/Pagination'
+import { PagedTable } from '@/components/PagedTable'
 import { Button } from '@/components/ui/button'
 import { useDeleteMyComment, useMyComments } from '@/features/account/hooks/useMyComments'
 import { formatDate } from '@/lib/format'
@@ -71,26 +70,14 @@ export default function MyCommentsPage() {
     <div className="grid gap-6">
       <PageHeader title={t('account.comments_title')} />
       <ErrorNotice error={deleteComment.error} />
-      <ErrorNotice error={comments.error} />
-      {comments.isPending ? (
-        <LoadingNotice />
-      ) : null}
-      {comments.data ? (
-        <>
-          <DataTable
-            columns={columns}
-            rows={comments.data.items}
-            rowKey={(comment) => comment.id}
-            emptyText={t('account.comments_empty')}
-          />
-          <Pagination
-            page={page}
-            pageSize={comments.data.page_size}
-            total={comments.data.total}
-            onChange={changePage}
-          />
-        </>
-      ) : null}
+      <PagedTable
+        query={comments}
+        columns={columns}
+        rowKey={(comment) => comment.id}
+        emptyText={t('account.comments_empty')}
+        page={page}
+        onPageChange={changePage}
+      />
 
       <ConfirmDialog
         open={pendingDeleteId !== null}

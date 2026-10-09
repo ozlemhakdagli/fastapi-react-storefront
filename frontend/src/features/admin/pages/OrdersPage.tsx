@@ -1,10 +1,8 @@
 import { Link, useSearchParams } from 'react-router'
-import { type Column, DataTable } from '@/components/DataTable'
-import { ErrorNotice } from '@/components/ErrorNotice'
-import { LoadingNotice } from '@/components/LoadingNotice'
+import { type Column } from '@/components/DataTable'
 import { Money } from '@/components/Money'
 import { PageHeader } from '@/components/PageHeader'
-import { Pagination } from '@/components/Pagination'
+import { PagedTable } from '@/components/PagedTable'
 import { StatusBadge } from '@/components/StatusBadge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAdminOrders } from '@/features/admin/hooks/useAdminOrders'
@@ -101,26 +99,14 @@ export default function OrdersPage() {
           </TabsList>
         </div>
         <TabsContent value={currentTab} className="grid gap-4">
-          <ErrorNotice error={orders.error} />
-          {orders.isPending ? (
-            <LoadingNotice />
-          ) : null}
-          {orders.data ? (
-            <>
-              <DataTable
-                columns={columns}
-                rows={orders.data.items}
-                rowKey={(order) => order.id}
-                emptyText={t('adminorders.orders_empty')}
-              />
-              <Pagination
-                page={page}
-                pageSize={orders.data.page_size}
-                total={orders.data.total}
-                onChange={changePage}
-              />
-            </>
-          ) : null}
+          <PagedTable
+            query={orders}
+            columns={columns}
+            rowKey={(order) => order.id}
+            emptyText={t('adminorders.orders_empty')}
+            page={page}
+            onPageChange={changePage}
+          />
         </TabsContent>
       </Tabs>
     </div>

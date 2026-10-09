@@ -1,9 +1,6 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
 import { FormField } from '@/components/FormField'
 import { NativeSelect } from '@/components/NativeSelect'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { SearchForm } from '@/components/SearchForm'
 import type { ProductSort } from '@/features/catalog/hooks/useProducts'
 import { t } from '@/lib/i18n'
 import type { Taxonomy } from '@/lib/types'
@@ -40,7 +37,13 @@ export function ProductFilters({
   return (
     <div className="bg-card grid gap-4 rounded-xl border p-4 sm:grid-cols-2 lg:sticky lg:top-24 lg:grid-cols-1 lg:self-start">
       {/* Keyed by the URL value so that the draft resets when the URL changes (e.g. browser back). */}
-      <SearchForm key={q ?? ''} initialQuery={q ?? ''} onSubmit={(value) => onChange('q', value)} />
+      <SearchForm
+        key={q ?? ''}
+        id="filter-q"
+        label={t('catalog.filter_search')}
+        initialQuery={q ?? ''}
+        onSubmit={(value) => onChange('q', value)}
+      />
       <FormField label={t('catalog.filter_category')} htmlFor="filter-category">
         <NativeSelect
           id="filter-category"
@@ -83,34 +86,5 @@ export function ProductFilters({
         </NativeSelect>
       </FormField>
     </div>
-  )
-}
-
-function SearchForm({
-  initialQuery,
-  onSubmit,
-}: {
-  initialQuery: string
-  onSubmit: (value: string) => void
-}) {
-  const [draft, setDraft] = useState(initialQuery)
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    onSubmit(draft.trim())
-  }
-
-  return (
-    <form role="search" onSubmit={handleSubmit} className="grid grid-cols-[1fr_auto] items-end gap-2">
-      <FormField label={t('catalog.filter_search')} htmlFor="filter-q">
-        <Input
-          id="filter-q"
-          type="search"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-        />
-      </FormField>
-      <Button type="submit">{t('common.search')}</Button>
-    </form>
   )
 }

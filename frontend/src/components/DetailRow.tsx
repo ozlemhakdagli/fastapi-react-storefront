@@ -5,7 +5,7 @@ export function DetailRow({ label, children }: { label: string; children: ReactN
   return (
     <div className="grid gap-0.5 sm:grid-cols-[10rem_1fr] sm:gap-4">
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className="whitespace-pre-line">{children}</dd>
+      <dd className="break-words whitespace-pre-line">{children}</dd>
     </div>
   )
 }

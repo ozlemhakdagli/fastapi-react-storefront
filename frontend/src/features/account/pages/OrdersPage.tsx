@@ -1,10 +1,8 @@
 import { Link } from 'react-router'
-import { type Column, DataTable } from '@/components/DataTable'
-import { ErrorNotice } from '@/components/ErrorNotice'
-import { LoadingNotice } from '@/components/LoadingNotice'
+import { type Column } from '@/components/DataTable'
 import { Money } from '@/components/Money'
 import { PageHeader } from '@/components/PageHeader'
-import { Pagination } from '@/components/Pagination'
+import { PagedTable } from '@/components/PagedTable'
 import { StatusBadge } from '@/components/StatusBadge'
 import { useOrders } from '@/features/account/hooks/useOrders'
 import { formatDate } from '@/lib/format'
@@ -55,26 +53,14 @@ export default function OrdersPage() {
   return (
     <div className="grid gap-6">
       <PageHeader title={t('account.orders_title')} />
-      <ErrorNotice error={orders.error} />
-      {orders.isPending ? (
-        <LoadingNotice />
-      ) : null}
-      {orders.data ? (
-        <>
-          <DataTable
-            columns={columns}
-            rows={orders.data.items}
-            rowKey={(order) => order.id}
-            emptyText={t('account.orders_empty')}
-          />
-          <Pagination
-            page={page}
-            pageSize={orders.data.page_size}
-            total={orders.data.total}
-            onChange={changePage}
-          />
-        </>
-      ) : null}
+      <PagedTable
+        query={orders}
+        columns={columns}
+        rowKey={(order) => order.id}
+        emptyText={t('account.orders_empty')}
+        page={page}
+        onPageChange={changePage}
+      />
     </div>
   )
 }

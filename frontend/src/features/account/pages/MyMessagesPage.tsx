@@ -1,8 +1,6 @@
-import { type Column, DataTable } from '@/components/DataTable'
-import { ErrorNotice } from '@/components/ErrorNotice'
-import { LoadingNotice } from '@/components/LoadingNotice'
+import { type Column } from '@/components/DataTable'
 import { PageHeader } from '@/components/PageHeader'
-import { Pagination } from '@/components/Pagination'
+import { PagedTable } from '@/components/PagedTable'
 import { useMyMessages } from '@/features/account/hooks/useMyMessages'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
@@ -43,26 +41,14 @@ export default function MyMessagesPage() {
   return (
     <div className="grid gap-6">
       <PageHeader title={t('account.messages_title')} />
-      <ErrorNotice error={messages.error} />
-      {messages.isPending ? (
-        <LoadingNotice />
-      ) : null}
-      {messages.data ? (
-        <>
-          <DataTable
-            columns={columns}
-            rows={messages.data.items}
-            rowKey={(message) => message.id}
-            emptyText={t('account.messages_empty')}
-          />
-          <Pagination
-            page={page}
-            pageSize={messages.data.page_size}
-            total={messages.data.total}
-            onChange={changePage}
-          />
-        </>
-      ) : null}
+      <PagedTable
+        query={messages}
+        columns={columns}
+        rowKey={(message) => message.id}
+        emptyText={t('account.messages_empty')}
+        page={page}
+        onPageChange={changePage}
+      />
     </div>
   )
 }

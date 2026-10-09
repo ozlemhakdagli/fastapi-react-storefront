@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { type Column, DataTable } from '@/components/DataTable'
+import { type Column } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
-import { LoadingNotice } from '@/components/LoadingNotice'
 import { NativeSelect } from '@/components/NativeSelect'
 import { PageHeader } from '@/components/PageHeader'
-import { Pagination } from '@/components/Pagination'
+import { PagedTable } from '@/components/PagedTable'
+import { SearchForm } from '@/components/SearchForm'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -33,18 +33,11 @@ import type { User } from '@/lib/types'
 // Native selects: they behave the same in browsers and in jsdom tests, and match ui/input.
 export default function UsersPage() {
   const [role, setRole] = useState<'' | UserRole>('')
-  const [draft, setDraft] = useState('')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<User | null>(null)
   const users = useAdminUsers({ role: role || undefined, q: search || undefined, page })
-
-  function applySearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setSearch(draft.trim())
-    setPage(1)
-  }
 
   const columns: Column<User>[] = [
     { key: 'name', header: t('adminusers.column_name'), cell: (user) => user.full_name },
@@ -97,39 +90,26 @@ export default function UsersPage() {
             <option value="admin">{t('adminusers.role_admin')}</option>
           </NativeSelect>
         </FormField>
-        <form role="search" onSubmit={applySearch} className="grid grid-cols-[1fr_auto] items-end gap-2">
-          <FormField label={t('adminusers.filter_search')} htmlFor="users-filter-search">
-            <Input
-              id="users-filter-search"
-              type="search"
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-            />
-          </FormField>
-          <Button type="submit">{t('common.search')}</Button>
-        </form>
+        <SearchForm
+          key={search}
+          id="users-filter-search"
+          label={t('adminusers.filter_search')}
+          initialQuery={search}
+          onSubmit={(value) => {
+            setSearch(value)
+            setPage(1)
+          }}
+        />
       </div>
 
-      <ErrorNotice error={users.error} />
-      {users.isPending ? (
-        <LoadingNotice />
-      ) : null}
-      {users.data ? (
-        <>
-          <DataTable
-            columns={columns}
-            rows={users.data.items}
-            rowKey={(user) => user.id}
-            emptyText={t('adminusers.empty')}
-          />
-          <Pagination
-            page={page}
-            pageSize={users.data.page_size}
-            total={users.data.total}
-            onChange={setPage}
-          />
-        </>
-      ) : null}
+      <PagedTable
+        query={users}
+        columns={columns}
+        rowKey={(user) => user.id}
+        emptyText={t('adminusers.empty')}
+        page={page}
+        onPageChange={setPage}
+      />
 
       {creating ? <CreateUserDialog onClose={() => setCreating(false)} /> : null}
       {editing ? <EditUserDialog user={editing} onClose={() => setEditing(null)} /> : null}

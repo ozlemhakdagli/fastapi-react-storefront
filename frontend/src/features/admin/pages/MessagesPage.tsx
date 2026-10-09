@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import type { FormEvent, ReactNode } from 'react'
+import type { FormEvent } from 'react'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { type Column, DataTable } from '@/components/DataTable'
+import { type Column } from '@/components/DataTable'
+import { DetailRow } from '@/components/DetailRow'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
 import { LoadingNotice } from '@/components/LoadingNotice'
 import { NativeSelect } from '@/components/NativeSelect'
 import { PageHeader } from '@/components/PageHeader'
-import { Pagination } from '@/components/Pagination'
+import { PagedTable } from '@/components/PagedTable'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -114,26 +115,14 @@ export default function MessagesPage() {
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <div className="grid gap-2">
-          <ErrorNotice error={messages.error} />
-          {messages.isPending ? (
-            <LoadingNotice />
-          ) : null}
-          {messages.data ? (
-            <>
-              <DataTable
-                columns={columns}
-                rows={messages.data.items}
-                rowKey={(message) => message.id}
-                emptyText={t('adminmessages.empty')}
-              />
-              <Pagination
-                page={page}
-                pageSize={messages.data.page_size}
-                total={messages.data.total}
-                onChange={setPage}
-              />
-            </>
-          ) : null}
+          <PagedTable
+            query={messages}
+            columns={columns}
+            rowKey={(message) => message.id}
+            emptyText={t('adminmessages.empty')}
+            page={page}
+            onPageChange={setPage}
+          />
         </div>
 
         <section aria-label={t('adminmessages.detail_title')} className="grid min-w-0 gap-5">
@@ -324,16 +313,6 @@ function ReplyForm({ userId }: { userId: number }) {
         </Button>
       </form>
     </section>
-  )
-}
-
-/** One label and value of the detail panel. The value is plain text, never markup. */
-function DetailRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="grid gap-0.5 sm:grid-cols-[8rem_1fr] sm:gap-4">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="break-words">{children}</dd>
-    </div>
   )
 }
 

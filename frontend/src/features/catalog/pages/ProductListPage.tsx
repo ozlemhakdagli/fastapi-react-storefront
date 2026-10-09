@@ -9,33 +9,26 @@ import { type FilterName, ProductFilters } from '@/features/catalog/components/P
 import { type ProductQuery, type ProductSort, useProducts } from '@/features/catalog/hooks/useProducts'
 import { useBrands, useCategories } from '@/features/catalog/hooks/useTaxonomy'
 import { t } from '@/lib/i18n'
+import { parseId } from '@/lib/searchParams'
+import { usePageParam } from '@/lib/usePageParam'
 
 const SORTS: readonly ProductSort[] = ['newest', 'price_asc', 'price_desc']
 
-type ListFilters = ProductQuery & { page: number }
-
-/** A positive integer from the URL, or undefined (no filter) for anything else. */
-function parseId(value: string | null): number | undefined {
-  const id = Number(value)
-  return value && Number.isInteger(id) && id > 0 ? id : undefined
-}
-
 /** The list state lives in the URL; invalid values fall back to "no filter" or page 1. */
-function readFilters(params: URLSearchParams): ListFilters {
-  const page = Number(params.get('page'))
+function readFilters(params: URLSearchParams): ProductQuery {
   return {
     category_id: parseId(params.get('category_id')),
     brand_id: parseId(params.get('brand_id')),
     q: params.get('q')?.trim() || undefined,
     sort: SORTS.find((option) => option === params.get('sort')),
-    page: Number.isInteger(page) && page >= 1 ? page : 1,
   }
 }
 
 export default function ProductListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const filters = readFilters(searchParams)
-  const products = useProducts(filters)
+  const [page, changePage] = usePageParam()
+  const products = useProducts({ ...filters, page })
   const categories = useCategories()
   const brands = useBrands()
 
@@ -45,15 +38,6 @@ export default function ProductListPage() {
       if (value) next.set(name, value)
       else next.delete(name)
       next.delete('page') // a changed filter starts again on the first page
-      return next
-    })
-  }
-
-  function changePage(page: number) {
-    setSearchParams((previous) => {
-      const next = new URLSearchParams(previous)
-      if (page > 1) next.set('page', String(page))
-      else next.delete('page')
       return next
     })
   }
@@ -96,7 +80,7 @@ export default function ProductListPage() {
           ) : null}
           {products.data ? (
             <Pagination
-              page={filters.page}
+              page={page}
               pageSize={products.data.page_size}
               total={products.data.total}
               onChange={changePage}
