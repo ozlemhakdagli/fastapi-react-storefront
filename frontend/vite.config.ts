@@ -1,7 +1,7 @@
 import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,12 +11,15 @@ export default defineConfig({
   },
   server: {
     // In development the browser talks to Vite only; Vite forwards /api to FastAPI.
-    proxy: { '/api': 'http://localhost:8000' },
+    // scripts/e2e.sh sets VITE_API_PROXY to the API of the browser tests.
+    proxy: { '/api': process.env.VITE_API_PROXY ?? 'http://localhost:8000' },
   },
   test: {
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    // The browser tests in e2e/ run with Playwright (npm run e2e), not with Vitest.
+    exclude: [...configDefaults.exclude, 'e2e/**'],
   },
 })

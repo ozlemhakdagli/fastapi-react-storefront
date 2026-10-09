@@ -26,6 +26,27 @@ npm run build
 
 Nothing runs automatically on GitHub, so run these commands yourself before you submit a change.
 
+## Browser tests
+
+`scripts/e2e.sh` runs the Playwright tests in `frontend/e2e/` against a throw-away stack. It creates the
+database `ecommerce_e2e` on the local PostgreSQL server (which must be running: `scripts/db.sh start`),
+starts a second API on port 8100 and a second Vite server on port 5273, runs the tests, then stops both
+servers and drops the database, also when a test fails or you press Ctrl+C. It never touches the
+development database or the development servers on ports 8000 and 5173.
+
+```bash
+scripts/e2e.sh                       # every browser test
+scripts/e2e.sh e2e/smoke.e2e.ts      # one file (the path is relative to frontend/)
+scripts/e2e.sh --headed              # show the browser window
+E2E_CHANNEL=chrome scripts/e2e.sh    # use the Google Chrome installed on this computer
+```
+
+With `E2E_CHANNEL=chrome` nothing is downloaded. Otherwise run `npx playwright install chromium` once,
+from `frontend/`: it downloads a private Chromium into your user cache folder, needs no administrator
+rights and registers nothing in the system (`PLAYWRIGHT_BROWSERS_PATH=0` keeps it inside `node_modules`).
+Do not run `npx playwright install --with-deps`: it installs operating-system packages with administrator
+rights.
+
 ## Conventions
 
 - **Language.** Code, comments, commit messages and documents are in English. Texts that users see

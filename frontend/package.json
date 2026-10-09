@@ -7,8 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
-    "test": "vitest run"
+    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p e2e/tsconfig.json",
+    "test": "vitest run",
+    "e2e": "bash ../scripts/e2e.sh"
   },
   "dependencies": {
     "@fontsource-variable/geist": "5.3.0",
