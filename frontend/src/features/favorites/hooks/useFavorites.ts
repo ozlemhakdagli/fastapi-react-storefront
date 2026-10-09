@@ -16,6 +16,9 @@ export function useFavoriteIds() {
     queryKey: idsKey,
     queryFn: () => api.get<FavoriteIds>('/me/favorites/ids'),
     enabled: Boolean(user),
+    // Every card has a heart that reads this list. The toggles keep it up to date, so it is not
+    // fetched again each time the cards mount (for example on a page change).
+    staleTime: 5 * 60 * 1000,
     select: (data) => data.ids,
   })
 }
