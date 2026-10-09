@@ -5,6 +5,7 @@ import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
 import { LoadingNotice } from '@/components/LoadingNotice'
 import { PageHeader } from '@/components/PageHeader'
+import { RichTextViewer } from '@/components/RichTextViewer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -63,7 +64,7 @@ function SiteDetails({ site }: { site: SiteSettings }) {
   return (
     <div className="grid gap-6 rounded-xl border bg-card p-6 sm:p-8">
       {site.contact_text ? (
-        <p className="leading-7 whitespace-pre-line">{site.contact_text}</p>
+        <RichTextViewer content={site.contact_text} />
       ) : null}
       <div className="grid gap-5">
         {site.address ? (

@@ -1,6 +1,7 @@
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { LoadingNotice } from '@/components/LoadingNotice'
 import { PageHeader } from '@/components/PageHeader'
+import { RichTextViewer } from '@/components/RichTextViewer'
 import { useSite } from '@/features/pages/hooks/useSite'
 import { t } from '@/lib/i18n'
 
@@ -16,7 +17,7 @@ export default function AboutPage() {
       ) : null}
       {site.data?.about_text ? (
         <div className="rounded-xl border bg-card p-6 sm:p-8">
-          <p className="leading-7 whitespace-pre-line">{site.data.about_text}</p>
+          <RichTextViewer content={site.data.about_text} />
         </div>
       ) : null}
     </div>

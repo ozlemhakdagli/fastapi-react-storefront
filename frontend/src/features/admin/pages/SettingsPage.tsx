@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/RichTextEditor'
 import { useAdminSite, useSaveAdminSite } from '@/features/admin/hooks/useAdminSite'
 import { t } from '@/lib/i18n'
 import type { SiteSettings } from '@/lib/types'
@@ -137,27 +138,25 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
         </TabsContent>
 
         <TabsContent value="about" className={PANEL}>
-          <FormField label={t('adminsettings.about_text')} htmlFor="site-about-text">
-            <Textarea
-              id="site-about-text"
-              rows={10}
-              maxLength={20000}
-              value={values.about_text}
-              onChange={(event) => update('about_text', event.target.value)}
-            />
-          </FormField>
+          <RichTextEditor
+            id="site-about-text"
+            label={t('adminsettings.about_text')}
+            rows={10}
+            maxLength={20000}
+            value={values.about_text}
+            onChange={(val) => update('about_text', val)}
+          />
         </TabsContent>
 
         <TabsContent value="contact-text" className={PANEL}>
-          <FormField label={t('adminsettings.contact_text')} htmlFor="site-contact-text">
-            <Textarea
-              id="site-contact-text"
-              rows={10}
-              maxLength={20000}
-              value={values.contact_text}
-              onChange={(event) => update('contact_text', event.target.value)}
-            />
-          </FormField>
+          <RichTextEditor
+            id="site-contact-text"
+            label={t('adminsettings.contact_text')}
+            rows={10}
+            maxLength={20000}
+            value={values.contact_text}
+            onChange={(val) => update('contact_text', val)}
+          />
         </TabsContent>
       </Tabs>
 

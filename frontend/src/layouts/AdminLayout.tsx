@@ -12,6 +12,8 @@ import {
 import { Suspense } from 'react'
 import { Link, NavLink, Outlet } from 'react-router'
 import { LoadingNotice } from '@/components/LoadingNotice'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { t } from '@/lib/i18n'
 
 const links = [
@@ -35,7 +37,13 @@ export default function AdminLayout() {
     <div className="grid min-h-screen grid-cols-1 grid-rows-[auto_1fr] md:grid-cols-[15rem_minmax(0,1fr)] md:grid-rows-1">
       {/* Below md the sidebar is a top bar: its links wrap, so the page never scrolls sideways. */}
       <aside className="bg-sidebar text-sidebar-foreground border-sidebar-border flex flex-col border-b p-4 md:border-r md:border-b-0">
-        <h2 className="mb-3 px-3 text-lg font-semibold md:mb-4">{t('admin.title')}</h2>
+        <div className="mb-3 flex items-center justify-between px-3 md:mb-4">
+          <h2 className="text-lg font-semibold">{t('admin.title')}</h2>
+          <div className="flex items-center gap-1">
+            <LanguageSwitcher className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
+            <ThemeToggle className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
+          </div>
+        </div>
         <nav className="flex flex-wrap gap-1 md:grid">
           {links.map(({ to, label, icon: Icon, end }) => (
             <NavLink

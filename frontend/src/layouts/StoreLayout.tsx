@@ -3,6 +3,8 @@ import { ShoppingCart, Store } from 'lucide-react'
 import { Suspense, useEffect } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'
 import { LoadingNotice } from '@/components/LoadingNotice'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useCartCount } from '@/features/cart/hooks/useCart'
@@ -109,6 +111,8 @@ export default function StoreLayout() {
                 </Button>
               </>
             )}
+            <LanguageSwitcher />
+            <ThemeToggle />
           </div>
         </div>
       </header>

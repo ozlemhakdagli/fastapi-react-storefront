@@ -7,6 +7,7 @@ import { LoadingNotice } from '@/components/LoadingNotice'
 import { Money } from '@/components/Money'
 import { ProductImage } from '@/components/ProductImage'
 import { RatingStars } from '@/components/RatingStars'
+import { RichTextViewer } from '@/components/RichTextViewer'
 import { StockBadge } from '@/components/StockBadge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -175,7 +176,7 @@ function ProductContent({ productId }: { productId: number }) {
       {item.description.trim() ? (
         <section className="grid gap-2 rounded-xl border bg-card p-6">
           <h2 className="text-xl font-semibold">{t('catalog.description_title')}</h2>
-          <p className="text-sm leading-6 whitespace-pre-line">{item.description}</p>
+          <RichTextViewer content={item.description} className="text-sm leading-6" />
         </section>
       ) : null}
 

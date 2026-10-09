@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/RichTextEditor'
 import { ProductImagesPanel } from '@/features/admin/components/ProductImagesPanel'
 import {
   type ProductInput,
@@ -354,16 +355,19 @@ function ProductForm({ productId, product, categories, brands }: ProductFormProp
               onChange={(event) => setValue('short_description', event.target.value)}
             />
           </FormField>
-          <FormField label={t('adminproducts.field_description')} htmlFor="product-description">
-            <Textarea
-              id="product-description"
-              name="description"
-              rows={6}
-              maxLength={5000}
-              value={values.description}
-              onChange={(event) => setValue('description', event.target.value)}
-            />
-          </FormField>
+          <RichTextEditor
+            id="description"
+            name="description"
+            label={
+              t('adminproducts.description') !== 'adminproducts.description'
+                ? t('adminproducts.description')
+                : t('adminproducts.field_description')
+            }
+            rows={6}
+            maxLength={5000}
+            value={values.description}
+            onChange={(val) => setValue('description', val)}
+          />
           <div className="flex flex-wrap gap-6 text-sm">
             <label className="flex items-center gap-2">
               <input
