@@ -10,3 +10,6 @@ the three configuration files that were changed (`config.php`, `database.php`, `
 user guide, the default configuration files, the error templates and the front controller), the admin
 theme, the rich-text editor and the product photos are not included. The folder cannot run as a
 site; it is there to be read.
+
+`license.txt` is the CodeIgniter license (MIT). The three configuration files were created from
+CodeIgniter's skeleton, so its notice stays.

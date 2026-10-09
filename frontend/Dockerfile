@@ -1,7 +1,7 @@
 # Frontend image: Vite build served by nginx, which also forwards /api to the backend.
 #
-# NOT TESTED: this file was written on a machine without Docker. Read the "Docker" section of the
-# README before relying on it, and please report what you had to change.
+# Not yet tested with Docker. Read "Running with Docker" in the README before you rely on it, and
+# please report what you had to change.
 
 FROM node:24-slim AS build
 WORKDIR /app

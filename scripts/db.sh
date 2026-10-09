@@ -7,13 +7,7 @@
 # (postgresql://user:password@host:port/dbname). Data lives in <repo>/.pgdata.
 set -euo pipefail
 
-SCRIPT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-# In a git worktree, use the main checkout so every worktree shares one server and one .env.
-if common_dir="$(git -C "$SCRIPT_ROOT" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"; then
-  REPO="$(dirname "$common_dir")"
-else
-  REPO="$SCRIPT_ROOT"
-fi
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PGDATA="$REPO/.pgdata"
 ENV_FILE="$REPO/backend/.env"
 PG_BIN="$(conda info --base)/envs/pg18/bin"

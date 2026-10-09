@@ -51,4 +51,5 @@ Nothing runs automatically on GitHub, so run these commands yourself before you 
 
 ## Security
 
-Please do not open a public issue for a vulnerability. Contact the maintainer privately.
+Please do not open a public issue for a vulnerability. Use the repository's private vulnerability
+reporting (the Security tab on GitHub) or contact the owner through their GitHub profile.

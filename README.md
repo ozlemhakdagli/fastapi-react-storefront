@@ -136,7 +136,7 @@ pytest
 
 The tests use their own database, `ecommerce_test_main`, on the same server. It is created on the
 first run and emptied after every test. The development database is not used. `TEST_DB_SUFFIX` changes
-the name (letters, digits and underscores only), for example `TEST_DB_SUFFIX=mine pytest`.
+the name (lowercase letters, digits and underscores only), for example `TEST_DB_SUFFIX=mine pytest`.
 `scripts/db.sh drop-test-dbs` drops every `ecommerce_test_*` database.
 
 Lint and format check (from `backend/`):
@@ -286,8 +286,7 @@ application does not do for you:
 
 `compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` and `frontend/nginx.conf` describe the same
 application as three containers: PostgreSQL 18, the API, and an nginx web server that serves the built
-frontend and forwards `/api` to the API. **These files were written on a machine without Docker and
-have never been run.** Treat them as a starting point, read them before you rely on them, and fix what
+frontend and forwards `/api` to the API. **These files have not been run with Docker yet.** Treat them as a starting point, read them before you rely on them, and fix what
 does not work. Compared with the setup above, only the host in `DATABASE_URL` changes: `localhost`
 becomes the service name `db`.
 
@@ -324,9 +323,10 @@ Notes:
 - **Wrong Python version.** The backend needs Python 3.14 from the `ecommerce` environment. Check with
   `conda run -n ecommerce python --version`. If you see another version, activate `ecommerce` or use
   `conda run -n ecommerce`.
-- **`DATABASE_URL is not set`.** `python -m app.migrate`, `python seed.py`, `scripts/db.sh` and the tests
-  read `DATABASE_URL` from `backend/.env` (an exported variable wins). Run `python -m app.migrate` from
-  `backend/`, and check that the file exists and contains the variable.
+- **`DATABASE_URL is not set`.** `python -m app.migrate` and the tests read `DATABASE_URL` from
+  `backend/.env` (an exported variable wins); `scripts/db.sh` reads only that file. `python seed.py`
+  reports a missing value as `database_url Field required`. Run the Python commands from `backend/`,
+  and check that the file exists and contains the variable.
 - **Tests fail with connection errors.** PostgreSQL is stopped. Run `scripts/db.sh status`, then
   `scripts/db.sh start`.
 - **`SECRET_KEY must have at least 32 characters` or `must be replaced with a generated value`.** The
@@ -350,7 +350,7 @@ Notes:
 - `scripts/db.sh` is a bash script that uses Unix sockets. Use WSL2 (recommended: run everything inside
   the Linux distribution) or Git Bash.
 - Without bash, start PostgreSQL by hand with the programs of the `pg18` environment. The commands below
-  follow the same steps as `scripts/db.sh`. The project has not tested them on native Windows.
+  follow similar steps to `scripts/db.sh`, with different options. The project has not tested them on native Windows.
 
   ```bat
   rem Anaconda Prompt, in the project root, with the pg18 environment active (conda activate pg18)

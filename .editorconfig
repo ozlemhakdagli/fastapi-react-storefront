@@ -10,7 +10,3 @@ indent_size = 4
 
 [*.{ts,tsx,js,json,css,html,yml,yaml,md}]
 indent_size = 2
-
-# The old CodeIgniter code keeps its tabs.
-[legacy/**]
-indent_style = tab

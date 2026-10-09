@@ -1,5 +1,5 @@
-# NOT TESTED: this file was written on a machine without Docker. Read the "Docker" section of the
-# README before relying on it, and please report what you had to change.
+# Not yet tested with Docker. Read "Running with Docker" in the README before you rely on it, and
+# please report what you had to change.
 #
 # Three services: the database, the API and the web server (built frontend plus a proxy for /api).
 # Compared with running everything by hand, only the host in DATABASE_URL changes: "localhost"
@@ -28,7 +28,6 @@ services:
     environment:
       DATABASE_URL: postgresql://ecommerce:${POSTGRES_PASSWORD}@db:5432/ecommerce
       SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
-      CORS_ORIGINS: http://localhost:${WEB_PORT:-8080}
       UPLOAD_DIR: /app/uploads
       # Read by seed.py (see the README): docker compose exec backend python seed.py
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
