@@ -186,6 +186,7 @@ frontend/
     locales/tr/       Turkish UI texts, one JSON file per area
 scripts/db.sh        starts, stops and inspects the local PostgreSQL server
 docs/                api.md (API reference)
+compose.yml          three containers: database, API, web server (not tested yet)
 legacy/              the old PHP application, for reference only
 ```
 
@@ -281,6 +282,35 @@ application does not do for you:
   `ACCESS_TOKEN_MINUTES`), and the admin form refuses to save a product that changed since it was
   opened (for example after a sale) instead of merging the two versions: reload and edit again.
 
+## Running with Docker (not tested yet)
+
+`compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` and `frontend/nginx.conf` describe the same
+application as three containers: PostgreSQL 18, the API, and an nginx web server that serves the built
+frontend and forwards `/api` to the API. **These files were written on a machine without Docker and
+have never been run.** Treat them as a starting point, read them before you rely on them, and fix what
+does not work. Compared with the setup above, only the host in `DATABASE_URL` changes: `localhost`
+becomes the service name `db`.
+
+```bash
+cp .env.example .env     # then edit it: POSTGRES_PASSWORD, SECRET_KEY, ADMIN_EMAIL, ADMIN_PASSWORD
+docker compose up --build
+docker compose exec backend python seed.py     # once: sample data and the admin account
+```
+
+Open http://localhost:8080 (the port is `WEB_PORT` in `.env`). `docker compose down` stops the
+containers and keeps the data in the `db-data` and `uploads` volumes; `docker compose down -v` deletes
+the data as well.
+
+Notes:
+
+- The root `.env` is for Docker only. When you run the API by hand it reads `backend/.env`.
+- Use letters and digits in `POSTGRES_PASSWORD`: it is placed inside the `DATABASE_URL`.
+- The nginx configuration limits login and registration to a few requests per second and sets
+  security headers, which the API itself does not do (see
+  [Before you put it on the internet](#before-you-put-it-on-the-internet)). It does not provide TLS:
+  put a TLS-terminating proxy or your hosting provider's load balancer in front for a public server.
+- The Content-Security-Policy blocks the Swagger UI at `/api/docs`, which loads a script from a CDN.
+
 ## Common errors
 
 - **Port 5432 is busy.** `scripts/db.sh start` fails because another PostgreSQL server (or another
@@ -337,9 +367,9 @@ application does not do for you:
   ```
 
   Stop the server with `pg_ctl stop -D .pgdata -m fast -w` and check it with `pg_ctl status -D .pgdata`.
-- Use `copy` (Command Prompt) or `Copy-Item` (PowerShell) instead of `cp`, and set `DATABASE_URL` with
-  `set` or `$env:DATABASE_URL` to the value from `backend/.env`.
-- Docker support comes in a later task, so Docker is not used yet.
+- Use `copy` (Command Prompt) or `Copy-Item` (PowerShell) instead of `cp`.
+- Docker avoids the bash script and the conda environments altogether, see
+  [Running with Docker](#running-with-docker-not-tested-yet).
 
 ## Legacy code and license
 
