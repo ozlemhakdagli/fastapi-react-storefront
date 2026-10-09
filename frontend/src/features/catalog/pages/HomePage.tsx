@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
-import { LoadingNotice } from '@/components/LoadingNotice'
 import { ErrorNotice } from '@/components/ErrorNotice'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { categoryIcon } from '@/components/ProductImage'
 import { Button } from '@/components/ui/button'
 import { ProductCard } from '@/features/catalog/components/ProductCard'

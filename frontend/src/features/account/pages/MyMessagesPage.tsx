@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router'
-import { LoadingNotice } from '@/components/LoadingNotice'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { PageHeader } from '@/components/PageHeader'
 import { Pagination } from '@/components/Pagination'
 import { useMyMessages } from '@/features/account/hooks/useMyMessages'

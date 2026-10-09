@@ -1,5 +1,5 @@
-import { LoadingNotice } from '@/components/LoadingNotice'
 import { ErrorNotice } from '@/components/ErrorNotice'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { PageHeader } from '@/components/PageHeader'
 import { useSite } from '@/features/pages/hooks/useSite'
 import { t } from '@/lib/i18n'

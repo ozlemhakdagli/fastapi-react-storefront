@@ -1,7 +1,7 @@
 import { Link, useSearchParams } from 'react-router'
-import { LoadingNotice } from '@/components/LoadingNotice'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { Money } from '@/components/Money'
 import { PageHeader } from '@/components/PageHeader'
 import { Pagination } from '@/components/Pagination'
