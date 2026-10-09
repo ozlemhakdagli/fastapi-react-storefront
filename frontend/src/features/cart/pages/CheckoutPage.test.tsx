@@ -3,9 +3,29 @@ import userEvent from '@testing-library/user-event'
 import { Route, Routes, useLocation } from 'react-router'
 import CheckoutPage from '@/features/cart/pages/CheckoutPage'
 import { api, ApiError } from '@/lib/api'
+import { formatMoney } from '@/lib/format'
 import { errorMessage, t } from '@/lib/i18n'
-import type { Order } from '@/lib/types'
+import type { CartItem, Order } from '@/lib/types'
 import { renderWithProviders, testCustomer } from '@/test/utils'
+
+// Intl may put a non-breaking space before the lira sign (see CartPage.test.tsx).
+function price(value: string): string {
+  return formatMoney(value).replace(/\s/g, ' ')
+}
+
+function cartLine(overrides: Partial<CartItem> = {}): CartItem {
+  return {
+    product_id: 5,
+    name: 'Mekanik Klavye',
+    unit_price: '1299.90',
+    quantity: 2,
+    line_total: '2599.80',
+    stock: 10,
+    available: true,
+    image_url: '/api/media/klavye.jpg',
+    ...overrides,
+  }
+}
 
 function LocationProbe() {
   const location = useLocation()
@@ -136,5 +156,26 @@ describe('CheckoutPage', () => {
     await userEvent.click(screen.getByRole('button', { name: t('cart.checkout_submit') }))
     expect(await screen.findByText(t('cart.checkout_required'))).toBeInTheDocument()
     expect(post).not.toHaveBeenCalled()
+  })
+
+  it('shows the cart as an order summary with the server total', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({
+      items: [
+        cartLine(),
+        cartLine({
+          product_id: 6,
+          name: 'Kablo',
+          unit_price: '100.00',
+          quantity: 1,
+          line_total: '100.00',
+        }),
+      ],
+      total: '2699.80',
+    })
+    renderCheckout()
+    expect(await screen.findByText('Mekanik Klavye')).toBeInTheDocument()
+    expect(screen.getByText('Kablo')).toBeInTheDocument()
+    expect(screen.getByText(`${t('cart.column_quantity')}: 2`)).toBeInTheDocument()
+    expect(screen.getByText(price('2699.80'))).toBeInTheDocument()
   })
 })

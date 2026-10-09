@@ -1,9 +1,9 @@
+import { Store } from 'lucide-react'
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
-import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -71,8 +71,13 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="mx-auto grid max-w-md gap-6">
-      <PageHeader title={t('auth.register_title')} />
+    <div className="mx-auto grid w-full max-w-md gap-6 rounded-xl border bg-card p-6 shadow-sm sm:p-8">
+      <div className="grid justify-items-center gap-3 text-center">
+        <div className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground">
+          <Store aria-hidden="true" className="size-5" />
+        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('auth.register_title')}</h1>
+      </div>
       <form onSubmit={handleSubmit} className="grid gap-4">
         <FormField label={t('auth.register_email')} htmlFor="register-email">
           <Input
@@ -143,13 +148,13 @@ export default function RegisterPage() {
           />
         </FormField>
         <ErrorNotice error={error} />
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" className="w-full" disabled={busy}>
           {t('auth.register_submit')}
         </Button>
       </form>
       <p className="text-muted-foreground text-center text-sm">
         {t('auth.register_has_account')}{' '}
-        <Link to="/login" className="text-foreground underline">
+        <Link to="/login" className="text-primary font-medium underline underline-offset-4">
           {t('auth.register_login_link')}
         </Link>
       </p>
