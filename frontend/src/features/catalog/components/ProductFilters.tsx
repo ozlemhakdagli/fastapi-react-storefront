@@ -38,7 +38,7 @@ export function ProductFilters({
   ]
 
   return (
-    <div className="grid gap-4 md:grid-cols-4">
+    <div className="bg-card grid gap-4 rounded-xl border p-4 sm:grid-cols-2 lg:sticky lg:top-24 lg:grid-cols-1 lg:self-start">
       {/* Keyed by the URL value so that the draft resets when the URL changes (e.g. browser back). */}
       <SearchForm key={q ?? ''} initialQuery={q ?? ''} onSubmit={(value) => onChange('q', value)} />
       <FormField label={t('catalog.filter_category')} htmlFor="filter-category">

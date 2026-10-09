@@ -42,7 +42,7 @@ export function ProductComments({ productId }: ProductCommentsProps) {
   }
 
   return (
-    <section className="grid gap-4">
+    <section className="grid gap-4 rounded-xl border bg-card p-6">
       <h2 className="text-xl font-semibold">{t('catalog.comments_title')}</h2>
 
       {user ? (

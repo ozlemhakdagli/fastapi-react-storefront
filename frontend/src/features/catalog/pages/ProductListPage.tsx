@@ -59,35 +59,44 @@ export default function ProductListPage() {
   return (
     <div className="grid gap-6">
       <PageHeader title={t('catalog.list_title')} />
-      <ProductFilters
-        categories={categories.data ?? []}
-        brands={brands.data ?? []}
-        categoryId={filters.category_id}
-        brandId={filters.brand_id}
-        q={filters.q}
-        sort={filters.sort}
-        onChange={changeFilter}
-      />
-      <ErrorNotice error={products.error} />
-      {products.isPending ? <p className="text-muted-foreground text-sm">{t('common.loading')}</p> : null}
-      {products.data && products.data.items.length === 0 ? (
-        <p className="text-muted-foreground text-sm">{t('catalog.list_empty')}</p>
-      ) : null}
-      {products.data && products.data.items.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {products.data.items.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      ) : null}
-      {products.data ? (
-        <Pagination
-          page={filters.page}
-          pageSize={products.data.page_size}
-          total={products.data.total}
-          onChange={changePage}
+      <div className="grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
+        <ProductFilters
+          categories={categories.data ?? []}
+          brands={brands.data ?? []}
+          categoryId={filters.category_id}
+          brandId={filters.brand_id}
+          q={filters.q}
+          sort={filters.sort}
+          onChange={changeFilter}
         />
-      ) : null}
+        <div className="grid content-start gap-6">
+          <ErrorNotice error={products.error} />
+          {products.isPending ? <p className="text-muted-foreground text-sm">{t('common.loading')}</p> : null}
+          {products.data && products.data.items.length === 0 ? (
+            <p className="text-muted-foreground text-sm">{t('catalog.list_empty')}</p>
+          ) : null}
+          {products.data && products.data.total > 0 ? (
+            <p className="text-muted-foreground text-sm">
+              {t('catalog.list_count', { count: products.data.total })}
+            </p>
+          ) : null}
+          {products.data && products.data.items.length > 0 ? (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+              {products.data.items.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : null}
+          {products.data ? (
+            <Pagination
+              page={filters.page}
+              pageSize={products.data.page_size}
+              total={products.data.total}
+              onChange={changePage}
+            />
+          ) : null}
+        </div>
+      </div>
     </div>
   )
 }

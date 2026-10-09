@@ -1,4 +1,8 @@
 {
+  "hero_title": "Aradığınız her şey tek yerde",
+  "hero_subtitle": "Yeni ürünleri keşfedin, kategorilere göz atın ve güvenle sipariş verin.",
+  "hero_cta_products": "Ürünlere göz atın",
+  "hero_cta_contact": "Bize ulaşın",
   "home_new_products": "Yeni ürünler",
   "home_no_new_products": "Şu anda yeni ürün bulunmuyor.",
   "home_categories": "Kategoriler",
@@ -7,6 +11,7 @@
   "card_new": "Yeni",
   "list_title": "Ürünler",
   "list_empty": "Bu filtrelerle eşleşen ürün bulunamadı.",
+  "list_count": "{count} ürün bulundu",
   "filter_search": "Ürün ara",
   "filter_category": "Kategori",
   "filter_brand": "Marka",

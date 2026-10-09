@@ -55,6 +55,34 @@ describe('HomePage', () => {
     )
   })
 
+  it('shows the hero heading and the two calls to action', async () => {
+    mockGet({ '/products': newProducts, '/categories': categories, '/brands': brands })
+    renderWithProviders(<HomePage />)
+    await screen.findByText('Mekanik Klavye')
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Aradığınız her şey tek yerde' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Ürünlere göz atın' })).toHaveAttribute(
+      'href',
+      '/products',
+    )
+    expect(screen.getByRole('link', { name: 'Bize ulaşın' })).toHaveAttribute('href', '/contact')
+  })
+
+  it('links every category card to its filtered product list', async () => {
+    const twoCategories: Taxonomy[] = [...categories, { id: 4, name: 'Fareler', description: '' }]
+    mockGet({ '/products': newProducts, '/categories': twoCategories, '/brands': brands })
+    renderWithProviders(<HomePage />)
+    expect(await screen.findByRole('link', { name: 'Klavyeler' })).toHaveAttribute(
+      'href',
+      '/products?category_id=3',
+    )
+    expect(screen.getByRole('link', { name: 'Fareler' })).toHaveAttribute(
+      'href',
+      '/products?category_id=4',
+    )
+  })
+
   it('shows the translated message when the new products cannot be loaded', async () => {
     const error = new ApiError(0, 'network')
     vi.spyOn(api, 'get').mockImplementation(async (path: string) => {

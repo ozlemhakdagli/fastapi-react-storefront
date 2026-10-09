@@ -62,6 +62,12 @@ describe('ProductListPage', () => {
     expect(await screen.findByText('Mekanik Klavye')).toBeInTheDocument()
   })
 
+  it('shows how many products match the filters', async () => {
+    mockGet({ '/products': products, '/categories': categories, '/brands': brands })
+    renderList('/products')
+    expect(await screen.findByText('45 ürün bulundu')).toBeInTheDocument()
+  })
+
   it('test_list_requests_use_url_params', async () => {
     const get = mockGet({ '/products': products, '/categories': categories, '/brands': brands })
     renderList('/products?category_id=1&brand_id=7&q=klavye&sort=price_asc&page=2')

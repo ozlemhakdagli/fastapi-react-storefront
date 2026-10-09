@@ -131,7 +131,7 @@ describe('ProductDetailPage', () => {
     })
     renderDetail({ user: testCustomer })
     expect(await screen.findByRole('button', { name: t('catalog.add_to_cart') })).toBeDisabled()
-    expect(screen.getByText(t('catalog.out_of_stock'))).toBeInTheDocument()
+    expect(screen.getByText(t('common.stock_out'))).toBeInTheDocument()
   })
 
   it('test_comment_markup_renders_as_text', async () => {

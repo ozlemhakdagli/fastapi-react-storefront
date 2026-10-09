@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
+import { ShoppingCart } from 'lucide-react'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { FormField } from '@/components/FormField'
 import { Money } from '@/components/Money'
+import { ProductImage } from '@/components/ProductImage'
+import { StockBadge } from '@/components/StockBadge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -13,6 +16,10 @@ import { t } from '@/lib/i18n'
 
 // The API holds at most 99 units in a cart line.
 const MAX_QUANTITY = 99
+
+// Soft chip for the brand and category links.
+const CHIP_CLASS =
+  'bg-secondary text-secondary-foreground hover:bg-accent focus-visible:ring-ring focus-visible:ring-3 inline-flex items-center rounded-full px-3 py-1 text-sm font-medium transition-colors outline-none'
 
 /** Turns the typed quantity into a whole number in [1, max]; text that is not a number becomes 1. */
 function clampQuantity(text: string, max: number): number {
@@ -64,10 +71,11 @@ function ProductContent({ productId }: { productId: number }) {
     <div className="grid gap-10">
       <div className="grid gap-8 md:grid-cols-2">
         <div className="grid content-start gap-3">
-          <img
-            src={image.url}
-            alt={item.name}
-            className="bg-muted aspect-square w-full rounded-xl object-cover"
+          <ProductImage
+            name={item.name}
+            imageUrl={image.url}
+            category={item.category}
+            className="aspect-square w-full rounded-xl"
           />
           {gallery.length > 1 ? (
             <div role="group" aria-label={t('catalog.gallery_label')} className="flex flex-wrap gap-2">
@@ -89,13 +97,35 @@ function ProductContent({ productId }: { productId: number }) {
           ) : null}
         </div>
 
-        <div className="grid content-start gap-4">
-          <h1 className="text-2xl font-semibold">{item.name}</h1>
+        <div className="grid content-start gap-5">
+          <dl className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+            <div className="flex items-center gap-2">
+              <dt className="text-muted-foreground">{t('catalog.brand_label')}</dt>
+              <dd>
+                {item.brand ? (
+                  <Link to={`/products?brand_id=${item.brand.id}`} className={CHIP_CLASS}>
+                    {item.brand.name}
+                  </Link>
+                ) : null}
+              </dd>
+            </div>
+            <div className="flex items-center gap-2">
+              <dt className="text-muted-foreground">{t('catalog.category_label')}</dt>
+              <dd>
+                {item.category ? (
+                  <Link to={`/products?category_id=${item.category.id}`} className={CHIP_CLASS}>
+                    {item.category.name}
+                  </Link>
+                ) : null}
+              </dd>
+            </div>
+          </dl>
+          <h1 className="text-3xl font-semibold tracking-tight">{item.name}</h1>
           <p className="text-muted-foreground">{item.short_description}</p>
-          <Money value={item.price} className="text-2xl font-semibold" />
-          <p className="text-sm">
-            {outOfStock ? t('catalog.out_of_stock') : t('catalog.in_stock', { count: item.stock })}
-          </p>
+          <div className="grid justify-items-start gap-2">
+            <Money value={item.price} className="text-3xl font-semibold text-primary" />
+            <StockBadge stock={item.stock} />
+          </div>
           <p className="text-muted-foreground text-sm">{t('catalog.sku', { sku: item.sku })}</p>
 
           <div className="flex flex-wrap items-end gap-3">
@@ -114,9 +144,11 @@ function ProductContent({ productId }: { productId: number }) {
               />
             </FormField>
             <Button
+              size="lg"
               disabled={outOfStock || loading || addToCart.isPending}
               onClick={handleAddToCart}
             >
+              <ShoppingCart aria-hidden="true" />
               {addToCart.isPending ? t('catalog.adding_to_cart') : t('catalog.add_to_cart')}
             </Button>
           </div>
@@ -126,33 +158,10 @@ function ProductContent({ productId }: { productId: number }) {
             </p>
           ) : null}
           <ErrorNotice error={addToCart.error} />
-
-          <dl className="grid gap-2 text-sm">
-            <div className="flex gap-3">
-              <dt className="text-muted-foreground w-20 shrink-0">{t('catalog.brand_label')}</dt>
-              <dd>
-                {item.brand ? (
-                  <Link to={`/products?brand_id=${item.brand.id}`} className="underline">
-                    {item.brand.name}
-                  </Link>
-                ) : null}
-              </dd>
-            </div>
-            <div className="flex gap-3">
-              <dt className="text-muted-foreground w-20 shrink-0">{t('catalog.category_label')}</dt>
-              <dd>
-                {item.category ? (
-                  <Link to={`/products?category_id=${item.category.id}`} className="underline">
-                    {item.category.name}
-                  </Link>
-                ) : null}
-              </dd>
-            </div>
-          </dl>
         </div>
       </div>
 
-      <section className="grid gap-2">
+      <section className="grid gap-2 rounded-xl border bg-card p-6">
         <h2 className="text-xl font-semibold">{t('catalog.description_title')}</h2>
         <p className="text-sm leading-6 whitespace-pre-line">{item.description}</p>
       </section>

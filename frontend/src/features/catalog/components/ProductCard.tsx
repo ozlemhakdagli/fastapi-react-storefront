@@ -1,5 +1,7 @@
 import { Link } from 'react-router'
+import { ProductImage } from '@/components/ProductImage'
 import { Money } from '@/components/Money'
+import { StockBadge } from '@/components/StockBadge'
 import { Badge } from '@/components/ui/badge'
 import { t } from '@/lib/i18n'
 import type { ProductListItem } from '@/lib/types'
@@ -12,19 +14,33 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       to={`/products/${product.id}`}
-      className="bg-card ring-foreground/10 flex flex-col overflow-hidden rounded-xl ring-1 transition-shadow hover:shadow-md"
+      className="bg-card ring-foreground/10 motion-safe:hover:-translate-y-0.5 flex flex-col overflow-hidden rounded-xl ring-1 transition hover:shadow-md"
     >
-      <img
-        src={product.image_url}
-        alt={product.name}
-        loading="lazy"
-        className="bg-muted aspect-square w-full object-cover"
-      />
+      <div className="relative">
+        <ProductImage
+          name={product.name}
+          imageUrl={product.image_url}
+          category={product.category}
+          className="aspect-square w-full"
+        />
+        {product.is_new ? (
+          <Badge variant="warning" className="absolute top-2 left-2">
+            {t('catalog.card_new')}
+          </Badge>
+        ) : null}
+      </div>
       <div className="flex flex-1 flex-col gap-1.5 p-3">
-        {product.is_new ? <Badge className="w-fit">{t('catalog.card_new')}</Badge> : null}
-        <h3 className="font-medium">{product.name}</h3>
+        {product.brand ? (
+          <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+            {product.brand.name}
+          </p>
+        ) : null}
+        <h3 className="line-clamp-2 font-medium wrap-break-word">{product.name}</h3>
         <p className="text-muted-foreground line-clamp-2 text-sm">{product.short_description}</p>
-        <Money value={product.price} className="mt-auto pt-1 font-semibold" />
+        <div className="mt-auto grid justify-items-start gap-2 pt-1">
+          <Money value={product.price} className="text-primary font-semibold" />
+          <StockBadge stock={product.stock} />
+        </div>
       </div>
     </Link>
   )
