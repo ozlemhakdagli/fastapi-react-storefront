@@ -25,7 +25,7 @@ PLACEHOLDER = Path(__file__).resolve().parent / "static" / "placeholder.svg"
 
 ROUTER_MODULES = (
     "auth", "users", "taxonomy", "site", "products", "cart", "orders", "comments",
-    "messages", "dashboard",
+    "messages", "dashboard", "ratings", "favorites",
 )  # fmt: skip
 
 
