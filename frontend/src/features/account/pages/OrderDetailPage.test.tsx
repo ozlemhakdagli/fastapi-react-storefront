@@ -67,7 +67,11 @@ describe('OrderDetailPage', () => {
     expect(screen.getByText('Ayşe Yılmaz')).toBeInTheDocument()
     expect(screen.getByText('05320000000')).toBeInTheDocument()
     expect(screen.getByText('Moda Cad. 1, Kadıköy, İstanbul')).toBeInTheDocument()
-    expect(screen.getByText(t('common.status_new'))).toBeInTheDocument()
+    // The status shows in the badge and as the first step of the timeline.
+    expect(screen.getAllByText(t('common.status_new'))).toHaveLength(2)
+    const progress = screen.getByRole('list', { name: t('account.order_progress') })
+    const newStep = within(progress).getByText(t('common.status_new')).closest('li')
+    expect(newStep).toHaveAttribute('aria-current', 'step')
     expect(screen.getByText('Yurtiçi Kargo')).toBeInTheDocument()
     expect(screen.getByText('YK123456')).toBeInTheDocument()
     // The total and the line total are both 2599.80, so the amount appears more than once.
@@ -97,8 +101,12 @@ describe('OrderDetailPage', () => {
       within(dialog).getByRole('button', { name: t('account.order_cancel_confirm') }),
     )
     await waitFor(() => expect(post).toHaveBeenCalledWith('/orders/5/cancel'))
-    // Cancelling invalidates the ['orders'] queries, so the order is fetched again.
-    expect(await screen.findByText(t('common.status_cancelled'))).toBeInTheDocument()
+    // Cancelling invalidates the ['orders'] queries, so the order is fetched again. The cancelled
+    // state then shows in the badge and in the timeline, which has no steps left.
+    await waitFor(() => expect(screen.getAllByText(t('common.status_cancelled'))).toHaveLength(2))
+    expect(
+      screen.queryByRole('list', { name: t('account.order_progress') }),
+    ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: t('account.order_cancel') }),
     ).not.toBeInTheDocument()

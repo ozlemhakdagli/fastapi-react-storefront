@@ -15,7 +15,7 @@ export default function ProfilePage() {
   const { user } = useAuth()
   if (!user) return null
   return (
-    <div className="grid gap-10">
+    <div className="grid gap-6">
       <PageHeader title={t('profile.title')} />
       <ProfileForm user={user} />
       <PasswordForm />
@@ -51,7 +51,7 @@ function ProfileForm({ user }: { user: User }) {
   }
 
   return (
-    <section className="grid max-w-xl gap-4">
+    <section className="grid max-w-xl gap-4 rounded-xl border bg-card p-4 sm:p-6">
       <h2 className="text-lg font-semibold">{t('profile.info_title')}</h2>
       <form onSubmit={handleSubmit} className="grid gap-4">
         <FormField label={t('profile.email')} htmlFor="profile-email">
@@ -129,7 +129,7 @@ function PasswordForm() {
   }
 
   return (
-    <section className="grid max-w-xl gap-4">
+    <section className="grid max-w-xl gap-4 rounded-xl border bg-card p-4 sm:p-6">
       <h2 className="text-lg font-semibold">{t('profile.password_title')}</h2>
       <form onSubmit={handleSubmit} className="grid gap-4">
         <FormField label={t('profile.current_password')} htmlFor="profile-current-password">

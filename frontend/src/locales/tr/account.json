@@ -6,6 +6,7 @@
   "order_date": "Sipariş tarihi",
   "order_total": "Toplam",
   "order_back": "Siparişlerime dön",
+  "order_progress": "Sipariş durumu",
   "order_cancel": "Siparişi iptal et",
   "order_cancel_title": "Sipariş iptal edilsin mi?",
   "order_cancel_description": "Ürün stokları geri eklenecek. Bu işlem geri alınamaz.",

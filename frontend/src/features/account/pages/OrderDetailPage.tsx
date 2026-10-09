@@ -8,6 +8,7 @@ import { Money } from '@/components/Money'
 import { PageHeader } from '@/components/PageHeader'
 import { StatusBadge } from '@/components/StatusBadge'
 import { Button } from '@/components/ui/button'
+import { OrderTimeline } from '@/features/account/components/OrderTimeline'
 import { useCancelOrder, useOrder } from '@/features/account/hooks/useOrders'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
@@ -77,6 +78,10 @@ export default function OrderDetailPage() {
         </span>
       </div>
 
+      <div className="rounded-xl border bg-card p-4 sm:p-6">
+        <OrderTimeline status={detail.status} />
+      </div>
+
       <section className="grid gap-3">
         <h2 className="text-lg font-semibold">{t('account.items_title')}</h2>
         <DataTable
@@ -91,7 +96,7 @@ export default function OrderDetailPage() {
         </div>
       </section>
 
-      <section className="grid gap-3">
+      <section className="grid gap-3 rounded-xl border bg-card p-4 sm:p-6">
         <h2 className="text-lg font-semibold">{t('account.shipping_title')}</h2>
         <dl className="grid gap-3 text-sm">
           <DetailRow label={t('account.ship_name')}>{detail.ship_name}</DetailRow>
