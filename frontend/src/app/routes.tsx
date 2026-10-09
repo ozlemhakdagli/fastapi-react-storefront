@@ -1,6 +1,7 @@
-import { lazy } from 'react'
+import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router'
 import { RequireAdmin, RequireAuth } from '@/components/guards'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import LoginPage from '@/features/auth/pages/LoginPage'
 import RegisterPage from '@/features/auth/pages/RegisterPage'
 import HomePage from '@/features/catalog/pages/HomePage'
@@ -31,6 +32,9 @@ const AdminSettingsPage = lazy(() => import('@/features/admin/pages/SettingsPage
 const AdminUsersPage = lazy(() => import('@/features/admin/pages/UsersPage'))
 const CartPage = lazy(() => import('@/features/cart/pages/CartPage'))
 const CheckoutPage = lazy(() => import('@/features/cart/pages/CheckoutPage'))
+const FavoritesPage = lazy(() => import('@/features/account/pages/FavoritesPage'))
+const InvoicePage = lazy(() => import('@/features/account/pages/InvoicePage'))
+const AdminInvoicePage = lazy(() => import('@/features/admin/pages/AdminInvoicePage'))
 const AccountLayout = lazy(() => import('@/layouts/AccountLayout'))
 const AdminLayout = lazy(() => import('@/layouts/AdminLayout'))
 
@@ -56,12 +60,26 @@ export function AppRoutes() {
             <Route path="orders/:id" element={<AccountOrderDetailPage />} />
             <Route path="comments" element={<MyCommentsPage />} />
             <Route path="messages" element={<MyMessagesPage />} />
+            <Route path="favorites" element={<FavoritesPage />} />
           </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>
 
+      {/* The invoice views are printed, so they sit outside the shop and admin layouts. */}
+      <Route element={<RequireAuth />}>
+        <Route
+          path="account/orders/:id/invoice"
+          element={
+            <Suspense fallback={<LoadingNotice />}>
+              <InvoicePage />
+            </Suspense>
+          }
+        />
+      </Route>
+
       <Route path="admin" element={<RequireAdmin />}>
+        <Route path="orders/:id/invoice" element={<AdminInvoicePage />} />
         <Route element={<AdminLayout />}>
           <Route index element={<AdminDashboardPage />} />
           <Route path="products" element={<AdminProductsPage />} />

@@ -88,6 +88,38 @@ describe('AppRoutes', () => {
     ).toBeInTheDocument()
   })
 
+  it('shows the favourites page inside the account layout', async () => {
+    renderAt('/account/favorites', testCustomer)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/account/favorites')
+    expect(
+      await screen.findByRole('heading', { name: t('layout.account_title') }),
+    ).toBeInTheDocument()
+  })
+
+  it('sends an anonymous visitor of an invoice to /login', () => {
+    renderAt('/account/orders/1/invoice')
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/login')
+  })
+
+  it('shows the customer invoice without the shop header', async () => {
+    renderAt('/account/orders/1/invoice', testCustomer)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/account/orders/1/invoice')
+    expect(await screen.findByText(t('common.loading'))).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: t('layout.nav_products') })).not.toBeInTheDocument()
+  })
+
+  it('shows the admin invoice without the admin layout and keeps customers out', async () => {
+    renderAt('/admin/orders/1/invoice', testAdmin)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/admin/orders/1/invoice')
+    expect(await screen.findByText(t('common.loading'))).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: t('admin.title') })).not.toBeInTheDocument()
+  })
+
+  it('sends a customer who opens an admin invoice to the home page', () => {
+    renderAt('/admin/orders/1/invoice', testCustomer)
+    expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/$/)
+  })
+
   it('keeps an unknown URL where it is and still shows the store layout', async () => {
     renderAt('/no/such/page')
     expect(screen.getByTestId('pathname')).toHaveTextContent('/no/such/page')
