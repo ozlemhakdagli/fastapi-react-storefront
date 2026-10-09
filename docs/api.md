@@ -225,9 +225,9 @@ and 422) are not repeated in each row.
 | GET | `/api/admin/products/{product_id}` | admin | none | 200 `AdminProduct` | 404 `not_found` |
 | PUT | `/api/admin/products/{product_id}` | admin | Body: `ProductIn` plus an optional `expected_updated_at`; every field is replaced. `expected_updated_at`: the `updated_at` the form was loaded with. If it no longer matches, nothing is saved. Without it, the save is unconditional. | 200 `AdminProduct` | 404 `not_found`; 409 `sku_taken`; 409 `product_changed`; 422 `invalid_reference` |
 | DELETE | `/api/admin/products/{product_id}` | admin | none | 204 | 404 `not_found`; 409 `has_dependencies` when the product appears in an order |
-| POST | `/api/admin/products/{product_id}/images` | admin | Multipart form with one field, `file`: a JPEG, PNG or WebP image of at most 2 000 000 bytes. The type is read from the first bytes. The client's file name and content type are ignored, and the file is stored under a generated name. | 201 `ProductImageOut`, added after the last image | 404 `not_found`; 413 `file_too_large`; 413 `payload_too_large`; 415 `unsupported_media_type` |
+| POST | `/api/admin/products/{product_id}/images` | admin | Multipart form with one field, `file`: a JPEG, PNG or WebP image of at most 2 000 000 bytes. The type is read from the first bytes, then the file is decoded and saved again as WebP in two sizes: a full copy (long edge at most 1600 px) and a card copy (long edge at most 480 px). Smaller images are not enlarged, camera metadata is dropped and the EXIF rotation is applied. The client's file name and content type are ignored; the files get the generated names `<uuid>.webp` and `<uuid>-sm.webp`. A product whose only image row is the placeholder loses that row, so the first real photo becomes the cover. | 201 `ProductImageOut`, added after the last image | 404 `not_found`; 413 `file_too_large`; 413 `payload_too_large`; 415 `unsupported_media_type` (also for a file that cannot be decoded and for one that declares more than 40 million pixels) |
 | PUT | `/api/admin/products/{product_id}/images/order` | admin | Body: `image_ids`, which must list every image id of the product exactly once, in the new order | 200 `AdminProduct` | 404 `not_found`; 422 `invalid_reference` (`field` is `image_ids`) |
-| DELETE | `/api/admin/products/{product_id}/images/{image_id}` | admin | none. The file is deleted too, except `placeholder.svg`. | 204 | 404 `not_found` (the image does not belong to this product) |
+| DELETE | `/api/admin/products/{product_id}/images/{image_id}` | admin | none. Both files (full and card copy) are deleted too, except `placeholder.svg`. | 204 | 404 `not_found` (the image does not belong to this product) |
 
 `ProductIn` (the request body of POST and PUT):
 
@@ -357,12 +357,13 @@ No response contains a password or a password hash.
   "is_new": true,
   "brand": {"id": 2, "name": "Nova"},
   "category": {"id": 3, "name": "Klavye ve Fare"},
-  "image_url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f.jpg"
+  "image_url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f-sm.webp"
 }
 ```
 
-`brand` and `category` are `null` when they are not set. `image_url` is `/api/media/placeholder.svg`
-for a product without images.
+`brand` and `category` are `null` when they are not set. `image_url` is the card copy (480 px WebP) of
+the first image, the full file when that image has no card copy (an upload from before the resizing
+was added), and `/api/media/placeholder.svg` for a product without images.
 
 ### ProductDetail
 
@@ -380,8 +381,8 @@ for a product without images.
   "image_url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f.jpg",
   "description": "Alüminyum gövde, değiştirilebilir tuş takımı ve iki yıl garanti.",
   "images": [
-    {"id": 11, "url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f.jpg", "position": 0},
-    {"id": 12, "url": "/api/media/0a1b2c3d4e5f60718293a4b5c6d7e8f9.png", "position": 1}
+    {"id": 11, "url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f.webp", "thumb_url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f-sm.webp", "position": 0},
+    {"id": 12, "url": "/api/media/0a1b2c3d4e5f60718293a4b5c6d7e8f9.webp", "thumb_url": "/api/media/0a1b2c3d4e5f60718293a4b5c6d7e8f9-sm.webp", "position": 1}
   ],
   "created_at": "2026-10-08T12:00:00Z"
 }
@@ -405,7 +406,7 @@ for a product without images.
   "image_url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f.jpg",
   "description": "Alüminyum gövde, değiştirilebilir tuş takımı ve iki yıl garanti.",
   "images": [
-    {"id": 11, "url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f.jpg", "position": 0}
+    {"id": 11, "url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f.webp", "thumb_url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f-sm.webp", "position": 0}
   ],
   "created_at": "2026-10-08T12:00:00Z",
   "cost_price": "980.00",
@@ -510,12 +511,39 @@ All ten fields are text. Each one has a maximum length; the longest are `about_t
   "new_orders": 3,
   "unread_messages": 2,
   "products": 20,
-  "customers": 14
+  "customers": 14,
+  "orders_by_status": {
+    "new": 3, "approved": 1, "rejected": 0, "cancelled": 1, "shipped": 2, "completed": 9
+  },
+  "orders_per_day": [
+    {"date": "2026-09-26", "orders": 0, "revenue": "0.00"},
+    {"date": "2026-10-09", "orders": 3, "revenue": "2398.00"}
+  ],
+  "recent_orders": [
+    {
+      "id": 7,
+      "customer_name": "Ayşe Yılmaz",
+      "status": "new",
+      "total": "1299.90",
+      "created_at": "2026-10-09T12:00:00+03:00"
+    }
+  ],
+  "low_stock": [
+    {"id": 3, "sku": "SEED-007", "name": "Samsung T7 1 TB Taşınabilir SSD", "stock": 4}
+  ]
 }
 ```
 
 `new_orders` counts orders with status `new`. `unread_messages` counts inbound messages with status
 `new`. `products` counts all products, active or not. `customers` counts active users with role `customer`.
+
+`orders_by_status` always has all six status keys and counts all orders of all time. `orders_per_day`
+always has exactly 14 entries, oldest first; the last one is today in the time zone of the database
+server, and days without orders have `orders: 0` and `revenue: "0.00"`. `orders` counts every order of
+that day; `revenue` adds up the totals of the orders that are new, approved, shipped or completed
+(rejected and cancelled orders are not revenue). `recent_orders` holds at most 5 orders, newest first.
+`low_stock` holds at most 8 active products with a stock of 5 or less, the lowest stock first (then by
+name). (The shown JSON is abridged: the lists are longer.)
 
 ### Other shapes
 
@@ -523,7 +551,7 @@ All ten fields are text. Each one has a maximum length; the longest are `about_t
 |---|---|
 | `Page<T>` | `items` (a list of `T`), `total`, `page`, `page_size` |
 | `Taxonomy` | `id`, `name`, `description`. Used for categories and brands. |
-| `ProductImageOut` | `id`, `url`, `position` |
+| `ProductImageOut` | `id`, `url` (full copy), `thumb_url` (card copy; the full file for an image without one), `position` |
 | `Comment` | `id`, `product_id`, `user_id`, `author_name`, `body`, `created_at` |
 | `MyComment` | `Comment` plus `product_name` |
 | `AdminComment` | `MyComment` plus `author_email` |
@@ -573,8 +601,9 @@ The implementation is in `backend/app/services/orders.py` (`place_order`, `admin
 
 ## 7. Database
 
-The schema is defined only in `backend/migrations/0001_init.sql`. The tests and `seed.py` run against
-the schema that this file creates. The schema has no triggers, so every `UPDATE` statement sets
+The schema is defined only by the files in `backend/migrations/`: `0001_init.sql` creates it and
+`0002_image_thumbnails.sql` adds `product_images.thumb_name`. The tests and `seed.py` run against the
+schema that these files create. The schema has no triggers, so every `UPDATE` statement sets
 `updated_at` itself on the tables that have that column.
 
 | Table | Purpose and notable constraints |
@@ -582,7 +611,7 @@ the schema that this file creates. The schema has no triggers, so every `UPDATE`
 | `users` | Customers and administrators. `role` is `customer` or `admin`. `is_active` deactivates an account instead of deleting it. E-mail addresses are unique ignoring case (`users_email_lower_key` on `lower(email)`). `password_hash` holds an Argon2 hash and is never returned. |
 | `categories`, `brands` | Shared shape: `name` (unique, 1 to 100 characters) and `description` (up to 2000). Products reference them with `ON DELETE RESTRICT`. |
 | `products` | `sku` (unique, up to 64 characters). `brand_id` and `category_id` reference the taxonomy tables with `RESTRICT`. `price` and `cost_price` are `NUMERIC(12,2)` and not negative; `stock` is not negative. `is_active` hides a product from the shop. `updated_at` is the version that `PUT` compares with `expected_updated_at`. |
-| `product_images` | One row per image: a generated `file_name` and a `position`. The lowest position is the cover. The unique pair `(product_id, position)` is deferred, so a reorder can swap positions in one transaction. Rows cascade with the product. |
+| `product_images` | One row per image: a generated `file_name` and a `position`. `thumb_name` (empty for an image from before the resizing was added) names the card copy. The lowest position is the cover. The unique pair `(product_id, position)` is deferred, so a reorder can swap positions in one transaction. Rows cascade with the product. |
 | `cart_items` | One row per user and product, unique on `(user_id, product_id)`, with `quantity` from 1 to 99. Rows cascade when the user or the product is deleted. |
 | `orders` | Status (one of the six values, checked), `total` (`NUMERIC(12,2)`, not negative), the shipping fields copied from the checkout form, and `cargo_company`, `tracking_no` and `admin_note` set by admins. `user_id` references `users` with `RESTRICT`. Orders are never deleted. |
 | `order_items` | Line items. `order_id` cascades from `orders`. `product_id` references `products` with `RESTRICT`, so a product that was ordered cannot be deleted. `product_name`, `unit_price` and `line_total` are a snapshot taken at checkout. `quantity` is above zero. |
@@ -594,7 +623,7 @@ the schema that this file creates. The schema has no triggers, so every `UPDATE`
 ### Adding a migration
 
 1. Create a new file in `backend/migrations/` whose name is four digits, an underscore, and a name in
-   lowercase letters, digits and underscores, for example `0002_wishlist.sql`. The runner rejects other names.
+   lowercase letters, digits and underscores, for example `0003_wishlist.sql`. The runner rejects other names.
 2. Never edit a file that has already been applied. The runner stores the SHA-256 checksum of each
    applied file, and when a stored checksum no longer matches, it stops with
    `MigrationError: <version> changed after it was applied`.
@@ -610,7 +639,7 @@ either. The existing files named as models are real.
 
 ### Backend
 
-1. **Migration.** `backend/migrations/0002_wishlist.sql`:
+1. **Migration.** `backend/migrations/0003_wishlist.sql`:
 
    ```sql
    CREATE TABLE wishlist_items (
