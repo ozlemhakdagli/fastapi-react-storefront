@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
-import { api } from '@/lib/api'
-import type { User } from '@/lib/types'
+import { useAuth } from '@/features/auth/AuthContext'
+import { api, tokenStore } from '@/lib/api'
+import type { TokenOut, User } from '@/lib/types'
 
 interface ProfileInput {
   full_name: string
@@ -20,9 +21,17 @@ export function useUpdateProfile() {
   })
 }
 
-/** POST /auth/change-password. The endpoint answers 204, so the result is undefined. */
+/**
+ * POST /auth/change-password. The answer is a token for the new password: it replaces the stored
+ * one, so this browser stays signed in while the other sessions of the account end.
+ */
 export function useChangePassword() {
+  const { refresh } = useAuth()
   return useMutation({
-    mutationFn: (input: PasswordInput) => api.post<void>('/auth/change-password', input),
+    mutationFn: (input: PasswordInput) => api.post<TokenOut>('/auth/change-password', input),
+    onSuccess: async (result) => {
+      tokenStore.set(result.access_token)
+      await refresh()
+    },
   })
 }

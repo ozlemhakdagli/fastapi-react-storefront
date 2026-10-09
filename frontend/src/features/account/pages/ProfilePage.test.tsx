@@ -90,6 +90,24 @@ describe('ProfilePage', () => {
       }),
     )
     expect(await screen.findByRole('alert')).toHaveTextContent(t('errors.wrong_password'))
+    expect(localStorage.getItem('ecommerce.token')).toBe('stored')
+  })
+
+  it('a password change stores the new token and keeps the user logged in', async () => {
+    const { get } = renderProfile()
+    await screen.findByLabelText(t('profile.full_name'))
+    vi.spyOn(api, 'post').mockResolvedValue({
+      access_token: 'new-token',
+      token_type: 'bearer',
+      user: testCustomer,
+    })
+    await fillPasswordForm({ current: 'EskiPassw0rd', next: 'YeniPassw0rd', confirm: 'YeniPassw0rd' })
+    await userEvent.click(screen.getByRole('button', { name: t('profile.password_submit') }))
+    expect(await screen.findByRole('status')).toHaveTextContent(t('profile.password_changed'))
+    expect(localStorage.getItem('ecommerce.token')).toBe('new-token')
+    // refresh() loads the user again with the new token; the form stays on the page.
+    expect(get).toHaveBeenCalledTimes(2)
+    expect(screen.getByLabelText(t('profile.full_name'))).toHaveValue(testCustomer.full_name)
   })
 
   it('new password confirmation mismatch blocks the request', async () => {

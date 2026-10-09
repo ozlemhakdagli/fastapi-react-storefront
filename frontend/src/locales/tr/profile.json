@@ -11,6 +11,6 @@
   "new_password": "Yeni şifre",
   "new_password_confirm": "Yeni şifre (tekrar)",
   "password_submit": "Şifreyi güncelle",
-  "password_changed": "Şifreniz güncellendi.",
+  "password_changed": "Parolanız güncellendi. Diğer cihazlardaki oturumlar kapatıldı.",
   "password_mismatch": "Yeni şifreler birbiriyle eşleşmiyor."
 }
