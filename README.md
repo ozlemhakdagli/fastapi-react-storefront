@@ -1,8 +1,7 @@
 # E-commerce Starter (React + FastAPI + PostgreSQL)
 
 A starter project for a small online shop: a React storefront, an admin panel and a FastAPI backend
-on PostgreSQL. It is a modern rewrite of an old PHP/CodeIgniter 3 student project. The old code stays
-in `legacy/` as a reference only.
+on PostgreSQL. Modern, clean architecture designed for students and developers.
 
 Students clone the project, run it and adapt it to their own project.
 
@@ -185,9 +184,7 @@ frontend/
     layouts/          store, account and admin layouts
     locales/tr/       Turkish UI texts, one JSON file per area
 scripts/db.sh        starts, stops and inspects the local PostgreSQL server
-docs/                api.md (API reference)
 compose.yml          three containers: database, API, web server (not tested yet)
-legacy/              the old PHP application, for reference only
 ```
 
 ## Architecture
@@ -377,10 +374,9 @@ Notes:
 - Docker avoids the bash script and the conda environments altogether, see
   [Running with Docker](#running-with-docker-not-tested-yet).
 
-## Legacy code and license
+## License
 
-- `legacy/` contains the old CodeIgniter application. Use it only to look up how a feature worked before.
-- This project is released under the MIT License (see [LICENSE](LICENSE)).
+This project is released under the MIT License (see [LICENSE](LICENSE)).
 
 ## What you can change first
 
