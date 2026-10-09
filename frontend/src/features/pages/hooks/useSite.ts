@@ -3,8 +3,8 @@ import { api } from '@/lib/api'
 import type { SiteSettings } from '@/lib/types'
 
 /**
- * Public site settings. The key and stale time match StoreLayout, so the layout and the pages
- * read one cache entry instead of fetching `/site` twice.
+ * Public site settings. The layout and the pages use this hook, so they read one cache entry
+ * instead of fetching `/site` twice.
  */
 export function useSite() {
   return useQuery({

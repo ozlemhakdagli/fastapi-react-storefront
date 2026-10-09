@@ -1,6 +1,7 @@
+import { cn } from 'cn'
 import { useSearchParams } from 'react-router'
-import { LoadingNotice } from '@/components/LoadingNotice'
 import { ErrorNotice } from '@/components/ErrorNotice'
+import { LoadingNotice } from '@/components/LoadingNotice'
 import { PageHeader } from '@/components/PageHeader'
 import { Pagination } from '@/components/Pagination'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
@@ -70,7 +71,7 @@ export default function ProductListPage() {
           sort={filters.sort}
           onChange={changeFilter}
         />
-        <div className="grid content-start gap-6">
+        <div className="grid content-start gap-6" aria-busy={products.isPlaceholderData}>
           <ErrorNotice error={products.error} />
           {products.isPending ? <LoadingNotice /> : null}
           {products.data && products.data.items.length === 0 ? (
@@ -82,7 +83,12 @@ export default function ProductListPage() {
             </p>
           ) : null}
           {products.data && products.data.items.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+            <div
+              className={cn(
+                'grid grid-cols-2 gap-4 transition-opacity md:grid-cols-3 xl:grid-cols-4',
+                products.isPlaceholderData && 'opacity-60',
+              )}
+            >
               {products.data.items.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

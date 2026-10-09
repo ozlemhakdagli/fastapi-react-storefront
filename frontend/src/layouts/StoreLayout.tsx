@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query'
 import { cn } from 'cn'
 import { ShoppingCart, Store } from 'lucide-react'
 import { Suspense, useEffect } from 'react'
@@ -7,9 +6,8 @@ import { LoadingNotice } from '@/components/LoadingNotice'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useCartCount } from '@/features/cart/hooks/useCart'
-import { api } from '@/lib/api'
+import { useSite } from '@/features/pages/hooks/useSite'
 import { t } from '@/lib/i18n'
-import type { SiteSettings } from '@/lib/types'
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   cn(
@@ -22,11 +20,7 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
 export default function StoreLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const { data: site } = useQuery({
-    queryKey: ['site'],
-    queryFn: () => api.get<SiteSettings>('/site'),
-    staleTime: 5 * 60 * 1000,
-  })
+  const { data: site } = useSite()
   const { data: cartCount = 0 } = useCartCount(Boolean(user))
   // Only a logged-in customer sees a count (the cart cache is also cleared on logout).
   const itemsInCart = user ? cartCount : 0

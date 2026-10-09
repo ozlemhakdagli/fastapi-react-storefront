@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import type { Page, ProductListItem } from '@/lib/types'
 
@@ -20,5 +20,7 @@ export function useProducts(query: ProductQuery) {
   return useQuery({
     queryKey: ['products', query],
     queryFn: () => api.get<Page<ProductListItem>>('/products', query),
+    // Keep showing the last list while a new filter, sort or page loads, so the grid does not blink.
+    placeholderData: keepPreviousData,
   })
 }
