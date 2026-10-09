@@ -129,6 +129,7 @@ Routes marked login or admin answer `401 unauthorized` without a valid token. Ad
 | `unauthorized` | 401 | | The token is missing, malformed or expired, or the user does not exist or is inactive. |
 | `invalid_credentials` | 401 | | Login failed. An unknown e-mail, a wrong password and an inactive account get the same answer. |
 | `forbidden` | 403 | | The caller is logged in but is not an admin. |
+| `purchase_required` | 403 | | A customer tried to rate a product without a completed order that contains it. |
 | `not_found` | 404 | | The resource does not exist, is an inactive product (where inactive products are hidden), or belongs to another user. |
 | `email_taken` | 409 | | The e-mail address is already registered. |
 | `sku_taken` | 409 | | Another product already has this SKU. |
@@ -304,6 +305,30 @@ Any other field is refused with 422.
 |---|---|---|---|---|---|
 | GET | `/api/admin/dashboard` | admin | none | 200 `Dashboard` | |
 
+### 4.16 Ratings
+
+Only a customer who has a `completed` order with the product can rate it. One rating per customer and
+product; it can be changed and removed. Comments are separate: every logged-in user can comment.
+
+| Method | Path | Who | Input | Success | Errors |
+|---|---|---|---|---|---|
+| GET | `/api/me/ratings/{product_id}` | login | none | 200 `MyRating` | 404 `not_found` (missing or inactive product) |
+| PUT | `/api/me/ratings/{product_id}` | login | Body: `rating`, an integer from 1 to 5 | 200 `MyRating` | 403 `purchase_required`; 404 `not_found` (missing or inactive product); 422 `validation_error` (not an integer from 1 to 5) |
+| DELETE | `/api/me/ratings/{product_id}` | login | none. Idempotent, and allowed without a purchase. | 204 | |
+
+### 4.17 Favourites
+
+| Method | Path | Who | Input | Success | Errors |
+|---|---|---|---|---|---|
+| GET | `/api/me/favorites` | login | Query: `page`, `page_size` | 200 `Page<ProductListItem>`, newest favourite first, active products only | |
+| GET | `/api/me/favorites/ids` | login | none | 200 `FavoriteIds`, at most 1000, active products only | |
+| PUT | `/api/me/favorites/{product_id}` | login | none. Idempotent. | 204 | 404 `not_found` (missing or inactive product) |
+| DELETE | `/api/me/favorites/{product_id}` | login | none. Idempotent. | 204 | |
+
+An invoice view of an order has no endpoint of its own: the pages `/account/orders/{id}/invoice` and
+`/admin/orders/{id}/invoice` read the order from `GET /api/orders/{order_id}` and
+`GET /api/admin/orders/{order_id}`.
+
 ## 5. Data shapes
 
 The examples show the JSON that the API returns. Money is a string, and every timestamp is UTC.
@@ -357,11 +382,13 @@ No response contains a password or a password hash.
   "is_new": true,
   "brand": {"id": 2, "name": "Nova"},
   "category": {"id": 3, "name": "Klavye ve Fare"},
-  "image_url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f-sm.webp"
+  "image_url": "/api/media/3f9c2a1e7b8d4c6a9e0f1a2b3c4d5e6f-sm.webp",
+  "rating_avg": 4.3,
+  "rating_count": 12
 }
 ```
 
-`brand` and `category` are `null` when they are not set. `image_url` is the card copy (480 px WebP) of
+`rating_avg` is the average of the star ratings rounded to one decimal, `null` while there are no ratings; `rating_count` is the number of ratings (0 without any). `brand` and `category` are `null` when they are not set. `image_url` is the card copy (480 px WebP) of
 the first image, the full file when that image has no card copy (an upload from before the resizing
 was added), and `/api/media/placeholder.svg` for a product without images.
 
@@ -552,7 +579,9 @@ name). (The shown JSON is abridged: the lists are longer.)
 | `Page<T>` | `items` (a list of `T`), `total`, `page`, `page_size` |
 | `Taxonomy` | `id`, `name`, `description`. Used for categories and brands. |
 | `ProductImageOut` | `id`, `url` (full copy), `thumb_url` (card copy; the full file for an image without one), `position` |
-| `Comment` | `id`, `product_id`, `user_id`, `author_name`, `body`, `created_at` |
+| `Comment` | `id`, `product_id`, `user_id`, `author_name`, `body`, `rating`, `created_at`. `rating` (1 to 5 or `null`) is the author's current star rating of the product. |
+| `MyRating` | `rating` (1 to 5 or `null`), `can_rate` (true when the caller has a completed order with the product) |
+| `FavoriteIds` | `ids`: the ids of the favourite products, newest first |
 | `MyComment` | `Comment` plus `product_name` |
 | `AdminComment` | `MyComment` plus `author_email` |
 | `CartItem` | `product_id`, `name`, `unit_price`, `quantity`, `line_total`, `stock`, `available`, `image_url` |
@@ -602,7 +631,8 @@ The implementation is in `backend/app/services/orders.py` (`place_order`, `admin
 ## 7. Database
 
 The schema is defined only by the files in `backend/migrations/`: `0001_init.sql` creates it and
-`0002_image_thumbnails.sql` adds `product_images.thumb_name`. The tests and `seed.py` run against the
+`0002_image_thumbnails.sql` adds `product_images.thumb_name` and `0003_ratings_and_favorites.sql` adds
+`product_ratings` and `favorites`. The tests and `seed.py` run against the
 schema that these files create. The schema has no triggers, so every `UPDATE` statement sets
 `updated_at` itself on the tables that have that column.
 
@@ -615,6 +645,8 @@ schema that these files create. The schema has no triggers, so every `UPDATE` st
 | `cart_items` | One row per user and product, unique on `(user_id, product_id)`, with `quantity` from 1 to 99. Rows cascade when the user or the product is deleted. |
 | `orders` | Status (one of the six values, checked), `total` (`NUMERIC(12,2)`, not negative), the shipping fields copied from the checkout form, and `cargo_company`, `tracking_no` and `admin_note` set by admins. `user_id` references `users` with `RESTRICT`. Orders are never deleted. |
 | `order_items` | Line items. `order_id` cascades from `orders`. `product_id` references `products` with `RESTRICT`, so a product that was ordered cannot be deleted. `product_name`, `unit_price` and `line_total` are a snapshot taken at checkout. `quantity` is above zero. |
+| `product_ratings` | One star rating (`SMALLINT`, checked 1 to 5) per `(user_id, product_id)`, the primary key. Rows cascade with the user and the product. Indexed by product for the average. |
+| `favorites` | One row per `(user_id, product_id)`, the primary key, with `created_at`. Rows cascade with the user and the product. Indexed by user and newest first. |
 | `comments` | `body` (1 to 2000 characters). Rows cascade with the product and with the author. Indexed by product and newest first. |
 | `messages` | Contact messages (`direction` inbound) and admin replies (`direction` outbound). `user_id` is empty for a guest and references `users` with `RESTRICT`. A CHECK requires a user on every outbound message. `status` is `new` or `read`. The name, e-mail, subject and body are stored trimmed (the e-mail also lowercased); the phone number is stored as sent. |
 | `site_settings` | One row, enforced by `id = 1`, with ten text columns. The migration creates no row; the first read creates it. |
@@ -623,7 +655,7 @@ schema that these files create. The schema has no triggers, so every `UPDATE` st
 ### Adding a migration
 
 1. Create a new file in `backend/migrations/` whose name is four digits, an underscore, and a name in
-   lowercase letters, digits and underscores, for example `0003_wishlist.sql`. The runner rejects other names.
+   lowercase letters, digits and underscores, for example `0004_price_alerts.sql`. The runner rejects other names.
 2. Never edit a file that has already been applied. The runner stores the SHA-256 checksum of each
    applied file, and when a stored checksum no longer matches, it stops with
    `MigrationError: <version> changed after it was applied`.
@@ -633,16 +665,18 @@ schema that these files create. The schema has no triggers, so every `UPDATE` st
 
 ## 8. Adding a feature
 
-This walkthrough is an illustration. It adds a wishlist, a list of products that a logged-in customer
-wants to keep. The wishlist does not exist in the project, and none of the files named below exist
-either. The existing files named as models are real.
+This walkthrough is an illustration. It adds price alerts, a list of products whose price a logged-in customer
+wants to watch (the walkthrough only stores the list). Price alerts do not exist in the project, and
+none of the files named below exist either. The existing files named as models are real. The favourites
+list is a finished feature of the same shape: `backend/app/repositories/favorites.py`,
+`backend/app/routers/favorites.py` and `frontend/src/features/favorites/` show the result.
 
 ### Backend
 
-1. **Migration.** `backend/migrations/0003_wishlist.sql`:
+1. **Migration.** `backend/migrations/0004_price_alerts.sql`:
 
    ```sql
-   CREATE TABLE wishlist_items (
+   CREATE TABLE price_alerts (
        user_id    BIGINT      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
        product_id BIGINT      NOT NULL REFERENCES products (id) ON DELETE CASCADE,
        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -650,39 +684,39 @@ either. The existing files named as models are real.
    );
    ```
 
-2. **Schemas.** `backend/app/schemas/wishlist.py`, modelled on `schemas/cart.py`. Request bodies inherit
+2. **Schemas.** `backend/app/schemas/price_alerts.py`, modelled on `schemas/cart.py`. Request bodies inherit
    `InputModel`, which rejects unknown fields:
 
    ```python
-   class WishlistAddIn(InputModel):
+   class PriceAlertAddIn(InputModel):
        product_id: int
 
-   class WishlistItemOut(BaseModel):
+   class PriceAlertOut(BaseModel):
        product_id: int
        name: str
        price: Money
        created_at: Iso
    ```
 
-3. **Repository.** `backend/app/repositories/wishlist.py`, modelled on `repositories/cart.py`. The
+3. **Repository.** `backend/app/repositories/price_alerts.py`, modelled on `repositories/cart.py`. The
    connection is the first argument, the SQL is plain with `%s` placeholders, and the functions return a
    `dict`, a list of dicts, `None` or a count, as the callers need:
 
    ```python
    def add(conn: psycopg.Connection, user_id: int, product_id: int) -> None:
        conn.execute(
-           "INSERT INTO wishlist_items (user_id, product_id) VALUES (%s, %s) "
+           "INSERT INTO price_alerts (user_id, product_id) VALUES (%s, %s) "
            "ON CONFLICT DO NOTHING",
            (user_id, product_id),
        )
    ```
 
-4. **Service.** `backend/app/services/wishlist.py`, with the rule that only active products can be
+4. **Service.** `backend/app/services/price_alerts.py`, with the rule that only active products can be
    saved. Model: `services/cart.py`, whose `_active_product` answers `404 not_found`. A unit that does
    several writes runs inside `with conn.transaction():`, as `place_order` does in `services/orders.py`.
    A single statement needs no transaction, because the pool commits each statement.
 
-5. **Router.** `backend/app/routers/wishlist.py`, modelled on `routers/cart.py`. The dependencies are
+5. **Router.** `backend/app/routers/price_alerts.py`, modelled on `routers/cart.py`. The dependencies are
    the ones the other routers use: `Conn` for the database, `CurrentUser` for the caller and `Pagination`
    for `page` and `page_size`. Every router module must also define an `admin_router`, even when it has
    no admin routes, because the wiring test checks for it:
@@ -691,28 +725,28 @@ either. The existing files named as models are real.
    router = APIRouter()
    admin_router = APIRouter(dependencies=[Depends(require_admin)])
 
-   @router.post("/wishlist/items", status_code=204)
-   def add_to_wishlist(body: WishlistAddIn, conn: Conn, user: CurrentUser) -> Response:
-       wishlist_service.add(conn, user["id"], body.product_id)
+   @router.post("/price-alerts", status_code=204)
+   def add_price_alert(body: PriceAlertAddIn, conn: Conn, user: CurrentUser) -> Response:
+       price_alert_service.add(conn, user["id"], body.product_id)
        return Response(status_code=204)
    ```
 
    Then register the module in two places: the `ROUTER_MODULES` tuple in `backend/app/main.py`, which
    is what mounts its routes, and the module list in `backend/tests/api/test_wiring.py`.
 
-6. **Tests.** The new test file is `backend/tests/api/test_wishlist.py`. Use the fixtures and factories
+6. **Tests.** The new test file is `backend/tests/api/test_price_alerts.py`. Use the fixtures and factories
    from `backend/tests/conftest.py`: `client`, `make_user`, `make_product`, `auth_headers`,
    `admin_headers`. The test database is emptied after each test automatically:
 
    ```python
-   def test_wishlist_requires_login(client: TestClient) -> None:
-       assert client.post("/api/wishlist/items", json={"product_id": 1}).status_code == 401
+   def test_price_alerts_require_login(client: TestClient) -> None:
+       assert client.post("/api/price-alerts", json={"product_id": 1}).status_code == 401
 
    def test_adding_an_active_product_saves_it(client, make_user, make_product, auth_headers) -> None:
        user = make_user()
        product = make_product()
        response = client.post(
-           "/api/wishlist/items", json={"product_id": product["id"]}, headers=auth_headers(user)
+           "/api/price-alerts", json={"product_id": product["id"]}, headers=auth_headers(user)
        )
        assert response.status_code == 204
    ```
@@ -726,7 +760,7 @@ either. The existing files named as models are real.
 7. **Type.** `frontend/src/lib/types.ts` gets an exported interface that mirrors the JSON:
 
    ```ts
-   export interface WishlistItem {
+   export interface PriceAlert {
      product_id: number
      name: string
      price: Money
@@ -734,16 +768,16 @@ either. The existing files named as models are real.
    }
    ```
 
-8. **Hook.** `frontend/src/features/wishlist/hooks/useWishlist.ts`, modelled on `features/cart/hooks/useCart.ts`.
+8. **Hook.** `frontend/src/features/price-alerts/hooks/usePriceAlerts.ts`, modelled on `features/cart/hooks/useCart.ts`.
    The query key starts with a constant that other hooks can invalidate:
 
    ```ts
-   export const wishlistQueryKey = ['wishlist'] as const
+   export const priceAlertsQueryKey = ['price-alerts'] as const
 
-   export function useWishlist(page: number) {
+   export function usePriceAlerts(page: number) {
      return useQuery({
-       queryKey: [...wishlistQueryKey, page],
-       queryFn: () => api.get<Page<WishlistItem>>('/wishlist', { page }),
+       queryKey: [...priceAlertsQueryKey, page],
+       queryFn: () => api.get<Page<PriceAlert>>('/price-alerts', { page }),
      })
    }
    ```
@@ -754,17 +788,17 @@ either. The existing files named as models are real.
    uses `['products', ...]`, `['product', id]`, `['categories']` and `['brands']`; the account uses
    `['my-messages', ...]` and `['my-comments', ...]`.
 
-9. **Page.** `frontend/src/features/wishlist/pages/WishlistPage.tsx`, the default export, modelled on
+9. **Page.** `frontend/src/features/price-alerts/pages/PriceAlertsPage.tsx`, the default export, modelled on
    `features/cart/pages/CartPage.tsx`. Every visible string comes from `t(...)`, and the page shows the
    errors with `ErrorNotice`.
 
 10. **Route.** `frontend/src/app/routes.tsx`, inside the `RequireAuth` group next to `cart` and `checkout`:
 
     ```tsx
-    <Route path="wishlist" element={<WishlistPage />} />
+    <Route path="price-alerts" element={<PriceAlertsPage />} />
     ```
 
-11. **Strings.** `frontend/src/locales/tr/wishlist.json`. Every `.json` file in that folder is loaded
+11. **Strings.** `frontend/src/locales/tr/pricealerts.json`. Every `.json` file in that folder is loaded
     automatically, so nothing needs registering. A key that is missing from the file is shown as the
     key itself:
 
@@ -776,20 +810,20 @@ either. The existing files named as models are real.
     }
     ```
 
-    The page uses `t('wishlist.title')`.
+    The page uses `t('pricealerts.title')`.
 
-12. **Test.** `frontend/src/features/wishlist/pages/WishlistPage.test.tsx`, modelled on
+12. **Test.** `frontend/src/features/price-alerts/pages/PriceAlertsPage.test.tsx`, modelled on
     `features/cart/pages/CartPage.test.tsx`. The test renders with `renderWithProviders` from
     `@/test/utils`, and it mocks the network by spying on the `api` object. Do not mock `@/lib/api`
     as a module, because that replaces the real `ApiError` class:
 
     ```tsx
     import { screen } from '@testing-library/react'
-    import WishlistPage from '@/features/wishlist/pages/WishlistPage'
+    import PriceAlertsPage from '@/features/price-alerts/pages/PriceAlertsPage'
     import { api } from '@/lib/api'
     import { renderWithProviders, testCustomer } from '@/test/utils'
 
-    const wishlistItem = {
+    const priceAlert = {
       product_id: 5,
       name: 'Mekanik Klavye',
       price: '1299.90',
@@ -797,8 +831,8 @@ either. The existing files named as models are real.
     }
 
     it('lists the saved products', async () => {
-      vi.spyOn(api, 'get').mockResolvedValue({ items: [wishlistItem], total: 1, page: 1, page_size: 20 })
-      renderWithProviders(<WishlistPage />, { user: testCustomer })
+      vi.spyOn(api, 'get').mockResolvedValue({ items: [priceAlert], total: 1, page: 1, page_size: 20 })
+      renderWithProviders(<PriceAlertsPage />, { user: testCustomer })
       expect(await screen.findByText('Mekanik Klavye')).toBeInTheDocument()
     })
     ```
