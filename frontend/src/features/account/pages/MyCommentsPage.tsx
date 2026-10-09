@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { Link } from 'react-router'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
@@ -11,23 +11,14 @@ import { useDeleteMyComment, useMyComments } from '@/features/account/hooks/useM
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
 import type { MyComment } from '@/lib/types'
+import { usePageParam } from '@/lib/usePageParam'
 
 export default function MyCommentsPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [page, changePage] = usePageParam()
   // The page number lives in the URL, so that Back from a product returns to the same page.
-  const page = Math.max(1, Number.parseInt(searchParams.get('page') ?? '', 10) || 1)
   const comments = useMyComments(page)
   const deleteComment = useDeleteMyComment()
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null)
-
-  function changePage(next: number) {
-    setSearchParams((previous) => {
-      const params = new URLSearchParams(previous)
-      if (next > 1) params.set('page', String(next))
-      else params.delete('page')
-      return params
-    })
-  }
 
   function confirmDelete() {
     if (pendingDeleteId !== null) deleteComment.mutate(pendingDeleteId)

@@ -1,4 +1,3 @@
-import { useSearchParams } from 'react-router'
 import { type Column, DataTable } from '@/components/DataTable'
 import { ErrorNotice } from '@/components/ErrorNotice'
 import { LoadingNotice } from '@/components/LoadingNotice'
@@ -8,21 +7,12 @@ import { useMyMessages } from '@/features/account/hooks/useMyMessages'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
 import type { Message } from '@/lib/types'
+import { usePageParam } from '@/lib/usePageParam'
 
 export default function MyMessagesPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [page, changePage] = usePageParam()
   // The page number lives in the URL, so that Back from another page returns to the same page.
-  const page = Math.max(1, Number.parseInt(searchParams.get('page') ?? '', 10) || 1)
   const messages = useMyMessages(page)
-
-  function changePage(next: number) {
-    setSearchParams((previous) => {
-      const params = new URLSearchParams(previous)
-      if (next > 1) params.set('page', String(next))
-      else params.delete('page')
-      return params
-    })
-  }
 
   const columns: Column<Message>[] = [
     {

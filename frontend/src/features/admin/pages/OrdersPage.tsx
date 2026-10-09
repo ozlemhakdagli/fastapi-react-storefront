@@ -11,6 +11,7 @@ import { useAdminOrders } from '@/features/admin/hooks/useAdminOrders'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
 import { type AdminOrderListItem, ORDER_STATUSES, type OrderStatus } from '@/lib/types'
+import { usePageParam } from '@/lib/usePageParam'
 
 // The "all" tab has no status in the URL.
 const ALL_TAB = 'all'
@@ -24,7 +25,7 @@ export default function OrdersPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   // The tab and the page live in the URL, so that Back from an order returns to the same list.
   const status = parseStatus(searchParams.get('status'))
-  const page = Math.max(1, Number.parseInt(searchParams.get('page') ?? '', 10) || 1)
+  const [page, changePage] = usePageParam()
   const orders = useAdminOrders({ status, page })
 
   function selectTab(value: string) {
@@ -34,15 +35,6 @@ export default function OrdersPage() {
       if (next) params.set('status', next)
       else params.delete('status')
       params.delete('page') // a different tab starts on its first page
-      return params
-    })
-  }
-
-  function changePage(next: number) {
-    setSearchParams((previous) => {
-      const params = new URLSearchParams(previous)
-      if (next > 1) params.set('page', String(next))
-      else params.delete('page')
       return params
     })
   }
