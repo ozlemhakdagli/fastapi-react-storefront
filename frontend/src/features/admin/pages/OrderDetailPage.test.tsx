@@ -165,6 +165,15 @@ describe('OrderDetailPage', () => {
     expect(screen.getByText(t('adminorders.status_final'))).toBeInTheDocument()
   })
 
+  it('links to the printable invoice', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue(order())
+    renderDetail()
+    expect(await screen.findByRole('link', { name: t('invoice.link') })).toHaveAttribute(
+      'href',
+      '/admin/orders/5/invoice',
+    )
+  })
+
   it('shows the translated message when the order cannot be loaded', async () => {
     const error = new ApiError(404, 'not_found')
     vi.spyOn(api, 'get').mockRejectedValue(error)

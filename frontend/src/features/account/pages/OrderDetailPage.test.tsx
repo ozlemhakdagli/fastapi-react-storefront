@@ -73,6 +73,15 @@ describe('OrderDetailPage', () => {
     expect(get).toHaveBeenCalledWith('/orders/5')
   })
 
+  it('links to the printable invoice', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue(order())
+    renderDetail()
+    expect(await screen.findByRole('link', { name: t('invoice.link') })).toHaveAttribute(
+      'href',
+      '/account/orders/5/invoice',
+    )
+  })
+
   it.each(ORDER_STATUSES)('test_order_detail_shows_cancel_only_for_new (%s)', async (status) => {
     vi.spyOn(api, 'get').mockResolvedValue(order({ status }))
     renderDetail()

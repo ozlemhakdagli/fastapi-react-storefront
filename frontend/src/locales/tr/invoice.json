@@ -1,0 +1,19 @@
+{
+  "title": "Fatura",
+  "disclaimer": "Bu belge bilgi amaçlıdır; resmi fatura yerine geçmez.",
+  "number": "Sipariş no",
+  "date": "Tarih",
+  "status": "Durum",
+  "seller": "Satıcı",
+  "buyer": "Alıcı",
+  "column_product": "Ürün",
+  "column_quantity": "Adet",
+  "column_unit_price": "Birim fiyat",
+  "column_total": "Tutar",
+  "total": "Toplam",
+  "cargo": "Kargo firması",
+  "tracking": "Takip numarası",
+  "print": "Yazdır",
+  "back": "Siparişe dön",
+  "link": "Fatura görünümü"
+}

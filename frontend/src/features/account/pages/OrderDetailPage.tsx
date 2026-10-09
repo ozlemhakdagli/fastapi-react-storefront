@@ -58,9 +58,14 @@ export default function OrderDetailPage() {
       <PageHeader
         title={t('account.order_number', { id: detail.id })}
         actions={
-          <Button variant="outline" asChild>
-            <Link to="/account/orders">{t('account.order_back')}</Link>
-          </Button>
+          <>
+            <Button variant="outline" asChild>
+              <Link to={`/account/orders/${orderId}/invoice`}>{t('invoice.link')}</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/account/orders">{t('account.order_back')}</Link>
+            </Button>
+          </>
         }
       />
       {placed ? (
