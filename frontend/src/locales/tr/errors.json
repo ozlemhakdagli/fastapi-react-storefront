@@ -19,5 +19,6 @@
   "validation_error": "Girilen bilgiler geçersiz. Lütfen alanları kontrol edin.",
   "network": "Sunucuya ulaşılamıyor. Bağlantınızı kontrol edin.",
   "unknown": "Beklenmeyen bir hata oluştu.",
-  "payload_too_large": "Gönderilen veri çok büyük."
+  "payload_too_large": "Gönderilen veri çok büyük.",
+  "product_changed": "Bu ürün siz düzenlerken değişti (örneğin bir satış stoğu güncelledi). Sayfayı yenileyip değişikliklerinizi tekrar yapın."
 }

@@ -56,6 +56,10 @@ class ProductIn(InputModel):
     stock: int = Field(ge=0, le=1_000_000)
     is_new: bool = False
     is_active: bool = True
+    # PUT only: the `updated_at` of the product as the form loaded it. When another change (a sale,
+    # an order cancellation, another admin) happened since, the save is refused with 409
+    # product_changed instead of overwriting that change, stock above all.
+    expected_updated_at: Iso | None = None
 
     @field_validator("price", "cost_price")
     @classmethod

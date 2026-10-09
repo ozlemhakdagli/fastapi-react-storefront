@@ -1,5 +1,7 @@
 """SQL for products and their images. Functions take the connection first and return dicts."""
 
+from datetime import datetime
+
 import psycopg
 from psycopg import sql
 
@@ -55,7 +57,7 @@ _UPDATE_PRODUCT = """
         short_description = %s, description = %s,
         price = %s, cost_price = %s, stock = %s, is_new = %s,
         is_active = %s, updated_at = now()
-    WHERE id = %s
+    WHERE id = %s AND (%s::timestamptz IS NULL OR updated_at = %s::timestamptz)
     RETURNING id
 """
 
@@ -184,9 +186,24 @@ def create(conn: psycopg.Connection, data: dict) -> dict:
     return conn.execute(_INSERT_PRODUCT, _values(data)).fetchone()
 
 
-def replace(conn: psycopg.Connection, product_id: int, data: dict) -> dict | None:
-    """Overwrite every writable field. Returns None when the product does not exist."""
-    return conn.execute(_UPDATE_PRODUCT, (*_values(data), product_id)).fetchone()
+def replace(
+    conn: psycopg.Connection,
+    product_id: int,
+    data: dict,
+    expected_updated_at: datetime | None = None,
+) -> dict | None:
+    """Overwrite every writable field.
+
+    Returns None when nothing was updated: the product does not exist, or (when
+    `expected_updated_at` is given) it changed since that version. Use exists() to tell apart.
+    """
+    params = (*_values(data), product_id, expected_updated_at, expected_updated_at)
+    return conn.execute(_UPDATE_PRODUCT, params).fetchone()
+
+
+def exists(conn: psycopg.Connection, product_id: int) -> bool:
+    row = conn.execute("SELECT 1 AS found FROM products WHERE id = %s", (product_id,)).fetchone()
+    return row is not None
 
 
 def delete(conn: psycopg.Connection, product_id: int) -> bool:

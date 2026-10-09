@@ -198,3 +198,87 @@ def test_reference_deleted_after_the_check_gives_422_invalid_reference(
     )
     assert response.status_code == 422
     assert response.json() == {"detail": "invalid_reference", "field": "brand_id"}
+
+
+def _put_body(product: dict, **overrides) -> dict:
+    body = {
+        "sku": product["sku"],
+        "name": product["name"],
+        "price": str(product["price"]),
+        "stock": product["stock"],
+    }
+    body.update(overrides)
+    return body
+
+
+def test_a_stale_edit_form_cannot_overwrite_stock_sold_in_the_meantime(
+    client: TestClient, conn, admin_headers, make_product
+) -> None:
+    """Saving a form opened before a sale must not undo the sale."""
+    headers = admin_headers()
+    product = make_product(stock=10)
+    url = f"/api/admin/products/{product['id']}"
+    opened = client.get(url, headers=headers).json()  # the admin opens the edit form
+
+    conn.execute(  # a customer buys 3 meanwhile
+        "UPDATE products SET stock = stock - 3, updated_at = now() WHERE id = %s", (product["id"],)
+    )
+    stale = client.put(
+        url,
+        json=_put_body(product, name="Renamed", expected_updated_at=opened["updated_at"]),
+        headers=headers,
+    )
+
+    assert stale.status_code == 409
+    assert stale.json() == {"detail": "product_changed"}
+    row = conn.execute("SELECT name, stock FROM products WHERE id = %s", (product["id"],))
+    assert row.fetchone() == {"name": product["name"], "stock": 7}
+
+
+def test_an_edit_with_the_current_version_succeeds_and_moves_the_version_on(
+    client: TestClient, admin_headers, make_product
+) -> None:
+    headers = admin_headers()
+    product = make_product(stock=10)
+    url = f"/api/admin/products/{product['id']}"
+    opened = client.get(url, headers=headers).json()
+
+    first = client.put(
+        url,
+        json=_put_body(product, name="First", expected_updated_at=opened["updated_at"]),
+        headers=headers,
+    )
+    assert first.status_code == 200
+    assert first.json()["updated_at"] != opened["updated_at"]
+    # The same, now outdated, version is refused; the new one is accepted.
+    again = client.put(
+        url,
+        json=_put_body(product, name="Second", expected_updated_at=opened["updated_at"]),
+        headers=headers,
+    )
+    assert again.status_code == 409
+    follow_up = client.put(
+        url,
+        json=_put_body(product, name="Second", expected_updated_at=first.json()["updated_at"]),
+        headers=headers,
+    )
+    assert follow_up.status_code == 200
+    assert follow_up.json()["name"] == "Second"
+
+
+def test_the_version_is_optional_and_an_unknown_product_is_still_404(
+    client: TestClient, admin_headers, make_product
+) -> None:
+    headers = admin_headers()
+    product = make_product(stock=10)
+    ok = client.put(
+        f"/api/admin/products/{product['id']}", json=_put_body(product, stock=4), headers=headers
+    )
+    assert ok.status_code == 200
+    assert ok.json()["stock"] == 4
+    missing = client.put(
+        "/api/admin/products/999999",
+        json=_put_body(product, expected_updated_at="2026-01-01T00:00:00Z"),
+        headers=headers,
+    )
+    assert missing.status_code == 404

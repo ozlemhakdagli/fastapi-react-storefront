@@ -33,7 +33,7 @@ describe('i18n', () => {
       'unauthorized', 'invalid_credentials', 'forbidden', 'not_found', 'email_taken',
       'sku_taken', 'name_taken', 'has_dependencies', 'last_admin', 'insufficient_stock',
       'product_unavailable', 'invalid_status_transition', 'empty_cart', 'wrong_password',
-      'invalid_reference', 'file_too_large', 'payload_too_large', 'unsupported_media_type',
+      'invalid_reference', 'file_too_large', 'payload_too_large', 'product_changed', 'unsupported_media_type',
       'validation_error',
       'network', 'unknown',
     ]

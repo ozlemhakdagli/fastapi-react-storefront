@@ -52,5 +52,6 @@
   "image_delete": "Sil",
   "image_move_up_label": "{position}. görseli yukarı taşı",
   "image_move_down_label": "{position}. görseli aşağı taşı",
-  "image_delete_label": "{position}. görseli sil"
+  "image_delete_label": "{position}. görseli sil",
+  "reload": "Güncel ürünü yükle"
 }

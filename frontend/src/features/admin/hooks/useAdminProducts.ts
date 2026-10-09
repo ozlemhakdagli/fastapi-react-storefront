@@ -23,6 +23,8 @@ export interface ProductInput {
   stock: number
   is_new: boolean
   is_active: boolean
+  /** PUT only: the `updated_at` the form was loaded with. A mismatch is a 409 product_changed. */
+  expected_updated_at?: string
 }
 
 // Query parameters of GET /admin/products. A type alias, not an interface, so that it is

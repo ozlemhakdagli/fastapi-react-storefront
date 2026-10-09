@@ -205,8 +205,55 @@ describe('ProductFormPage', () => {
       stock: 4,
       is_new: true,
       is_active: true,
+      expected_updated_at: product.updated_at,
     })
     expect(await screen.findByRole('status')).toHaveTextContent(t('adminproducts.saved'))
+  })
+
+  it('test_each_save_sends_the_version_returned_by_the_previous_one', async () => {
+    mockGet(editResponses)
+    const put = vi
+      .spyOn(api, 'put')
+      .mockResolvedValueOnce({ ...product, updated_at: '2026-10-08T12:30:00Z' })
+      .mockResolvedValueOnce({ ...product, updated_at: '2026-10-08T12:45:00Z' })
+    renderEdit()
+    await screen.findByLabelText(t('adminproducts.field_name'))
+    await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
+    await waitFor(() => expect(put).toHaveBeenCalledTimes(1))
+    await screen.findByRole('status')
+    await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
+    await waitFor(() => expect(put).toHaveBeenCalledTimes(2))
+    expect(put.mock.calls[0][1]).toMatchObject({ expected_updated_at: product.updated_at })
+    expect(put.mock.calls[1][1]).toMatchObject({ expected_updated_at: '2026-10-08T12:30:00Z' })
+  })
+
+  it('test_changed_product_error_keeps_the_draft_and_offers_a_reload', async () => {
+    mockGet(editResponses)
+    const error = new ApiError(409, 'product_changed')
+    vi.spyOn(api, 'put').mockRejectedValue(error)
+    const reload = vi.fn()
+    vi.stubGlobal('location', { ...window.location, reload })
+    renderEdit()
+    const name = await screen.findByLabelText(t('adminproducts.field_name'))
+    await userEvent.clear(name)
+    await userEvent.type(name, 'Taslak ad')
+    await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(errorMessage(error))
+    expect(screen.getByLabelText(t('adminproducts.field_name'))).toHaveValue('Taslak ad')
+    await userEvent.click(screen.getByRole('button', { name: t('adminproducts.reload') }))
+    expect(reload).toHaveBeenCalledTimes(1)
+    vi.unstubAllGlobals()
+  })
+
+  it('test_creating_a_product_sends_no_version', async () => {
+    mockGet({ '/admin/categories': categories, '/admin/brands': brands })
+    const post = vi.spyOn(api, 'post').mockResolvedValue({ ...product, id: 42 })
+    renderNew()
+    await screen.findByRole('option', { name: 'Logitech' })
+    await fillRequiredFields()
+    await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1))
+    expect(post.mock.calls[0][1]).not.toHaveProperty('expected_updated_at')
   })
 
   it('test_sku_taken_error_is_shown_on_field', async () => {

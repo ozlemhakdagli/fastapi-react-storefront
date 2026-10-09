@@ -177,12 +177,15 @@ def get_admin_product(product_id: int, conn: Conn) -> dict:
 @admin_router.put("/products/{product_id}", response_model=AdminProduct)
 def replace_product(product_id: int, body: ProductIn, conn: Conn) -> dict:
     data = body.model_dump()
+    expected_updated_at = data.pop("expected_updated_at")
     _require_references(conn, data["brand_id"], data["category_id"])
     try:
-        updated = products.replace(conn, product_id, data)
+        updated = products.replace(conn, product_id, data, expected_updated_at)
     except (UniqueViolation, ForeignKeyViolation) as exc:
         raise _write_failed(exc) from None
     if updated is None:
+        if products.exists(conn, product_id):
+            raise ApiError(409, "product_changed")
         raise ApiError(404, "not_found")
     return _admin_product(conn, product_id)
 

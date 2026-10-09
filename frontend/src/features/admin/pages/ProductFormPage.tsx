@@ -178,6 +178,9 @@ function ProductForm({ productId, product, categories, brands }: ProductFormProp
   const [values, setValues] = useState<FormValues>(() =>
     product ? valuesFrom(product) : EMPTY_VALUES,
   )
+  // The version of the product that this form is based on. The server refuses a save when the
+  // product changed since (for example a sale reduced the stock), instead of overwriting it.
+  const [version, setVersion] = useState(product?.updated_at)
   // Field errors appear after the first submit attempt, then follow the inputs (as on checkout).
   const [attempted, setAttempted] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -192,6 +195,7 @@ function ProductForm({ productId, product, categories, brands }: ProductFormProp
   // A duplicate SKU is shown on the SKU field, so it is not repeated in the page notice.
   const skuTaken = saveError instanceof ApiError && saveError.code === 'sku_taken'
   const skuError = skuTaken ? errorMessage(saveError) : errors.sku
+  const productChanged = saveError instanceof ApiError && saveError.code === 'product_changed'
   const deleteBlocked = deleteError instanceof ApiError && deleteError.code === 'has_dependencies'
 
   function setValue<K extends keyof FormValues>(field: K, value: FormValues[K]) {
@@ -203,8 +207,11 @@ function ProductForm({ productId, product, categories, brands }: ProductFormProp
     setAttempted(true)
     if (Object.keys(validate(values)).length > 0) return
     setLastAction('save')
-    save.mutate(toInput(values), {
+    const input = toInput(values)
+    if (productId !== undefined && version !== undefined) input.expected_updated_at = version
+    save.mutate(input, {
       onSuccess: (saved) => {
+        setVersion(saved.updated_at)
         // A new product opens on its own page, where its images can be added.
         if (productId === undefined) navigate(`/admin/products/${saved.id}`, { replace: true })
       },
@@ -375,6 +382,11 @@ function ProductForm({ productId, product, categories, brands }: ProductFormProp
           </label>
         </div>
         <ErrorNotice error={skuTaken ? null : saveError} />
+        {productChanged ? (
+          <Button type="button" variant="outline" onClick={() => window.location.reload()}>
+            {t('adminproducts.reload')}
+          </Button>
+        ) : null}
         {productId !== undefined && saved ? (
           <p role="status" className="border-border bg-muted rounded-md border px-3 py-2 text-sm">
             {t('adminproducts.saved')}
