@@ -2,16 +2,9 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import OrderDetailPage from '@/features/admin/pages/OrderDetailPage'
 import { api, ApiError } from '@/lib/api'
-import { formatMoney } from '@/lib/format'
 import { errorMessage, t } from '@/lib/i18n'
 import { type AdminOrder, type OrderStatus } from '@/lib/types'
-import { renderWithProviders, testAdmin } from '@/test/utils'
-
-// Intl may put a non-breaking space before the lira sign. The default text matcher only
-// collapses ordinary whitespace, so the expected text is normalized the same way.
-function price(value: string): string {
-  return formatMoney(value).replace(/\s/g, ' ')
-}
+import { price, renderWithProviders, testAdmin } from '@/test/utils'
 
 // The status select offers the current status first, then the allowed next ones.
 const OFFERED: [OrderStatus, OrderStatus[]][] = [

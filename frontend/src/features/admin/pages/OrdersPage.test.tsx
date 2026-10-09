@@ -2,16 +2,10 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import OrdersPage from '@/features/admin/pages/OrdersPage'
 import { api, ApiError } from '@/lib/api'
-import { formatDate, formatMoney } from '@/lib/format'
+import { formatDate } from '@/lib/format'
 import { errorMessage, t } from '@/lib/i18n'
 import { type AdminOrderListItem, ORDER_STATUSES, type Page } from '@/lib/types'
-import { renderWithProviders, testAdmin } from '@/test/utils'
-
-// Intl may put a non-breaking space before the lira sign. The default text matcher only
-// collapses ordinary whitespace, so the expected text is normalized the same way.
-function price(value: string): string {
-  return formatMoney(value).replace(/\s/g, ' ')
-}
+import { price, renderWithProviders, testAdmin } from '@/test/utils'
 
 function order(overrides: Partial<AdminOrderListItem> = {}): AdminOrderListItem {
   return {

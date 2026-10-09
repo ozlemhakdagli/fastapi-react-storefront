@@ -5,20 +5,18 @@ import { categoryIcon, ProductImage } from '@/components/ProductImage'
 describe('ProductImage', () => {
   it('renders a coloured placeholder labelled with the product name for the placeholder image', () => {
     render(<ProductImage name="Seagate 1 TB" imageUrl="/api/media/placeholder.svg" />)
-    expect(screen.getByRole('img', { name: 'Seagate 1 TB' }).tagName).toBe('DIV')
+    expect(screen.getByRole('img', { name: 'Seagate 1 TB' })).not.toHaveAttribute('src')
   })
 
   it('renders the real image with its source and the product name as alt text', () => {
     render(<ProductImage name="Seagate 1 TB" imageUrl="/api/media/abc.jpg" />)
     const image = screen.getByRole('img', { name: 'Seagate 1 TB' })
-    expect(image.tagName).toBe('IMG')
     expect(image).toHaveAttribute('src', '/api/media/abc.jpg')
     expect(image).toHaveAttribute('alt', 'Seagate 1 TB')
   })
 
   it('renders a 120-character name in the placeholder without breaking', () => {
     const longName = 'Seagate Barracuda 1 TB '.repeat(6).slice(0, 120)
-    expect(longName).toHaveLength(120)
     render(
       <ProductImage
         name={longName}

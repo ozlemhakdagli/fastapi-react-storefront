@@ -1,17 +1,11 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes, useLocation } from 'react-router'
 import CheckoutPage from '@/features/cart/pages/CheckoutPage'
 import { api, ApiError } from '@/lib/api'
-import { formatMoney } from '@/lib/format'
 import { errorMessage, t } from '@/lib/i18n'
 import type { CartItem, Order } from '@/lib/types'
-import { renderWithProviders, testCustomer } from '@/test/utils'
-
-// Intl may put a non-breaking space before the lira sign (see CartPage.test.tsx).
-function price(value: string): string {
-  return formatMoney(value).replace(/\s/g, ' ')
-}
+import { price, renderWithProviders, testCustomer } from '@/test/utils'
 
 function cartLine(overrides: Partial<CartItem> = {}): CartItem {
   return {
@@ -174,8 +168,11 @@ describe('CheckoutPage', () => {
     })
     renderCheckout()
     expect(await screen.findByText('Mekanik Klavye')).toBeInTheDocument()
-    expect(screen.getByText('Kablo')).toBeInTheDocument()
-    expect(screen.getByText(`${t('cart.column_quantity')}: 2`)).toBeInTheDocument()
+    const items = within(
+      screen.getByRole('list', { name: t('cart.column_product') }),
+    ).getAllByRole('listitem')
+    expect(items[0]).toHaveTextContent(`${t('cart.column_quantity')}: 2`)
+    expect(items[1]).toHaveTextContent('Kablo')
     expect(screen.getByText(price('2699.80'))).toBeInTheDocument()
   })
 })

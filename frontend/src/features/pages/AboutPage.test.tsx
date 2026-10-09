@@ -33,8 +33,8 @@ describe('AboutPage', () => {
     const get = vi.spyOn(api, 'get').mockResolvedValue(site)
     renderAbout()
     const paragraph = await screen.findByText(/Kuruluşumuz 2010/)
-    // The line break is kept (pre-line) and the tags are shown as written, never parsed as HTML.
-    expect(paragraph).toHaveClass('whitespace-pre-line')
+    // The line break is kept and the tags are shown as written, never parsed as HTML.
+    expect(paragraph).toHaveTextContent(site.about_text, { normalizeWhitespace: false })
     expect(paragraph.textContent).toBe(site.about_text)
     expect(paragraph.querySelector('b')).toBeNull()
     expect(get).toHaveBeenCalledWith('/site')

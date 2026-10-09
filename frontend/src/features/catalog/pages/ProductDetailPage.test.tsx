@@ -124,7 +124,7 @@ describe('ProductDetailPage', () => {
     expect(post).not.toHaveBeenCalled()
   })
 
-  it('test_out_of_stock_disables_add_button', async () => {
+  it('disables the add button when the product is sold out', async () => {
     mockGet({
       '/products/5': { ...product, stock: 0 },
       '/products/5/comments': commentsPage([]),
@@ -134,7 +134,7 @@ describe('ProductDetailPage', () => {
     expect(screen.getByText(t('common.stock_out'))).toBeInTheDocument()
   })
 
-  it('test_comment_markup_renders_as_text', async () => {
+  it('renders comment markup as plain text', async () => {
     const payload = '<img src=x onerror=alert(1)>'
     mockGet({
       '/products/5': product,

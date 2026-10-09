@@ -2,16 +2,9 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import OrderDetailPage from '@/features/account/pages/OrderDetailPage'
 import { api, ApiError } from '@/lib/api'
-import { formatMoney } from '@/lib/format'
 import { errorMessage, t } from '@/lib/i18n'
 import { type Order, ORDER_STATUSES } from '@/lib/types'
-import { renderWithProviders, testCustomer } from '@/test/utils'
-
-// Intl may put a non-breaking space before the lira sign. The default text matcher only
-// collapses ordinary whitespace, so the expected text is normalized the same way.
-function price(value: string): string {
-  return formatMoney(value).replace(/\s/g, ' ')
-}
+import { price, renderWithProviders, testCustomer } from '@/test/utils'
 
 function order(overrides: Partial<Order> = {}): Order {
   return {
@@ -70,12 +63,13 @@ describe('OrderDetailPage', () => {
     // The status shows in the badge and as the first step of the timeline.
     expect(screen.getAllByText(t('common.status_new'))).toHaveLength(2)
     const progress = screen.getByRole('list', { name: t('account.order_progress') })
-    const newStep = within(progress).getByText(t('common.status_new')).closest('li')
-    expect(newStep).toHaveAttribute('aria-current', 'step')
+    expect(within(progress).getByRole('listitem', { current: 'step' })).toHaveTextContent(
+      t('common.status_new'),
+    )
     expect(screen.getByText('Yurtiçi Kargo')).toBeInTheDocument()
     expect(screen.getByText('YK123456')).toBeInTheDocument()
     // The total and the line total are both 2599.80, so the amount appears more than once.
-    expect(screen.getAllByText(price('2599.80'))).not.toHaveLength(0)
+    expect(screen.getAllByText(price('2599.80'))).toHaveLength(2)
     expect(get).toHaveBeenCalledWith('/orders/5')
   })
 

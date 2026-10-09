@@ -65,7 +65,7 @@ describe('ProductListPage', () => {
   it('shows how many products match the filters', async () => {
     mockGet({ '/products': products, '/categories': categories, '/brands': brands })
     renderList('/products')
-    expect(await screen.findByText('45 ürün bulundu')).toBeInTheDocument()
+    expect(await screen.findByText(t('catalog.list_count', { count: 45 }))).toBeInTheDocument()
   })
 
   it('test_list_requests_use_url_params', async () => {

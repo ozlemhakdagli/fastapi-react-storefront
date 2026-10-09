@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router'
 import { cartQueryKey } from '@/features/cart/hooks/useCart'
 import StoreLayout from '@/layouts/StoreLayout'
 import { api } from '@/lib/api'
+import { t } from '@/lib/i18n'
 import type { Cart, CartItem, SiteSettings, User } from '@/lib/types'
 import { renderWithProviders, testCustomer } from '@/test/utils'
 
@@ -77,7 +78,9 @@ describe('StoreLayout', () => {
   it('shows the number of items on the cart link for a logged-in customer', async () => {
     mockApi(cartWith([cartItem(1, 2), cartItem(2, 1)]))
     renderLayout(testCustomer)
-    const cartLink = await screen.findByRole('link', { name: 'Sepetim, 3 ürün' })
+    const cartLink = await screen.findByRole('link', {
+      name: t('layout.cart_with_count', { count: 3 }),
+    })
     expect(within(cartLink).getByText('3')).toBeInTheDocument()
   })
 
@@ -93,7 +96,9 @@ describe('StoreLayout', () => {
     mockApi(cartWith([cartItem(1, 100), cartItem(2, 20)]))
     renderLayout(testCustomer)
     expect(await screen.findByText('99+')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Sepetim, 120 ürün' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: t('layout.cart_with_count', { count: 120 }) }),
+    ).toBeInTheDocument()
   })
 
   it('shows the plain cart link and no badge when the cart is empty', async () => {

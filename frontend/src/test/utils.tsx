@@ -3,6 +3,7 @@ import { render, type RenderResult } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { AuthContext, type AuthValue } from '@/features/auth/AuthContext'
+import { formatMoney } from '@/lib/format'
 import type { User } from '@/lib/types'
 
 export const testCustomer: User = {
@@ -69,4 +70,10 @@ export function renderWithProviders(
     </QueryClientProvider>,
   )
   return { ...result, queryClient, auth }
+}
+
+// Intl may put a non-breaking space before the lira sign. The default text matcher only
+// collapses ordinary whitespace, so the expected text is normalized the same way.
+export function price(value: string): string {
+  return formatMoney(value).replace(/\s/g, ' ')
 }

@@ -61,12 +61,12 @@ describe('StatusBadge', () => {
   })
 
   it.each<[OrderStatus, string, string]>([
-    ['new', 'Yeni', 'warning'],
-    ['approved', 'Onaylandı', 'info'],
-    ['shipped', 'Kargoda', 'default'],
-    ['completed', 'Tamamlandı', 'success'],
-    ['rejected', 'Reddedildi', 'destructive'],
-    ['cancelled', 'İptal Edildi', 'secondary'],
+    ['new', t('common.status_new'), 'warning'],
+    ['approved', t('common.status_approved'), 'info'],
+    ['shipped', t('common.status_shipped'), 'default'],
+    ['completed', t('common.status_completed'), 'success'],
+    ['rejected', t('common.status_rejected'), 'destructive'],
+    ['cancelled', t('common.status_cancelled'), 'secondary'],
   ])('shows status %s as "%s" with the %s variant', (status, label, variant) => {
     render(<StatusBadge status={status} />)
     expect(screen.getByText(label)).toHaveAttribute('data-variant', variant)

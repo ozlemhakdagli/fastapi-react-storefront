@@ -2,16 +2,9 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import CartPage from '@/features/cart/pages/CartPage'
 import { api, ApiError } from '@/lib/api'
-import { formatMoney } from '@/lib/format'
 import { errorMessage, t } from '@/lib/i18n'
 import type { Cart, CartItem } from '@/lib/types'
-import { renderWithProviders, testCustomer } from '@/test/utils'
-
-// Intl may put a non-breaking space before the lira sign. The default text matcher only
-// collapses ordinary whitespace, so the expected text is normalized the same way.
-function price(value: string): string {
-  return formatMoney(value).replace(/\s/g, ' ')
-}
+import { price, renderWithProviders, testCustomer } from '@/test/utils'
 
 function line(overrides: Partial<CartItem> = {}): CartItem {
   return {

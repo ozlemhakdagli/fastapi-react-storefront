@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import HomePage from '@/features/catalog/pages/HomePage'
 import { api, ApiError } from '@/lib/api'
-import { errorMessage } from '@/lib/i18n'
+import { errorMessage, t } from '@/lib/i18n'
 import type { Page, ProductListItem, Taxonomy } from '@/lib/types'
 import { renderWithProviders } from '@/test/utils'
 
@@ -60,13 +60,16 @@ describe('HomePage', () => {
     renderWithProviders(<HomePage />)
     await screen.findByText('Mekanik Klavye')
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Aradığınız her şey tek yerde' }),
+      screen.getByRole('heading', { level: 1, name: t('catalog.hero_title') }),
     ).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Ürünlere göz atın' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: t('catalog.hero_cta_products') })).toHaveAttribute(
       'href',
       '/products',
     )
-    expect(screen.getByRole('link', { name: 'Bize ulaşın' })).toHaveAttribute('href', '/contact')
+    expect(screen.getByRole('link', { name: t('catalog.hero_cta_contact') })).toHaveAttribute(
+      'href',
+      '/contact',
+    )
   })
 
   it('links every category card to its filtered product list', async () => {
