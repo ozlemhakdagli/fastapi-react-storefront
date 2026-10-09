@@ -3,5 +3,18 @@
   "new_orders": "Yeni siparişler",
   "unread_messages": "Okunmamış mesajlar",
   "products": "Ürünler",
-  "customers": "Müşteriler"
+  "customers": "Müşteriler",
+  "chart_title": "Son 14 gün",
+  "chart_revenue": "Ciro: {amount}",
+  "chart_aria": "Son 14 günde toplam {orders} sipariş",
+  "status_title": "Duruma göre siparişler",
+  "recent_title": "Son siparişler",
+  "recent_empty": "Henüz sipariş yok.",
+  "low_stock_title": "Düşük stoklu ürünler",
+  "low_stock_empty": "Stoğu azalan ürün yok.",
+  "column_order": "Sipariş",
+  "column_customer": "Müşteri",
+  "column_status": "Durum",
+  "column_total": "Toplam",
+  "column_date": "Tarih"
 }
