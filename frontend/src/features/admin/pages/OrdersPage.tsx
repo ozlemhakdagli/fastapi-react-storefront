@@ -94,7 +94,7 @@ export default function OrdersPage() {
   const currentTab = status ?? ALL_TAB
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHeader title={t('adminorders.title')} />
       <Tabs value={currentTab} onValueChange={selectTab}>
         <div className="max-w-full overflow-x-auto">

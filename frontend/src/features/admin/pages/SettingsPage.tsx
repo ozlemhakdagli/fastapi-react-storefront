@@ -17,7 +17,7 @@ const PANEL = 'grid gap-4 rounded-xl border bg-card p-4'
 export default function SettingsPage() {
   const site = useAdminSite()
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHeader title={t('adminsettings.title')} />
       {site.isPending ? <p className="text-muted-foreground text-sm">{t('common.loading')}</p> : null}
       {site.isError ? <ErrorNotice error={site.error} /> : null}
@@ -46,15 +46,17 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
 
   return (
     // noValidate: the API checks the values and its messages are shown by ErrorNotice.
-    <form className="grid max-w-2xl gap-6" noValidate onSubmit={handleSubmit}>
+    <form className="grid max-w-2xl grid-cols-1 gap-6" noValidate onSubmit={handleSubmit}>
       <Tabs defaultValue="general">
-        <TabsList>
-          <TabsTrigger value="general">{t('adminsettings.tab_general')}</TabsTrigger>
-          <TabsTrigger value="contact">{t('adminsettings.tab_contact')}</TabsTrigger>
-          <TabsTrigger value="social">{t('adminsettings.tab_social')}</TabsTrigger>
-          <TabsTrigger value="about">{t('adminsettings.tab_about')}</TabsTrigger>
-          <TabsTrigger value="contact-text">{t('adminsettings.tab_contact_text')}</TabsTrigger>
-        </TabsList>
+        <div className="max-w-full overflow-x-auto">
+          <TabsList>
+            <TabsTrigger value="general">{t('adminsettings.tab_general')}</TabsTrigger>
+            <TabsTrigger value="contact">{t('adminsettings.tab_contact')}</TabsTrigger>
+            <TabsTrigger value="social">{t('adminsettings.tab_social')}</TabsTrigger>
+            <TabsTrigger value="about">{t('adminsettings.tab_about')}</TabsTrigger>
+            <TabsTrigger value="contact-text">{t('adminsettings.tab_contact_text')}</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="general" className={PANEL}>
           <FormField label={t('adminsettings.site_name')} htmlFor="site-name">
