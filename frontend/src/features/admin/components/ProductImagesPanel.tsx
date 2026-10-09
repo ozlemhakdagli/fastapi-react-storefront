@@ -81,6 +81,8 @@ export function ProductImagesPanel({ productId, images }: ProductImagesPanelProp
                 <img
                   src={image.url}
                   alt={t('adminproducts.image_alt', { position })}
+                  loading="lazy"
+                  decoding="async"
                   className="size-16 rounded-md border object-cover"
                 />
                 <div className="ml-auto flex gap-2">

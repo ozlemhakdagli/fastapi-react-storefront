@@ -91,7 +91,13 @@ function ProductContent({ productId }: { productId: number }) {
                     index === activeImage ? 'ring-foreground' : 'ring-transparent'
                   }`}
                 >
-                  <img src={thumbnail.url} alt="" className="size-full object-cover" />
+                  <img
+                    src={thumbnail.url}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="size-full object-cover"
+                  />
                 </button>
               ))}
             </div>
