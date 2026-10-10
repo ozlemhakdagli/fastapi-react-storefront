@@ -21,13 +21,9 @@ const queryClient = new QueryClient({
 })
 
 function App() {
-  const { locale } = useLocale()
+  useLocale()
 
-  return (
-    <div key={locale} className="contents">
-      <AppRoutes />
-    </div>
-  )
+  return <AppRoutes />
 }
 
 createRoot(document.getElementById('root')!).render(
