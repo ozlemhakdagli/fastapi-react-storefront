@@ -1,6 +1,6 @@
-# E-commerce Starter
+# Storefront Starter
 
-[![License: MIT](https://img.shields.io/github/license/ozlemhakdagli/e-commerce-site-example)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/ozlemhakdagli/fastapi-react-storefront)](LICENSE)
 ![tests](https://img.shields.io/badge/tests-passing-brightgreen)
 ![React 19](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
