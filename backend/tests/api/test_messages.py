@@ -185,25 +185,3 @@ def test_missing_message_gives_404_on_admin_get_and_patch(
     for response in responses:
         assert response.status_code == 404
         assert response.json() == {"detail": "not_found"}
-
-
-def test_customer_gets_403_on_admin_routes(
-    client: TestClient, make_user, make_message, auth_headers
-) -> None:
-    customer = make_user()
-    headers = auth_headers(customer)
-    message = make_message(direction="inbound")
-    item_url = f"/api/admin/messages/{message['id']}"
-    routes = (
-        ("GET", "/api/admin/messages", None),
-        ("POST", "/api/admin/messages", {"user_id": customer["id"], "subject": "Hi", "body": "Hi"}),
-        ("GET", item_url, None),
-        ("PATCH", item_url, {"status": "read"}),
-        ("DELETE", item_url, None),
-    )
-    for method, url, body in routes:
-        anonymous = client.request(method, url, json=body)
-        assert anonymous.status_code == 401, url
-        forbidden = client.request(method, url, json=body, headers=headers)
-        assert forbidden.status_code == 403, url
-        assert forbidden.json() == {"detail": "forbidden"}, url

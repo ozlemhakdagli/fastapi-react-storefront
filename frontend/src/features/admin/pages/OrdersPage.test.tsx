@@ -1,9 +1,9 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import OrdersPage from '@/features/admin/pages/OrdersPage'
-import { api, ApiError } from '@/lib/api'
+import { api } from '@/lib/api'
 import { formatDate } from '@/lib/format'
-import { errorMessage, t } from '@/lib/i18n'
+import { t } from '@/lib/i18n'
 import { type AdminOrderListItem, ORDER_STATUSES, type Page } from '@/lib/types'
 import { price, renderWithProviders, testAdmin } from '@/test/utils'
 
@@ -96,10 +96,4 @@ describe('OrdersPage', () => {
     expect(await screen.findByText(t('adminorders.orders_empty'))).toBeInTheDocument()
   })
 
-  it('shows the translated message when the list cannot be loaded', async () => {
-    const error = new ApiError(403, 'forbidden')
-    vi.spyOn(api, 'get').mockRejectedValue(error)
-    renderList()
-    expect(await screen.findByRole('alert')).toHaveTextContent(errorMessage(error))
-  })
 })

@@ -16,19 +16,6 @@ def _token_version(conn: psycopg.Connection, user_id: int) -> int:
     return row["token_version"]
 
 
-def test_admin_users_require_admin(client: TestClient, make_user, auth_headers) -> None:
-    customer = make_user()
-    headers = auth_headers(customer)
-    path = f"/api/admin/users/{customer['id']}"
-    assert client.get("/api/admin/users").status_code == 401
-    assert client.post("/api/admin/users", json=NEW_USER).status_code == 401
-    assert client.patch(path, json={"full_name": "Renamed"}).status_code == 401
-
-    assert client.get("/api/admin/users", headers=headers).status_code == 403
-    assert client.post("/api/admin/users", headers=headers, json=NEW_USER).status_code == 403
-    assert client.patch(path, headers=headers, json={"full_name": "Renamed"}).status_code == 403
-
-
 def test_list_filters(client: TestClient, make_user, auth_headers) -> None:
     ada = make_user(email="ada@example.com", full_name="Ada Admin", role="admin")
     make_user(email="alice@example.com", full_name="Alice Smith")

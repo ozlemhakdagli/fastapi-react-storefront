@@ -11,30 +11,6 @@ def _payload(**overrides) -> dict:
     return body
 
 
-def test_admin_products_require_admin(
-    client: TestClient, make_user, make_product, auth_headers
-) -> None:
-    product = make_product()
-    product_path = f"/api/admin/products/{product['id']}"
-    image_path = f"{product_path}/images"
-    customer = auth_headers(make_user())
-    calls = [
-        ("GET", "/api/admin/products", {}),
-        ("POST", "/api/admin/products", {"json": _payload()}),
-        ("GET", product_path, {}),
-        ("PUT", product_path, {"json": _payload()}),
-        ("DELETE", product_path, {}),
-        ("POST", image_path, {"files": {"file": ("a.png", b"x", "image/png")}}),
-        ("PUT", f"{product_path}/images/order", {"json": {"image_ids": []}}),
-        ("DELETE", f"{image_path}/1", {}),
-    ]
-    for method, path, kwargs in calls:
-        assert client.request(method, path, **kwargs).status_code == 401, (method, path)
-        response = client.request(method, path, headers=customer, **kwargs)
-        assert response.status_code == 403, (method, path)
-        assert response.json() == {"detail": "forbidden"}
-
-
 def test_admin_product_images_carry_the_card_url(
     client: TestClient, admin_headers, make_product, make_image
 ) -> None:

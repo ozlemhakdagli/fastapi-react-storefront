@@ -1,4 +1,4 @@
-"""Whole customer journeys through the HTTP API, with an admin handling the order."""
+"""A whole customer journey through the HTTP API, with an admin handling the order."""
 
 from fastapi.testclient import TestClient
 
@@ -69,40 +69,3 @@ def test_full_purchase_flow(client: TestClient, make_category, make_product, adm
     assert "admin_note" not in seen
     assert _stock(client, disk["id"]) == 8  # completing does not give stock back
     assert _stock(client, cable["id"]) == 2
-
-
-def test_cancel_flow_restores_stock(client: TestClient, make_product) -> None:
-    product = make_product(stock=5)
-    headers = _register_and_login(client)
-    order = _buy(client, headers, [(product["id"], 3)])
-    assert _stock(client, product["id"]) == 2
-
-    cancelled = client.post(f"/api/orders/{order['id']}/cancel", headers=headers)
-    assert cancelled.status_code == 200
-    assert cancelled.json()["status"] == "cancelled"
-    assert _stock(client, product["id"]) == 5
-
-    again = client.post(f"/api/orders/{order['id']}/cancel", headers=headers)
-    assert again.status_code == 409
-    assert _stock(client, product["id"]) == 5
-
-
-def test_rejected_order_restores_stock_once(
-    client: TestClient, make_product, admin_headers
-) -> None:
-    product = make_product(stock=5)
-    headers = _register_and_login(client)
-    order = _buy(client, headers, [(product["id"], 4)])
-    assert _stock(client, product["id"]) == 1
-
-    admin = admin_headers()
-    url = f"/api/admin/orders/{order['id']}"
-    assert client.patch(url, json={"status": "rejected"}, headers=admin).status_code == 200
-    assert _stock(client, product["id"]) == 5
-    assert client.patch(url, json={"status": "rejected"}, headers=admin).status_code == 200
-    assert _stock(client, product["id"]) == 5
-
-    # A rejected order is final, and the customer can no longer cancel it.
-    assert client.patch(url, json={"status": "approved"}, headers=admin).status_code == 409
-    assert client.post(f"/api/orders/{order['id']}/cancel", headers=headers).status_code == 409
-    assert _stock(client, product["id"]) == 5

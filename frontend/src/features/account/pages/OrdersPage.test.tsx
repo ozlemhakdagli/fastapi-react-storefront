@@ -1,9 +1,9 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import OrdersPage from '@/features/account/pages/OrdersPage'
-import { api, ApiError } from '@/lib/api'
+import { api } from '@/lib/api'
 import { formatDate } from '@/lib/format'
-import { errorMessage, t } from '@/lib/i18n'
+import { t } from '@/lib/i18n'
 import type { OrderListItem, Page } from '@/lib/types'
 import { price, renderWithProviders, testCustomer } from '@/test/utils'
 
@@ -70,10 +70,4 @@ describe('OrdersPage', () => {
     expect(await screen.findByText(t('account.orders_empty'))).toBeInTheDocument()
   })
 
-  it('shows the translated message when the list cannot be loaded', async () => {
-    const error = new ApiError(500, 'unknown')
-    vi.spyOn(api, 'get').mockRejectedValue(error)
-    renderList()
-    expect(await screen.findByRole('alert')).toHaveTextContent(errorMessage(error))
-  })
 })

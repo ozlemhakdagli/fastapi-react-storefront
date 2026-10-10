@@ -2,6 +2,20 @@ import { renderHook, act } from '@testing-library/react'
 import { ApiError } from '@/lib/api'
 import { errorMessage, getLocale, setLocale, t, useLocale } from '@/lib/i18n'
 
+const files = {
+  tr: import.meta.glob<Record<string, string>>('../locales/tr/*.json', { eager: true, import: 'default' }),
+  en: import.meta.glob<Record<string, string>>('../locales/en/*.json', { eager: true, import: 'default' }),
+}
+
+/** "namespace.key" -> text, as i18n.ts builds its dictionaries. */
+function dictionary(language: 'tr' | 'en'): Map<string, string> {
+  return new Map(
+    Object.entries(files[language]).flatMap(([path, texts]) =>
+      Object.entries(texts).map(([key, text]) => [`${path.split('/').pop()!.replace('.json', '')}.${key}`, text] as const),
+    ),
+  )
+}
+
 describe('i18n', () => {
   beforeEach(() => {
     setLocale('tr')
@@ -108,5 +122,14 @@ describe('i18n', () => {
 
     expect(result.current.locale).toBe('en')
     expect(result.current.t('common.save')).toBe('Save')
+  })
+
+  it('has every key in both languages, with the same {placeholders}', () => {
+    // A missing English text would show the Turkish one without any error.
+    const tr = dictionary('tr')
+    const en = dictionary('en')
+    expect([...en.keys()].sort()).toEqual([...tr.keys()].sort())
+    const placeholders = (text: string) => (text.match(/\{\w+\}/g) ?? []).sort()
+    for (const [key, text] of tr) expect(placeholders(en.get(key)!), key).toEqual(placeholders(text))
   })
 })

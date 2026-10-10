@@ -26,19 +26,6 @@ def _favorite_on_day(conn: psycopg.Connection, make_favorite, user_id, product_i
     )
 
 
-def test_every_favourites_route_requires_login(client: TestClient) -> None:
-    url = _favorite_url(MISSING_PRODUCT_ID)
-    for method, path in (
-        ("GET", "/api/me/favorites"),
-        ("GET", "/api/me/favorites/ids"),
-        ("PUT", url),
-        ("DELETE", url),
-    ):
-        response = client.request(method, path)
-        assert response.status_code == 401, f"{method} {path}"
-        assert response.json() == {"detail": "unauthorized"}
-
-
 def test_put_adds_a_favourite_and_repeating_it_keeps_one_row(
     client: TestClient, conn: psycopg.Connection, make_user, make_product, auth_headers
 ) -> None:

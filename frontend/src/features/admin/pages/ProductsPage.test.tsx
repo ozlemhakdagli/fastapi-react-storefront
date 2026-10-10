@@ -2,8 +2,8 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useLocation } from 'react-router'
 import ProductsPage from '@/features/admin/pages/ProductsPage'
-import { api, ApiError } from '@/lib/api'
-import { errorMessage, t } from '@/lib/i18n'
+import { api } from '@/lib/api'
+import { t } from '@/lib/i18n'
 import type { AdminProduct, Page, Taxonomy } from '@/lib/types'
 import { renderWithProviders, testAdmin } from '@/test/utils'
 
@@ -112,13 +112,4 @@ describe('ProductsPage', () => {
     expect(get).toHaveBeenCalledWith('/admin/products', { page: 1, is_active: false })
   })
 
-  it('shows the translated message when the products cannot be loaded', async () => {
-    const error = new ApiError(403, 'forbidden')
-    vi.spyOn(api, 'get').mockImplementation(async (path: string) => {
-      if (path === '/admin/products') throw error
-      return path === '/admin/categories' ? categories : brands
-    })
-    renderList('/admin/products')
-    expect(await screen.findByRole('alert')).toHaveTextContent(errorMessage(error))
-  })
 })

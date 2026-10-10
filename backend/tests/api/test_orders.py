@@ -19,13 +19,6 @@ def _order_count(conn) -> int:
     return conn.execute("SELECT count(*) AS n FROM orders").fetchone()["n"]
 
 
-def test_orders_require_login(client) -> None:
-    assert client.get("/api/orders").status_code == 401
-    assert client.post("/api/orders", json=SHIP).status_code == 401
-    assert client.get("/api/orders/1").status_code == 401
-    assert client.post("/api/orders/1/cancel").status_code == 401
-
-
 def test_place_order_happy_path(
     client, conn, make_user, make_product, make_cart_item, auth_headers
 ) -> None:

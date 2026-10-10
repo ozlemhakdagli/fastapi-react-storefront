@@ -10,7 +10,7 @@ import { Pagination } from '@/components/Pagination'
 import { StatusBadge } from '@/components/StatusBadge'
 import { ApiError } from '@/lib/api'
 import { t } from '@/lib/i18n'
-import { ORDER_STATUSES, type OrderStatus } from '@/lib/types'
+import type { OrderStatus } from '@/lib/types'
 
 describe('Pagination', () => {
   it('calls onChange(page + 1) when Next is clicked', async () => {
@@ -54,19 +54,14 @@ describe('Pagination', () => {
 })
 
 describe('StatusBadge', () => {
-  it.each(ORDER_STATUSES)('renders the label for status %s', (status) => {
-    render(<StatusBadge status={status} />)
-    expect(screen.getByText(t(`common.status_${status}`))).toBeInTheDocument()
-    expect(t(`common.status_${status}`)).not.toBe(`common.status_${status}`)
-  })
-
+  // The labels are written out, so a missing translation (which shows the key) fails here.
   it.each<[OrderStatus, string, string]>([
-    ['new', t('common.status_new'), 'warning'],
-    ['approved', t('common.status_approved'), 'info'],
-    ['shipped', t('common.status_shipped'), 'default'],
-    ['completed', t('common.status_completed'), 'success'],
-    ['rejected', t('common.status_rejected'), 'destructive'],
-    ['cancelled', t('common.status_cancelled'), 'secondary'],
+    ['new', 'Yeni', 'warning'],
+    ['approved', 'Onaylandı', 'info'],
+    ['shipped', 'Kargoda', 'default'],
+    ['completed', 'Tamamlandı', 'success'],
+    ['rejected', 'Reddedildi', 'destructive'],
+    ['cancelled', 'İptal Edildi', 'secondary'],
   ])('shows status %s as "%s" with the %s variant', (status, label, variant) => {
     render(<StatusBadge status={status} />)
     expect(screen.getByText(label)).toHaveAttribute('data-variant', variant)

@@ -6,17 +6,14 @@ import { errorMessage, t } from '@/lib/i18n'
 import { type AdminOrder, type OrderStatus } from '@/lib/types'
 import { price, renderWithProviders, testAdmin } from '@/test/utils'
 
-// The status select offers the current status first, then the allowed next ones.
+// The status select offers the current status first, then the allowed next ones. The whole
+// table is checked in orderTransitions.test.ts; two rows show that the page uses it.
 const OFFERED: [OrderStatus, OrderStatus[]][] = [
   ['new', ['new', 'approved', 'rejected', 'cancelled']],
-  ['approved', ['approved', 'shipped', 'cancelled']],
   ['shipped', ['shipped', 'completed']],
-  ['completed', ['completed']],
-  ['rejected', ['rejected']],
-  ['cancelled', ['cancelled']],
 ]
 
-const FINAL_STATUSES: OrderStatus[] = ['completed', 'rejected', 'cancelled']
+const FINAL_STATUSES: OrderStatus[] = ['completed']
 
 function order(overrides: Partial<AdminOrder> = {}): AdminOrder {
   return {

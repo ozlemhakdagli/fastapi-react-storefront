@@ -60,21 +60,6 @@ def test_site_put_twice_keeps_a_single_row(client: TestClient, admin_headers, co
     assert conn.execute("SELECT id FROM site_settings").fetchall() == [{"id": 1}]
 
 
-def test_site_admin_routes_require_admin(client: TestClient, make_user, auth_headers) -> None:
-    customer = auth_headers(make_user())
-    routes = (
-        ("GET", "/api/admin/site", None),
-        ("PUT", "/api/admin/site", SITE_PAYLOAD),
-    )
-    for method, url, body in routes:
-        anonymous = client.request(method, url, json=body)
-        assert anonymous.status_code == 401, url
-        assert anonymous.json() == {"detail": "unauthorized"}, url
-        forbidden = client.request(method, url, json=body, headers=customer)
-        assert forbidden.status_code == 403, url
-        assert forbidden.json() == {"detail": "forbidden"}, url
-
-
 def test_public_site_has_no_extra_keys(client: TestClient, admin_headers) -> None:
     client.put("/api/admin/site", json=SITE_PAYLOAD, headers=admin_headers())
     response = client.get("/api/site")

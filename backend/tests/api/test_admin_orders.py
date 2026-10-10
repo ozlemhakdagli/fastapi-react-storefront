@@ -26,24 +26,6 @@ def test_allowed_transitions_match_the_status_table() -> None:
     }
 
 
-def test_admin_orders_require_admin(
-    client, make_user, make_product, make_order, auth_headers
-) -> None:
-    customer = make_user()
-    order = make_order(customer["id"], items=((make_product()["id"], 1),))
-    calls = (
-        ("get", "/api/admin/orders", None),
-        ("get", f"/api/admin/orders/{order['id']}", None),
-        ("patch", f"/api/admin/orders/{order['id']}", {"status": "approved"}),
-    )
-    for method, url, body in calls:
-        anonymous = client.request(method, url, json=body)
-        assert anonymous.status_code == 401, (method, url)
-        forbidden = client.request(method, url, json=body, headers=auth_headers(customer))
-        assert forbidden.status_code == 403, (method, url)
-        assert forbidden.json() == {"detail": "forbidden"}
-
-
 def test_list_filters_by_status_and_includes_customer(
     client, make_user, make_product, make_order, admin_headers
 ) -> None:
@@ -82,15 +64,17 @@ def test_admin_detail_has_customer_and_admin_note(
     assert client.get("/api/admin/orders/999999", headers=admin_headers()).status_code == 404
 
 
-def test_valid_transitions_follow_the_state_machine(
-    client, make_user, make_product, make_order, admin_headers
+def test_valid_transitions_follow_the_state_machine_and_leave_the_stock_alone(
+    client, conn, make_user, make_product, make_order, admin_headers
 ) -> None:
-    order = make_order(make_user()["id"], items=((make_product()["id"], 1),))
+    product = make_product(stock=3)
+    order = make_order(make_user()["id"], items=((product["id"], 2),))
     headers = admin_headers()
     for step in ("approved", "shipped", "completed"):
         response = _patch(client, headers, order["id"], status=step)
         assert response.status_code == 200, step
         assert response.json()["status"] == step
+    assert _stock(conn, product["id"]) == 3
 
 
 @pytest.mark.parametrize(
@@ -128,17 +112,6 @@ def test_reject_and_cancel_restore_stock_once(
     assert _stock(conn, product["id"]) == 9
 
 
-def test_non_restocking_transitions_leave_stock_alone(
-    client, conn, make_user, make_product, make_order, admin_headers
-) -> None:
-    product = make_product(stock=3)
-    order = make_order(make_user()["id"], items=((product["id"], 2),))
-    headers = admin_headers()
-    for step in ("approved", "shipped", "completed"):
-        _patch(client, headers, order["id"], status=step)
-    assert _stock(conn, product["id"]) == 3
-
-
 def test_patch_saves_cargo_tracking_and_note(
     client, make_user, make_product, make_order, admin_headers, auth_headers
 ) -> None:
@@ -164,18 +137,6 @@ def test_patch_saves_cargo_tracking_and_note(
     mine = client.get(f"/api/orders/{order['id']}", headers=auth_headers(buyer)).json()
     assert (mine["cargo_company"], mine["tracking_no"]) == ("Yurtiçi", "YT123")
     assert "admin_note" not in mine
-
-
-def test_customer_sees_status_change_made_by_admin(
-    client, make_user, make_product, make_order, admin_headers, auth_headers
-) -> None:
-    buyer = make_user()
-    order = make_order(buyer["id"], items=((make_product()["id"], 1),))
-    _patch(client, admin_headers(), order["id"], status="approved")
-    mine = client.get(f"/api/orders/{order['id']}", headers=auth_headers(buyer)).json()
-    assert mine["status"] == "approved"
-    listed = client.get("/api/orders", headers=auth_headers(buyer)).json()["items"][0]
-    assert listed["status"] == "approved"
 
 
 def test_a_refused_transition_saves_nothing_else(

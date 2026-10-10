@@ -33,13 +33,6 @@ def _shown(client: TestClient, product_id: int) -> tuple[float | None, int]:
     return detail["rating_avg"], detail["rating_count"]
 
 
-def test_every_method_needs_a_login(client: TestClient, make_product) -> None:
-    url = _url(make_product()["id"])
-    for response in (client.get(url), client.put(url, json={"rating": 5}), client.delete(url)):
-        assert response.status_code == 401
-        assert response.json() == {"detail": "unauthorized"}
-
-
 def test_put_is_refused_without_a_completed_order_of_this_product(
     client: TestClient,
     conn: psycopg.Connection,

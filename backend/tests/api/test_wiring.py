@@ -144,46 +144,6 @@ def test_truncation_second_test_creates_the_shared_email_again(make_user) -> Non
     assert make_user(email="same@example.com")["id"] >= 1
 
 
-def test_factories_insert_valid_rows(
-    make_user,
-    make_category,
-    make_brand,
-    make_product,
-    make_image,
-    make_cart_item,
-    make_order,
-    make_comment,
-    make_message,
-    auth_headers,
-    admin_headers,
-) -> None:
-    user = make_user()
-    category = make_category()
-    brand = make_brand()
-    product = make_product(category_id=category["id"], brand_id=brand["id"], cost_price="60.00")
-    rows = [
-        user,
-        category,
-        brand,
-        product,
-        make_image(product["id"]),
-        make_cart_item(user["id"], product["id"], 2),
-        make_order(user["id"], items=((product["id"], 3),)),
-        make_comment(product["id"], user["id"]),
-        make_message(),
-        make_message(direction="outbound", user_id=user["id"], status="read"),
-    ]
-    for row in rows:
-        assert isinstance(row, dict)
-        assert row["id"] >= 1
-    assert user["password"] == "Passw0rd!x"
-    order = rows[6]
-    assert str(order["total"]) == "300.00"
-    assert order["items"][0]["quantity"] == 3
-    assert set(auth_headers(user)) == {"Authorization"}
-    assert set(admin_headers()) == {"Authorization"}
-
-
 def _add_page_route(client: TestClient) -> None:
     from app.deps import Pagination
 

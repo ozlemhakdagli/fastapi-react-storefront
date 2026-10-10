@@ -15,19 +15,6 @@ def _put(client: TestClient, headers: dict[str, str], product_id: int, quantity:
     return client.put(f"/api/cart/items/{product_id}", json={"quantity": quantity}, headers=headers)
 
 
-def test_cart_requires_login(client: TestClient, make_product) -> None:
-    product_id = make_product()["id"]
-    responses = [
-        client.get("/api/cart"),
-        client.post("/api/cart/items", json={"product_id": product_id, "quantity": 1}),
-        client.put(f"/api/cart/items/{product_id}", json={"quantity": 1}),
-        client.delete(f"/api/cart/items/{product_id}"),
-    ]
-    for response in responses:
-        assert response.status_code == 401
-        assert response.json() == {"detail": "unauthorized"}
-
-
 def test_empty_cart(client: TestClient, make_user, auth_headers) -> None:
     response = client.get("/api/cart", headers=auth_headers(make_user()))
     assert response.status_code == 200

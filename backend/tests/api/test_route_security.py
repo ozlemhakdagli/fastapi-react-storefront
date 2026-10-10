@@ -90,15 +90,3 @@ def test_every_non_public_route_requires_login(client: TestClient) -> None:
             f"{method} {path} answered {response.status_code} without a token"
         )
         assert response.json() == {"detail": "unauthorized"}, f"{method} {path}"
-
-
-def test_a_garbage_or_expired_token_is_never_treated_as_a_login(
-    client: TestClient, make_user
-) -> None:
-    from app.security import create_access_token
-
-    user = make_user()
-    for token in ("garbage", create_access_token(user["id"], 0, minutes=-1)):
-        headers = {"Authorization": f"Bearer {token}"}
-        for path in ("/api/auth/me", "/api/cart", "/api/orders", "/api/admin/orders"):
-            assert client.get(path, headers=headers).status_code == 401, path

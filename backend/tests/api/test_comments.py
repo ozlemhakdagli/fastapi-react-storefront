@@ -68,13 +68,6 @@ def test_list_of_missing_or_inactive_product_gives_404(
         assert response.json() == {"detail": "not_found"}
 
 
-def test_post_requires_login(client: TestClient, make_product) -> None:
-    product = make_product()
-    response = client.post(_comments_url(product["id"]), json={"body": "Nice"})
-    assert response.status_code == 401
-    assert response.json() == {"detail": "unauthorized"}
-
-
 def test_post_to_missing_or_inactive_product_gives_404(
     client: TestClient, conn: psycopg.Connection, make_user, auth_headers, make_product
 ) -> None:
@@ -159,18 +152,6 @@ def test_admin_can_delete_any_comment(
     response = client.delete(f"/api/comments/{comment['id']}", headers=auth_headers(admin))
     assert response.status_code == 204
     assert client.get(_comments_url(product["id"])).json()["total"] == 0
-
-
-def test_anonymous_delete_gives_401(
-    client: TestClient, make_user, make_product, make_comment
-) -> None:
-    author = make_user()
-    product = make_product()
-    comment = make_comment(product["id"], author["id"])
-    response = client.delete(f"/api/comments/{comment['id']}")
-    assert response.status_code == 401
-    assert response.json() == {"detail": "unauthorized"}
-    assert client.get(_comments_url(product["id"])).json()["total"] == 1
 
 
 def test_my_comments_only_lists_own_with_product_name(

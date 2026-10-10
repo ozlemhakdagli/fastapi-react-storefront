@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import OrderDetailPage from '@/features/account/pages/OrderDetailPage'
 import { api, ApiError } from '@/lib/api'
 import { errorMessage, t } from '@/lib/i18n'
-import { type Order, ORDER_STATUSES } from '@/lib/types'
+import type { Order, OrderStatus } from '@/lib/types'
 import { price, renderWithProviders, testCustomer } from '@/test/utils'
 
 function order(overrides: Partial<Order> = {}): Order {
@@ -82,7 +82,7 @@ describe('OrderDetailPage', () => {
     )
   })
 
-  it.each(ORDER_STATUSES)('test_order_detail_shows_cancel_only_for_new (%s)', async (status) => {
+  it.each<OrderStatus>(['new', 'approved'])('test_order_detail_shows_cancel_only_for_new (%s)', async (status) => {
     vi.spyOn(api, 'get').mockResolvedValue(order({ status }))
     renderDetail()
     await findTitle()

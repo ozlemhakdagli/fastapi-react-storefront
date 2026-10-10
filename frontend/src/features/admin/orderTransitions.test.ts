@@ -13,8 +13,8 @@ const STATUS_TABLE: [OrderStatus, OrderStatus[]][] = [
 ]
 
 describe('orderTransitions', () => {
-  it.each(STATUS_TABLE)('test_allowed_next_matches_status_table (%s)', (status, next) => {
-    expect(ALLOWED_NEXT[status]).toEqual(next)
+  it('matches the status table of the API', () => {
+    expect(ALLOWED_NEXT).toEqual(Object.fromEntries(STATUS_TABLE))
   })
 
   it('has one row for every order status', () => {

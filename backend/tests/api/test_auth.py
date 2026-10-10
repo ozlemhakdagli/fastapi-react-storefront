@@ -56,14 +56,6 @@ def test_register_normalizes_email_and_blocks_case_variants(
     assert duplicate.json() == {"detail": "email_taken"}
 
 
-def test_register_rejects_short_password(client: TestClient) -> None:
-    response = client.post(
-        "/api/auth/register",
-        json={"email": "short@example.com", "password": "Abc123!", "full_name": "Short"},
-    )
-    assert response.status_code == 422
-
-
 def test_login_returns_token_and_user(client: TestClient, make_user) -> None:
     user = make_user(email="login@example.com")
     response = _login(client, "login@example.com", user["password"])

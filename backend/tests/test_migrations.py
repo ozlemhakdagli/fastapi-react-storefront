@@ -215,16 +215,6 @@ def test_main_falls_back_to_database_url_in_dot_env(
     assert capsys.readouterr().out == "applied 0001_init\n"
 
 
-def test_thumb_name_is_a_nullable_text_column(db_dsn: str) -> None:
-    apply_migrations(db_dsn)
-    rows = _query(
-        db_dsn,
-        "SELECT data_type, is_nullable FROM information_schema.columns "
-        "WHERE table_name = 'product_images' AND column_name = 'thumb_name'",
-    )
-    assert rows == [("text", "YES")]
-
-
 def test_orders_created_idx_exists(db_dsn: str) -> None:
     apply_migrations(db_dsn)
     assert _query(
@@ -268,13 +258,3 @@ def test_ratings_and_favorites_tables_have_their_constraints(db_dsn: str) -> Non
         conn.execute("DELETE FROM products WHERE id = %s", (product_id,))
         assert conn.execute("SELECT count(*) FROM product_ratings").fetchone()[0] == 0
         assert conn.execute("SELECT count(*) FROM favorites").fetchone()[0] == 0
-
-
-def test_token_version_is_a_not_null_integer_defaulting_to_zero(db_dsn: str) -> None:
-    apply_migrations(db_dsn)
-    rows = _query(
-        db_dsn,
-        "SELECT data_type, is_nullable, column_default FROM information_schema.columns "
-        "WHERE table_name = 'users' AND column_name = 'token_version'",
-    )
-    assert rows == [("integer", "NO", "0")]

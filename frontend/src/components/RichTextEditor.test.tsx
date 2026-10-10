@@ -73,148 +73,33 @@ describe('RichTextEditor', () => {
     expect(screen.getByText(t('common.editor_empty_preview'))).toBeInTheDocument()
   })
 
-  it('clicking bold toolbar button wraps or inserts markdown syntax', async () => {
-    const user = userEvent.setup()
-    const handleChange = vi.fn()
-    render(
-      <RichTextEditor
-        value=""
-        onChange={handleChange}
-      />,
-    )
+  it.each([
+    ['common.editor_bold', '**bold text**'],
+    ['common.editor_italic', '*italic text*'],
+    ['common.editor_h2', '## Heading 2'],
+    ['common.editor_h3', '### Heading 3'],
+    ['common.editor_bullet_list', '- List item'],
+    ['common.editor_numbered_list', '1. List item'],
+    ['common.editor_quote', '> Quote'],
+    ['common.editor_code', '```\ncode\n```'],
+    ['common.editor_link', '[link text](url)'],
+  ])('the %s button inserts its markdown into an empty field', async (label, markdown) => {
+    const onChange = vi.fn()
+    render(<RichTextEditor value="" onChange={onChange} />)
 
-    const boldBtn = screen.getByRole('button', { name: t('common.editor_bold') })
-    await user.click(boldBtn)
+    await userEvent.click(screen.getByRole('button', { name: t(label) }))
 
-    expect(handleChange).toHaveBeenCalledWith('**bold text**')
+    expect(onChange).toHaveBeenCalledWith(markdown)
   })
 
-  it('clicking italic toolbar button wraps or inserts markdown syntax', async () => {
-    const user = userEvent.setup()
-    const handleChange = vi.fn()
-    render(
-      <RichTextEditor
-        value=""
-        onChange={handleChange}
-      />,
-    )
+  it('wraps the selected text instead of inserting a sample', async () => {
+    const onChange = vi.fn()
+    render(<RichTextEditor value="a b c" onChange={onChange} />)
+    ;(screen.getByRole('textbox') as HTMLTextAreaElement).setSelectionRange(2, 3) // "b"
 
-    const italicBtn = screen.getByRole('button', { name: t('common.editor_italic') })
-    await user.click(italicBtn)
+    await userEvent.click(screen.getByRole('button', { name: t('common.editor_bold') }))
 
-    expect(handleChange).toHaveBeenCalledWith('*italic text*')
-  })
-
-  it('clicking heading2 button prefixes markdown syntax', async () => {
-    const user = userEvent.setup()
-    const handleChange = vi.fn()
-    render(
-      <RichTextEditor
-        value=""
-        onChange={handleChange}
-      />,
-    )
-
-    const h2Btn = screen.getByRole('button', { name: t('common.editor_h2') })
-    await user.click(h2Btn)
-
-    expect(handleChange).toHaveBeenCalledWith('## Heading 2')
-  })
-
-  it('clicking heading3 button prefixes markdown syntax', async () => {
-    const user = userEvent.setup()
-    const handleChange = vi.fn()
-    render(
-      <RichTextEditor
-        value=""
-        onChange={handleChange}
-      />,
-    )
-
-    const h3Btn = screen.getByRole('button', { name: t('common.editor_h3') })
-    await user.click(h3Btn)
-
-    expect(handleChange).toHaveBeenCalledWith('### Heading 3')
-  })
-
-  it('clicking bullet list button prefixes list syntax', async () => {
-    const user = userEvent.setup()
-    const handleChange = vi.fn()
-    render(
-      <RichTextEditor
-        value=""
-        onChange={handleChange}
-      />,
-    )
-
-    const listBtn = screen.getByRole('button', { name: t('common.editor_bullet_list') })
-    await user.click(listBtn)
-
-    expect(handleChange).toHaveBeenCalledWith('- List item')
-  })
-
-  it('clicking numbered list button prefixes ordered list syntax', async () => {
-    const user = userEvent.setup()
-    const handleChange = vi.fn()
-    render(
-      <RichTextEditor
-        value=""
-        onChange={handleChange}
-      />,
-    )
-
-    const listBtn = screen.getByRole('button', { name: t('common.editor_numbered_list') })
-    await user.click(listBtn)
-
-    expect(handleChange).toHaveBeenCalledWith('1. List item')
-  })
-
-  it('clicking quote button prefixes blockquote syntax', async () => {
-    const user = userEvent.setup()
-    const handleChange = vi.fn()
-    render(
-      <RichTextEditor
-        value=""
-        onChange={handleChange}
-      />,
-    )
-
-    const quoteBtn = screen.getByRole('button', { name: t('common.editor_quote') })
-    await user.click(quoteBtn)
-
-    expect(handleChange).toHaveBeenCalledWith('> Quote')
-  })
-
-  it('clicking code button inserts fenced code block', async () => {
-    const user = userEvent.setup()
-    const handleChange = vi.fn()
-    render(
-      <RichTextEditor
-        value=""
-        onChange={handleChange}
-      />,
-    )
-
-    const codeBtn = screen.getByRole('button', { name: t('common.editor_code') })
-    await user.click(codeBtn)
-
-    expect(handleChange).toHaveBeenCalledWith('```\ncode\n```')
-  })
-
-  it('clicking link button inserts markdown link syntax', async () => {
-    const user = userEvent.setup()
-    const handleChange = vi.fn()
-    render(
-      <RichTextEditor
-        value=""
-        onChange={handleChange}
-      />,
-    )
-
-    const linkBtn = screen.getByRole('button', { name: t('common.editor_link') })
-    await user.click(linkBtn)
-
-    expect(handleChange).toHaveBeenCalledWith('[link text](url)')
+    expect(onChange).toHaveBeenCalledWith('a **b** c')
   })
 
   it('renders error message and marks textarea as invalid', () => {

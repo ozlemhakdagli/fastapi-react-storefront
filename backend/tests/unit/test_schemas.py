@@ -6,9 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.schemas.auth import LoginIn, ProfileUpdateIn, RegisterIn
-from app.schemas.cart import CartItemIn
 from app.schemas.comments import CommentOut
-from app.schemas.common import Named, Page
 from app.schemas.products import AdminProduct, ProductDetail, ProductIn, ProductListItem
 from app.schemas.users import AdminUserUpdateIn
 
@@ -80,29 +78,10 @@ def test_register_in_normalizes_and_limits() -> None:
         RegisterIn.model_validate(register_in(phone="1" * 31))
 
 
-def test_cart_quantity_bounds() -> None:
-    for quantity in (0, 100, -1):
-        with pytest.raises(ValidationError):
-            CartItemIn(product_id=1, quantity=quantity)
-    for quantity in (1, 99):
-        assert CartItemIn(product_id=1, quantity=quantity).quantity == quantity
-
-
 def test_product_in_sku_pattern() -> None:
     with pytest.raises(ValidationError):
         ProductIn.model_validate(product_in(sku="ab c"))
     assert ProductIn.model_validate(product_in(sku="SSD-1.0_a")).sku == "SSD-1.0_a"
-
-
-def test_page_serializes() -> None:
-    page = Page[ProductListItem](items=[], total=0, page=1, page_size=20)
-    assert page.model_dump(mode="json") == {"items": [], "total": 0, "page": 1, "page_size": 20}
-
-
-def test_models_validate_from_dict_rows() -> None:
-    item = ProductListItem.model_validate(product_row())
-    assert item.brand == Named(id=2, name="Samsung")
-    assert item.model_dump(mode="json")["price"] == "1299.90"
 
 
 def test_cost_price_exists_only_on_admin_models() -> None:

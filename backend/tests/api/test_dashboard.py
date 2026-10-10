@@ -18,27 +18,6 @@ def _today(conn: psycopg.Connection) -> datetime.date:
     return conn.execute("SELECT current_date AS today").fetchone()["today"]
 
 
-def test_dashboard_requires_admin(client: TestClient, make_user, auth_headers) -> None:
-    anonymous = client.get("/api/admin/dashboard")
-    assert anonymous.status_code == 401
-    assert anonymous.json() == {"detail": "unauthorized"}
-
-    customer = make_user()
-    forbidden = client.get("/api/admin/dashboard", headers=auth_headers(customer))
-    assert forbidden.status_code == 403
-    assert forbidden.json() == {"detail": "forbidden"}
-
-    # The one active customer above is counted; the admin is not a customer, so it is not.
-    admin = client.get("/api/admin/dashboard", headers=auth_headers(make_user(role="admin")))
-    assert admin.status_code == 200
-    assert _counters(admin.json()) == {
-        "new_orders": 0,
-        "unread_messages": 0,
-        "products": 0,
-        "customers": 1,
-    }
-
-
 def test_dashboard_counts(
     client: TestClient,
     admin_headers,

@@ -1,8 +1,8 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import MyCommentsPage from '@/features/account/pages/MyCommentsPage'
-import { api, ApiError } from '@/lib/api'
-import { errorMessage, t } from '@/lib/i18n'
+import { api } from '@/lib/api'
+import { t } from '@/lib/i18n'
 import type { MyComment, Page } from '@/lib/types'
 import { renderWithProviders, testCustomer } from '@/test/utils'
 
@@ -73,10 +73,4 @@ describe('MyCommentsPage', () => {
     expect(get).toHaveBeenCalledTimes(2)
   })
 
-  it('shows the translated message when the list cannot be loaded', async () => {
-    const error = new ApiError(500, 'unknown')
-    vi.spyOn(api, 'get').mockRejectedValue(error)
-    renderComments()
-    expect(await screen.findByRole('alert')).toHaveTextContent(errorMessage(error))
-  })
 })

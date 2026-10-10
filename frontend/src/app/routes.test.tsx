@@ -72,11 +72,6 @@ describe('AppRoutes', () => {
     expect(screen.getByTestId('pathname')).toHaveTextContent('/login')
   })
 
-  it('sends an anonymous visitor of /account to /login', async () => {
-    renderAt('/account')
-    await waitFor(() => expect(screen.getByTestId('pathname')).toHaveTextContent('/login'))
-  })
-
   it('sends an anonymous visitor of /cart to /login', async () => {
     renderAt('/cart')
     await waitFor(() => expect(screen.getByTestId('pathname')).toHaveTextContent('/login'))

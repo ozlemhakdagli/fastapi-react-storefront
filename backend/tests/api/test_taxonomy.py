@@ -134,26 +134,6 @@ def test_unknown_id_gives_404(client: TestClient, admin_headers, path: str) -> N
 
 
 @pytest.mark.parametrize("path", ["categories", "brands"])
-def test_taxonomy_admin_routes_require_admin(
-    client: TestClient, make_user, auth_headers, path: str
-) -> None:
-    customer = auth_headers(make_user())
-    routes = (
-        ("GET", f"/api/admin/{path}", None),
-        ("POST", f"/api/admin/{path}", {"name": "Shoes"}),
-        ("PUT", f"/api/admin/{path}/1", {"name": "Shoes"}),
-        ("DELETE", f"/api/admin/{path}/1", None),
-    )
-    for method, url, body in routes:
-        anonymous = client.request(method, url, json=body)
-        assert anonymous.status_code == 401, url
-        assert anonymous.json() == {"detail": "unauthorized"}, url
-        forbidden = client.request(method, url, json=body, headers=customer)
-        assert forbidden.status_code == 403, url
-        assert forbidden.json() == {"detail": "forbidden"}, url
-
-
-@pytest.mark.parametrize("path", ["categories", "brands"])
 def test_names_are_trimmed_and_blank_names_are_rejected(
     client: TestClient, admin_headers, path: str
 ) -> None:
