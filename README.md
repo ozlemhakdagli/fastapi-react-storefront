@@ -26,8 +26,8 @@ clone it, run it, make it your own shop. The original code is still in the git h
   printable invoices.
 - **Admin panel:** dashboard with a 14-day chart, products and images (resized on upload),
   categories, brands, orders with status rules, customers, messages, comments, site settings.
-- **Turkish and English** with an instant switch, **light and dark mode**, and a **markdown editor**
-  for product and page texts.
+- **English by default, with Turkish one click away**, **light and dark mode**, and a
+  **markdown editor** for product and page texts.
 - **Safe by default:** Argon2 passwords, JWT sessions that end after a password change, admin rights
   checked on the server for every route, and tests that walk all of them.
 - **Not included:** payments, e-mail sending, password reset and anonymous comments.
@@ -66,8 +66,9 @@ Edit `backend/.env` before `scripts/db.sh init`: set `SECRET_KEY` (`openssl rand
 Open <http://localhost:5173> and log in with `ADMIN_EMAIL` and `ADMIN_PASSWORD` to reach the admin
 panel. The API documentation is at <http://localhost:8000/api/docs> (on while `API_DOCS_ENABLED=true`,
 as in `backend/.env.example`). Without `conda activate`, put `conda run -n ecommerce` in front of a
-command. `scripts/db.sh stop`, `start` and `status` control the database server. Something does not
-work? See "Common errors" below.
+command. `scripts/db.sh stop`, `start` and `status` control the database server; `scripts/db.sh reset`
+empties the database, so that you can migrate and seed again. Something does not work? See
+"Common errors" below.
 
 ## Tests
 
@@ -85,12 +86,14 @@ use the database `ecommerce_test_main` and leave the development database alone.
 ## Make it yours
 
 1. The shop identity: the site settings in the admin panel, or `SITE_SETTINGS` in `backend/seed.py`.
-2. The sample catalogue: `CATEGORIES`, `BRANDS` and `PRODUCTS` in `backend/seed.py`.
-3. The texts: `frontend/src/locales/tr/*.json` and `frontend/src/locales/en/*.json`.
-4. The session length: `ACCESS_TOKEN_MINUTES` in `backend/.env`.
-5. A new backend feature: a migration (`backend/migrations/0002_price_alerts.sql`), then a repository
+2. The sample catalogue: `CATEGORIES`, `BRANDS` and `PRODUCTS` in `backend/seed.py`. Start the sample
+   data again: `scripts/db.sh reset`, then migrate and seed.
+3. The currency: `CURRENCY` in `frontend/src/lib/format.ts`.
+4. The texts: `frontend/src/locales/tr/*.json` and `frontend/src/locales/en/*.json`.
+5. The session length: `ACCESS_TOKEN_MINUTES` in `backend/.env`.
+6. A new backend feature: a migration (`backend/migrations/0002_price_alerts.sql`), then a repository
    function, a service if there are business rules, a router, a schema and a test in `backend/tests/api/`.
-6. A new page: a file in `frontend/src/features/` and a route in `frontend/src/app/routes.tsx`.
+7. A new page: a file in `frontend/src/features/` and a route in `frontend/src/app/routes.tsx`.
 
 ## License
 
@@ -130,7 +133,7 @@ frontend/
     layouts/          store, account and admin layouts
     locales/          Turkish and English UI texts (tr/ and en/)
 screenshots/         the two pictures of this README
-scripts/db.sh        starts, stops and inspects the local PostgreSQL server
+scripts/db.sh        starts, stops and inspects the local PostgreSQL server, and resets the database
 scripts/e2e.sh       runs Playwright end-to-end tests against an isolated stack
 compose.yml          three containers: database, API, web server (not tested yet)
 ```
@@ -183,8 +186,8 @@ authenticated request loads the user from the database, so the role comes from t
 from the token, and an inactive user is refused at once.
 
 Prices are stored as `NUMERIC(12,2)` and returned as strings with two decimals (`"1299.90"`). The
-currency is fixed to TRY and the frontend formats the amounts. `cost_price` is returned only by admin
-endpoints; public product reads never select it.
+currency is USD (`CURRENCY` in `frontend/src/lib/format.ts`) and the frontend formats the amounts.
+`cost_price` is returned only by admin endpoints; public product reads never select it.
 
 ### Design decisions
 
