@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Local PostgreSQL for development, run as a separate process from the conda env `pg18`.
 #
-# Usage: scripts/db.sh init | start | stop | status | psql [psql args] | drop-test-dbs
+# Usage: scripts/db.sh init | start | stop | status | reset [--yes] | psql [psql args] | drop-test-dbs
 #
 # Connection settings come from DATABASE_URL in backend/.env
 # (postgresql://user:password@host:port/dbname). Data lives in <repo>/.pgdata.
@@ -95,12 +95,25 @@ cmd_drop_test_dbs() {
   done
 }
 
+cmd_reset() {
+  local answer
+  if [ "${1:-}" != "--yes" ]; then
+    read -r -p "This deletes the database $DB_NAME with all its data. Type its name to go on: " answer
+    [ "$answer" = "$DB_NAME" ] || die "not confirmed, nothing was changed"
+  fi
+  superuser_psql -d postgres \
+    -c "DROP DATABASE IF EXISTS \"$DB_NAME\" WITH (FORCE)" \
+    -c "CREATE DATABASE \"$DB_NAME\" OWNER $DB_USER"
+  echo "Recreated the empty database $DB_NAME. Next, from backend/: python -m app.migrate && python seed.py"
+}
+
 case "${1:-}" in
   init) cmd_init ;;
   start) cmd_start ;;
   stop) cmd_stop ;;
   status) cmd_status ;;
+  reset) shift; cmd_reset "$@" ;;
   psql) shift; cmd_psql "$@" ;;
   drop-test-dbs) cmd_drop_test_dbs ;;
-  *) die "usage: scripts/db.sh init | start | stop | status | psql [args] | drop-test-dbs" ;;
+  *) die "usage: scripts/db.sh init | start | stop | status | reset [--yes] | psql [args] | drop-test-dbs" ;;
 esac

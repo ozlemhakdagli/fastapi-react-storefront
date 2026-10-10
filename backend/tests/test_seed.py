@@ -40,11 +40,11 @@ def test_seed_creates_expected_data(conn: psycopg.Connection) -> None:
     }
     category_names = {row["name"] for row in conn.execute("SELECT name FROM categories")}
     assert category_names == {
-        "Harici Diskler",
-        "SSD Diskler",
-        "Bellek Kartları",
-        "USB Bellekler",
-        "Aksesuarlar",
+        "External Drives",
+        "SSD Drives",
+        "Memory Cards",
+        "USB Flash Drives",
+        "Accessories",
     }
     brand_names = {row["name"] for row in conn.execute("SELECT name FROM brands")}
     assert brand_names == {"Seagate", "Western Digital", "Samsung", "SanDisk", "Toshiba"}
@@ -57,13 +57,21 @@ def test_seed_creates_expected_data(conn: psycopg.Connection) -> None:
     assert sum(row["stock"] == 0 for row in products) >= 2
     assert sum(not row["is_active"] for row in products) == 1
 
+    # The sample texts are English and the prices are in dollars.
+    first = conn.execute("SELECT name, price FROM products WHERE sku = 'SEED-001'").fetchone()
+    assert first["name"] == "Seagate Expansion 1 TB Portable Drive"
+    assert str(first["price"]) == "59.99"
+    site = conn.execute("SELECT site_name, email FROM site_settings").fetchone()
+    assert site == {"site_name": "Sample Shop", "email": "support@example.com"}
+
     # Seeded products have no image rows; the API shows the placeholder for them.
     assert conn.execute("SELECT count(*) AS n FROM product_images").fetchone()["n"] == 0
 
     admin = conn.execute(
-        "SELECT email, is_active, password_hash FROM users WHERE role = 'admin'"
+        "SELECT email, full_name, is_active, password_hash FROM users WHERE role = 'admin'"
     ).fetchone()
     assert admin["email"] == "admin@example.com"
+    assert admin["full_name"] == "Site Administrator"
     assert admin["is_active"]
     assert verify_password(ADMIN_PASSWORD, admin["password_hash"])
 
