@@ -3,7 +3,7 @@ import type { Locator, Page } from '@playwright/test'
 import { apiLogin, apiUrl, loginAsAdmin, placeOrder, seededSsd, uniqueEmail } from './support'
 
 const CUSTOMER_PASSWORD = 'E2e-Register-2026!'
-const CARGO_COMPANY = 'Yurtiçi Kargo'
+const CARGO_COMPANY = 'Example Cargo'
 const TRACKING_NO = 'E2E-TAKIP-0001'
 
 /**
@@ -22,7 +22,7 @@ test('the admin moves a customer order to completed, and the customer sees it', 
   // A customer registers and places an order through the API.
   const email = uniqueEmail()
   const registered = await request.post(apiUrl('/api/auth/register'), {
-    data: { email, password: CUSTOMER_PASSWORD, full_name: 'E2E Müşteri' },
+    data: { email, password: CUSTOMER_PASSWORD, full_name: 'E2E Customer' },
   })
   expect(registered.status()).toBe(201)
   const token = await apiLogin(request, email, CUSTOMER_PASSWORD)

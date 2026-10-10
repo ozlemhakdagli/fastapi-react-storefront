@@ -142,7 +142,7 @@ def test_revenue_counts_approved_shipped_and_completed_only(
 def test_recent_orders_are_newest_first_with_full_names_and_capped_at_five(
     client, admin_headers, make_user, make_product, make_order
 ) -> None:
-    customer = make_user(full_name="Ayşe Yılmaz")
+    customer = make_user(full_name="Jane Doe")
     item = make_product(price="100.00")
     orders = [make_order(customer["id"], items=((item["id"], 1),)) for _ in range(6)]
 
@@ -151,7 +151,7 @@ def test_recent_orders_are_newest_first_with_full_names_and_capped_at_five(
     newest_first = [order["id"] for order in reversed(orders)]
     assert [row["id"] for row in recent] == newest_first[:5]
     assert set(recent[0]) == {"id", "customer_name", "status", "total", "created_at"}
-    assert recent[0]["customer_name"] == "Ayşe Yılmaz"
+    assert recent[0]["customer_name"] == "Jane Doe"
     assert recent[0]["status"] == "new"
     assert recent[0]["total"] == "100.00"
 

@@ -10,8 +10,8 @@ import { renderWithProviders, testAdmin } from '@/test/utils'
 const product: AdminProduct = {
   id: 5,
   sku: 'KL-100',
-  name: 'Mekanik Klavye',
-  short_description: 'Kırmızı anahtarlı',
+  name: 'Mechanical Keyboard',
+  short_description: 'Red switches',
   description: 'Tam boyut klavye.',
   price: '1299.90',
   cost_price: '800.00',
@@ -19,7 +19,7 @@ const product: AdminProduct = {
   is_new: true,
   is_active: true,
   brand: { id: 7, name: 'Logitech' },
-  category: { id: 1, name: 'Klavyeler' },
+  category: { id: 1, name: 'Keyboards' },
   image_url: '/api/media/a.jpg',
   rating_avg: null,
   rating_count: 0,
@@ -33,8 +33,8 @@ const product: AdminProduct = {
 }
 
 const categories: Taxonomy[] = [
-  { id: 1, name: 'Klavyeler', description: '' },
-  { id: 2, name: 'Fareler', description: '' },
+  { id: 1, name: 'Keyboards', description: '' },
+  { id: 2, name: 'Mice', description: '' },
 ]
 const brands: Taxonomy[] = [{ id: 7, name: 'Logitech', description: '' }]
 
@@ -81,7 +81,7 @@ function renderEdit() {
 /** The three fields that every create needs. */
 async function fillRequiredFields() {
   await userEvent.type(screen.getByLabelText(t('adminproducts.field_sku')), 'KL-100')
-  await userEvent.type(screen.getByLabelText(t('adminproducts.field_name')), 'Mekanik Klavye')
+  await userEvent.type(screen.getByLabelText(t('adminproducts.field_name')), 'Mechanical Keyboard')
   await userEvent.type(screen.getByLabelText(t('adminproducts.field_price')), '1299.90')
 }
 
@@ -94,7 +94,7 @@ describe('ProductFormPage', () => {
     mockGet(editResponses)
     renderEdit()
     expect(await screen.findByLabelText(t('adminproducts.field_sku'))).toHaveValue('KL-100')
-    expect(screen.getByLabelText(t('adminproducts.field_name'))).toHaveValue('Mekanik Klavye')
+    expect(screen.getByLabelText(t('adminproducts.field_name'))).toHaveValue('Mechanical Keyboard')
     expect(screen.getByLabelText(t('adminproducts.field_price'))).toHaveValue('1299.90')
     expect(screen.getByLabelText(t('adminproducts.field_cost_price'))).toHaveValue('800.00')
     expect(screen.getByLabelText(t('adminproducts.field_stock'))).toHaveValue(4)
@@ -117,7 +117,7 @@ describe('ProductFormPage', () => {
     await userEvent.selectOptions(screen.getByLabelText(t('adminproducts.field_category')), '1')
     await userEvent.type(
       screen.getByLabelText(t('adminproducts.field_short_description')),
-      'Kırmızı anahtarlı',
+      'Red switches',
     )
     await userEvent.type(screen.getByLabelText(t('adminproducts.field_description')), 'Tam boyut.')
     await userEvent.type(screen.getByLabelText(t('adminproducts.field_cost_price')), '800.00')
@@ -128,10 +128,10 @@ describe('ProductFormPage', () => {
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1))
     expect(post).toHaveBeenCalledWith('/admin/products', {
       sku: 'KL-100',
-      name: 'Mekanik Klavye',
+      name: 'Mechanical Keyboard',
       brand_id: 7,
       category_id: 1,
-      short_description: 'Kırmızı anahtarlı',
+      short_description: 'Red switches',
       description: 'Tam boyut.',
       price: '1299.90',
       cost_price: '800.00',
@@ -151,7 +151,7 @@ describe('ProductFormPage', () => {
     renderNew()
     await screen.findByRole('option', { name: 'Logitech' })
     await userEvent.type(screen.getByLabelText(t('adminproducts.field_sku')), 'KL-100')
-    await userEvent.type(screen.getByLabelText(t('adminproducts.field_name')), 'Mekanik Klavye')
+    await userEvent.type(screen.getByLabelText(t('adminproducts.field_name')), 'Mechanical Keyboard')
     await userEvent.type(screen.getByLabelText(t('adminproducts.field_price')), '1299,90')
     await userEvent.type(screen.getByLabelText(t('adminproducts.field_cost_price')), '800,5')
     await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
@@ -179,7 +179,7 @@ describe('ProductFormPage', () => {
     const post = vi.spyOn(api, 'post').mockResolvedValue(product)
     renderNew()
     await userEvent.type(screen.getByLabelText(t('adminproducts.field_sku')), 'KL-100')
-    await userEvent.type(screen.getByLabelText(t('adminproducts.field_name')), 'Mekanik Klavye')
+    await userEvent.type(screen.getByLabelText(t('adminproducts.field_name')), 'Mechanical Keyboard')
     await userEvent.type(screen.getByLabelText(t('adminproducts.field_price')), '12.999')
     await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
     expect(await screen.findByText(t('adminproducts.error_money'))).toBeInTheDocument()
@@ -192,15 +192,15 @@ describe('ProductFormPage', () => {
     renderEdit()
     const name = await screen.findByLabelText(t('adminproducts.field_name'))
     await userEvent.clear(name)
-    await userEvent.type(name, 'Mekanik Klavye V2')
+    await userEvent.type(name, 'Mechanical Keyboard V2')
     await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
     await waitFor(() => expect(put).toHaveBeenCalledTimes(1))
     expect(put).toHaveBeenCalledWith('/admin/products/5', {
       sku: 'KL-100',
-      name: 'Mekanik Klavye V2',
+      name: 'Mechanical Keyboard V2',
       brand_id: 7,
       category_id: 1,
-      short_description: 'Kırmızı anahtarlı',
+      short_description: 'Red switches',
       description: 'Tam boyut klavye.',
       price: '1299.90',
       cost_price: '800.00',
@@ -253,7 +253,7 @@ describe('ProductFormPage', () => {
     renderNew()
     await screen.findByRole('option', { name: 'Logitech' })
     await userEvent.type(screen.getByLabelText(t('adminproducts.field_sku')), 'KL-100')
-    await userEvent.type(screen.getByLabelText(t('adminproducts.field_name')), 'Mekanik Klavye')
+    await userEvent.type(screen.getByLabelText(t('adminproducts.field_name')), 'Mechanical Keyboard')
     await userEvent.type(screen.getByLabelText(t('adminproducts.field_price')), '1000000.01')
     await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
     expect(await screen.findByText(t('adminproducts.error_money'))).toBeInTheDocument()

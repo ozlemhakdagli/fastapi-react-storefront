@@ -57,11 +57,11 @@ describe('api', () => {
 
   it('sends JSON bodies with a content type', async () => {
     fetchMock.mockResolvedValue(jsonResponse(201, { id: 1 }))
-    await api.post('/contact', { name: 'Ayşe' })
+    await api.post('/contact', { name: 'Jane' })
     const { init } = lastCall(fetchMock)
     expect(init.method).toBe('POST')
     expect(new Headers(init.headers).get('Content-Type')).toBe('application/json')
-    expect(init.body).toBe(JSON.stringify({ name: 'Ayşe' }))
+    expect(init.body).toBe(JSON.stringify({ name: 'Jane' }))
   })
 
   it('uploads FormData without forcing a content type', async () => {

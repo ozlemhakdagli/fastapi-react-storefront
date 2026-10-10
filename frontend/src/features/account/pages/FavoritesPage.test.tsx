@@ -11,8 +11,8 @@ import { renderWithProviders, testCustomer } from '@/test/utils'
 const product: ProductListItem = {
   id: 1,
   sku: 'KL-100',
-  name: 'Mekanik Klavye',
-  short_description: 'Kırmızı anahtarlı',
+  name: 'Mechanical Keyboard',
+  short_description: 'Red switches',
   price: '1299.90',
   stock: 4,
   is_new: false,
@@ -41,11 +41,11 @@ describe('FavoritesPage', () => {
 
   it('shows the favourite products as cards that link to them', async () => {
     vi.spyOn(api, 'get').mockResolvedValue(
-      favoritesPage([product, { ...product, id: 2, name: 'Kablo' }]),
+      favoritesPage([product, { ...product, id: 2, name: 'Cable' }]),
     )
     renderFavorites()
-    expect(await screen.findByText('Mekanik Klavye')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Kablo/ })).toHaveAttribute('href', '/products/2')
+    expect(await screen.findByText('Mechanical Keyboard')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Cable/ })).toHaveAttribute('href', '/products/2')
     expect(api.get).toHaveBeenCalledWith('/me/favorites', { page: 1 })
   })
 

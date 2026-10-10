@@ -9,10 +9,10 @@ import type { User } from '@/lib/types'
 
 export const testCustomer: User = {
   id: 2,
-  email: 'ayse@example.com',
-  full_name: 'Ayşe Yılmaz',
-  phone: '05320000000',
-  address: 'Moda Cad. 1, Kadıköy, İstanbul',
+  email: 'jane.doe@example.com',
+  full_name: 'Jane Doe',
+  phone: '+1 555 010 0100',
+  address: '12 Example Street, Springfield',
   role: 'customer',
   is_active: true,
   created_at: '2026-10-08T12:00:00Z',
@@ -75,7 +75,7 @@ export function renderWithProviders(
   return { ...result, queryClient, auth }
 }
 
-// Intl may put a non-breaking space before the lira sign. The default text matcher only
+// Intl may put a non-breaking space before the currency sign. The default text matcher only
 // collapses ordinary whitespace, so the expected text is normalized the same way.
 export function price(value: string): string {
   return formatMoney(value).replace(/\s/g, ' ')

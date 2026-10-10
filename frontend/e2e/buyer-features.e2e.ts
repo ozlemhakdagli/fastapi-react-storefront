@@ -49,7 +49,7 @@ test('a buyer rates the product, comments, adds a favourite and reads the invoic
   ).toBeVisible()
 
   // Comment: the customer's own comment shows the four stars as well.
-  const body = 'Hızlı teslim edildi, çok memnun kaldım.'
+  const body = 'Delivered quickly, very happy with it.'
   await page.getByLabel('Yorumunuz veya sorunuz').fill(body)
   await page.getByRole('button', { name: 'Yorum yap', exact: true }).click()
   const comment = page.getByRole('listitem').filter({ hasText: body })
@@ -102,7 +102,7 @@ test('a customer without a purchase sees the hint, can still comment and cannot 
   await expect(page.getByRole('radiogroup', { name: 'Puanınız' })).toHaveCount(0)
 
   // Questions are open to every logged-in customer.
-  const question = 'Bu disk PlayStation ile çalışır mı?'
+  const question = 'Does this drive work with a PlayStation?'
   await page.getByLabel('Yorumunuz veya sorunuz').fill(question)
   await page.getByRole('button', { name: 'Yorum yap', exact: true }).click()
   await expect(page.getByRole('listitem').filter({ hasText: question })).toBeVisible()

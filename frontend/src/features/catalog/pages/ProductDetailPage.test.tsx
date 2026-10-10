@@ -10,17 +10,17 @@ import { renderWithProviders, testCustomer } from '@/test/utils'
 const product: ProductDetail = {
   id: 5,
   sku: 'KL-100',
-  name: 'Mekanik Klavye',
-  short_description: 'Kırmızı anahtarlı',
+  name: 'Mechanical Keyboard',
+  short_description: 'Red switches',
   price: '1299.90',
   stock: 10,
   is_new: true,
   brand: { id: 7, name: 'Logitech' },
-  category: { id: 1, name: 'Klavyeler' },
+  category: { id: 1, name: 'Keyboards' },
   image_url: '/api/media/k1.jpg',
   rating_avg: null,
   rating_count: 0,
-  description: 'Uzun açıklama',
+  description: 'Long description',
   images: [
     { id: 1, url: '/api/media/k1.jpg', thumb_url: '/api/media/k1-sm.jpg', position: 0 },
     { id: 2, url: '/api/media/k2.jpg', thumb_url: '/api/media/k2-sm.jpg', position: 1 },
@@ -35,8 +35,8 @@ function comment(overrides: Partial<Comment> = {}): Comment {
     id: 1,
     product_id: 5,
     user_id: 9,
-    author_name: 'Mehmet Kaya',
-    body: 'Çok memnun kaldım',
+    author_name: 'John Doe',
+    body: 'Very happy with it',
     created_at: '2026-10-08T12:00:00Z',
     rating: null,
     ...overrides,
@@ -91,9 +91,9 @@ describe('ProductDetailPage', () => {
   it('renders the product from the API', async () => {
     mockGet({ '/products/5': product, '/products/5/comments': commentsPage([]) })
     renderDetail()
-    expect(await screen.findByRole('heading', { name: 'Mekanik Klavye' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Mechanical Keyboard' })).toBeInTheDocument()
     expect(screen.getByText(/1\.299,90/)).toBeInTheDocument()
-    expect(screen.getByText('Uzun açıklama')).toBeInTheDocument()
+    expect(screen.getByText('Long description')).toBeInTheDocument()
   })
 
   it('shows the chosen thumbnail as the main image', async () => {
@@ -102,7 +102,7 @@ describe('ProductDetailPage', () => {
     await userEvent.click(
       await screen.findByRole('button', { name: t('catalog.thumbnail', { number: 2 }) }),
     )
-    expect(screen.getByRole('img', { name: 'Mekanik Klavye' })).toHaveAttribute(
+    expect(screen.getByRole('img', { name: 'Mechanical Keyboard' })).toHaveAttribute(
       'src',
       '/api/media/k2.jpg',
     )
@@ -111,7 +111,7 @@ describe('ProductDetailPage', () => {
   it('uses the full image for the main picture and the card image for thumbnails', async () => {
     mockGet({ '/products/5': product, '/products/5/comments': commentsPage([]) })
     renderDetail()
-    expect(await screen.findByRole('img', { name: 'Mekanik Klavye' })).toHaveAttribute(
+    expect(await screen.findByRole('img', { name: 'Mechanical Keyboard' })).toHaveAttribute(
       'src',
       '/api/media/k1.jpg',
     )
@@ -180,7 +180,7 @@ describe('ProductDetailPage', () => {
     mockGet({ '/products/5': product, '/products/5/comments': commentsPage([]) })
     renderDetail()
     const heart = await screen.findByRole('button', {
-      name: t('favorites.add', { name: 'Mekanik Klavye' }),
+      name: t('favorites.add', { name: 'Mechanical Keyboard' }),
     })
     const add = screen.getByRole('button', { name: t('catalog.add_to_cart') })
     expect(heart.parentElement).toBe(add.parentElement)
@@ -201,8 +201,8 @@ describe('ProductDetailPage', () => {
     mockGet({
       '/products/5': product,
       '/products/5/comments': commentsPage([
-        comment({ id: 1, user_id: testCustomer.id, author_name: 'Ayşe Yılmaz', body: 'Benim yorumum' }),
-        comment({ id: 2, user_id: 9, author_name: 'Mehmet Kaya', body: 'Başkasının yorumu' }),
+        comment({ id: 1, user_id: testCustomer.id, author_name: 'Jane Doe', body: 'Benim yorumum' }),
+        comment({ id: 2, user_id: 9, author_name: 'John Doe', body: 'Başkasının yorumu' }),
       ]),
     })
     renderDetail({ user: testCustomer })
@@ -232,17 +232,17 @@ describe('ProductDetailPage', () => {
     mockGet({ '/products/5': product, '/products/5/comments': commentsPage([]) })
     const post = vi.spyOn(api, 'post').mockResolvedValue(comment({ user_id: testCustomer.id }))
     renderDetail({ user: testCustomer })
-    await userEvent.type(await screen.findByLabelText(t('catalog.comment_body')), '  Harika ürün  ')
+    await userEvent.type(await screen.findByLabelText(t('catalog.comment_body')), '  Great product  ')
     await userEvent.click(screen.getByRole('button', { name: t('catalog.comment_submit') }))
     await waitFor(() =>
-      expect(post).toHaveBeenCalledWith('/products/5/comments', { body: 'Harika ürün' }),
+      expect(post).toHaveBeenCalledWith('/products/5/comments', { body: 'Great product' }),
     )
   })
 
   it('hides the comment form from guests', async () => {
     mockGet({ '/products/5': product, '/products/5/comments': commentsPage([comment()]) })
     renderDetail()
-    expect(await screen.findByText('Çok memnun kaldım')).toBeInTheDocument()
+    expect(await screen.findByText('Very happy with it')).toBeInTheDocument()
     expect(screen.queryByLabelText(t('catalog.comment_body'))).not.toBeInTheDocument()
   })
 

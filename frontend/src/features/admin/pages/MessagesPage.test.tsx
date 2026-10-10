@@ -9,12 +9,12 @@ import { renderWithProviders, testAdmin } from '@/test/utils'
 const inbound: AdminMessage = {
   id: 3,
   direction: 'inbound',
-  subject: 'Sipariş sorusu',
-  body: 'Siparişim ne zaman kargoya verilir?',
+  subject: 'Question about an order',
+  body: 'When will my order be shipped?',
   status: 'new',
-  name: 'Ayşe Yılmaz',
-  email: 'ayse@example.com',
-  phone: '05320000000',
+  name: 'Jane Doe',
+  email: 'jane.doe@example.com',
+  phone: '+1 555 010 0100',
   user_id: 2,
   admin_note: null,
   created_at: '2026-10-08T12:00:00Z',
@@ -24,11 +24,11 @@ const inbound: AdminMessage = {
 const guest: AdminMessage = {
   ...inbound,
   id: 4,
-  subject: 'Ziyaretçi mesajı',
-  body: 'Merhaba, iade koşullarını öğrenmek istiyorum.',
+  subject: 'Message from a visitor',
+  body: 'Hello, I would like to know the return terms.',
   status: 'read',
-  name: 'Mehmet Kaya',
-  email: 'mehmet@example.com',
+  name: 'John Doe',
+  email: 'john.doe@example.com',
   phone: null,
   user_id: null,
 }
@@ -122,12 +122,12 @@ describe('MessagesPage', () => {
 
     await userEvent.type(
       within(panel).getByLabelText(t('adminmessages.field_note')),
-      'Müşteriyle telefonda görüşüldü.',
+      'Talked to the customer on the phone.',
     )
     await userEvent.click(within(panel).getByRole('button', { name: t('adminmessages.save_note') }))
     await waitFor(() =>
       expect(patch).toHaveBeenLastCalledWith('/admin/messages/3', {
-        admin_note: 'Müşteriyle telefonda görüşüldü.',
+        admin_note: 'Talked to the customer on the phone.',
       }),
     )
     expect(patch).toHaveBeenCalledTimes(2)
@@ -140,18 +140,18 @@ describe('MessagesPage', () => {
     const panel = await openMessage(inbound.subject)
     await userEvent.type(
       await within(panel).findByLabelText(t('adminmessages.reply_subject')),
-      'Siparişiniz hakkında',
+      'About your order',
     )
     await userEvent.type(
       within(panel).getByLabelText(t('adminmessages.reply_body')),
-      'Kargonuz yarın yola çıkacak.',
+      'Your parcel leaves tomorrow.',
     )
     await userEvent.click(within(panel).getByRole('button', { name: t('adminmessages.reply_send') }))
     await waitFor(() =>
       expect(post).toHaveBeenCalledWith('/admin/messages', {
         user_id: 2,
-        subject: 'Siparişiniz hakkında',
-        body: 'Kargonuz yarın yola çıkacak.',
+        subject: 'About your order',
+        body: 'Your parcel leaves tomorrow.',
       }),
     )
   })

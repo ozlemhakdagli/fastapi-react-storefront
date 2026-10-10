@@ -45,14 +45,14 @@ describe('ProfilePage', () => {
     const { get } = renderProfile()
     const patch = vi
       .spyOn(api, 'patch')
-      .mockResolvedValue({ ...testCustomer, full_name: 'Ayşe Demir' })
+      .mockResolvedValue({ ...testCustomer, full_name: 'Jane Roe' })
     const name = await screen.findByLabelText(t('profile.full_name'))
     await userEvent.clear(name)
-    await userEvent.type(name, 'Ayşe Demir')
+    await userEvent.type(name, 'Jane Roe')
     await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
     await waitFor(() =>
       expect(patch).toHaveBeenCalledWith('/auth/me', {
-        full_name: 'Ayşe Demir',
+        full_name: 'Jane Roe',
         phone: testCustomer.phone,
         address: testCustomer.address,
       }),

@@ -6,17 +6,17 @@ import type { SiteSettings } from '@/lib/types'
 import { renderWithProviders } from '@/test/utils'
 
 const site: SiteSettings = {
-  site_name: 'Örnek Mağaza',
+  site_name: 'Sample Shop',
   description: '',
-  address: 'Moda Cad. 1, Kadıköy, İstanbul',
-  phone: '02160000000',
+  address: '12 Example Street, Springfield',
+  phone: '+1 555 010 0400',
   email: 'info@example.com',
   facebook: '',
   instagram: '',
   pinterest: '',
   about_text:
-    'Kuruluşumuz 2010 yılında kuruldu.\n' +
-    '<b>Kalın</b> yazı HTML olarak değil, düz metin olarak görünür.',
+    'We opened our doors in 2010.\n' +
+    '<b>Bold</b> text shows as plain text, not as HTML.',
   contact_text: '',
 }
 
@@ -32,7 +32,7 @@ describe('AboutPage', () => {
   it('test_about_renders_site_text_as_plain_text', async () => {
     const get = vi.spyOn(api, 'get').mockResolvedValue(site)
     renderAbout()
-    const paragraph = await screen.findByText(/Kuruluşumuz 2010/)
+    const paragraph = await screen.findByText(/We opened our doors in 2010/)
     // The line break is kept and the tags are shown as written, never parsed as HTML.
     expect(paragraph).toHaveTextContent(site.about_text, { normalizeWhitespace: false })
     expect(paragraph.textContent).toBe(site.about_text)

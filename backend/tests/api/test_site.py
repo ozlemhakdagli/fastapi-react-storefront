@@ -18,8 +18,8 @@ SITE_KEYS = {
 SITE_PAYLOAD = {
     "site_name": "Test Shop",
     "description": "Hand-picked goods",
-    "address": "Test Street 1, Istanbul",
-    "phone": "+90 212 000 00 00",
+    "address": "1 Sample Street, Sample City",
+    "phone": "+1 555 010 0100",
     "email": "info@example.com",
     "facebook": "https://facebook.com/testshop",
     "instagram": "https://instagram.com/testshop",

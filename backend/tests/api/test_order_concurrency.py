@@ -15,7 +15,7 @@ def _race(pool, user_ids: list[int]) -> list[str]:
         with pool.connection() as connection:
             barrier.wait(timeout=10)
             try:
-                place_order(connection, user_id, "Ayşe", "05320000000", "Moda Cad. 1")
+                place_order(connection, user_id, "Jane", "+1 555 010 0100", "12 Example Street")
             except ApiError as error:
                 return error.code
             return "ok"

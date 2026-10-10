@@ -11,8 +11,8 @@ function comment(overrides: Partial<Comment> = {}): Comment {
     id: 1,
     product_id: 5,
     user_id: 9,
-    author_name: 'Mehmet Kaya',
-    body: 'Çok memnun kaldım',
+    author_name: 'John Doe',
+    body: 'Very happy with it',
     created_at: '2026-10-08T12:00:00Z',
     rating: null,
     ...overrides,
@@ -109,8 +109,8 @@ describe('ProductComments', () => {
   it('shows the stars of the author of each comment that has a rating', async () => {
     mockGet({
       '/products/5/comments': commentsPage([
-        comment({ id: 1, author_name: 'Mehmet Kaya', body: 'Güzel ürün', rating: 4 }),
-        comment({ id: 2, author_name: 'Zeynep Demir', body: 'Kargo ne zaman?', rating: null }),
+        comment({ id: 1, author_name: 'John Doe', body: 'Güzel ürün', rating: 4 }),
+        comment({ id: 2, author_name: 'Mary Roe', body: 'When does it ship?', rating: null }),
       ]),
     })
     renderWithProviders(<ProductComments productId={5} />)
@@ -118,7 +118,7 @@ describe('ProductComments', () => {
     expect(
       within(rated).getByRole('img', { name: t('catalog.rating_value', { value: '4,0' }) }),
     ).toBeInTheDocument()
-    const unrated = screen.getByText('Kargo ne zaman?').closest('li')!
+    const unrated = screen.getByText('When does it ship?').closest('li')!
     expect(within(unrated).queryByRole('img')).not.toBeInTheDocument()
   })
 

@@ -32,16 +32,16 @@ describe('TaxonomyManager', () => {
     vi.spyOn(api, 'get').mockResolvedValue([])
     const post = vi
       .spyOn(api, 'post')
-      .mockResolvedValue({ id: 4, name: 'Giyim', description: 'Kıyafetler' })
+      .mockResolvedValue({ id: 4, name: 'Clothing', description: 'Shirts and trousers' })
     renderManager()
     await userEvent.click(await screen.findByRole('button', { name: t('admintaxonomy.create') }))
-    await userEvent.type(screen.getByLabelText(t('admintaxonomy.name')), 'Giyim')
-    await userEvent.type(screen.getByLabelText(t('admintaxonomy.description')), 'Kıyafetler')
+    await userEvent.type(screen.getByLabelText(t('admintaxonomy.name')), 'Clothing')
+    await userEvent.type(screen.getByLabelText(t('admintaxonomy.description')), 'Shirts and trousers')
     await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
     await waitFor(() =>
       expect(post).toHaveBeenCalledWith('/admin/categories', {
-        name: 'Giyim',
-        description: 'Kıyafetler',
+        name: 'Clothing',
+        description: 'Shirts and trousers',
       }),
     )
   })

@@ -14,7 +14,7 @@ function order(overrides: Partial<AdminOrderListItem> = {}): AdminOrderListItem 
     total: '2599.80',
     item_count: 2,
     created_at: '2026-10-08T12:00:00Z',
-    customer: { id: 2, email: 'ayse@example.com', full_name: 'Ayşe Yılmaz' },
+    customer: { id: 2, email: 'jane.doe@example.com', full_name: 'Jane Doe' },
     ...overrides,
   }
 }
@@ -39,15 +39,15 @@ describe('OrdersPage', () => {
       total: '250.00',
       item_count: 1,
       created_at: '2026-10-07T09:30:00Z',
-      customer: { id: 3, email: 'mehmet@example.com', full_name: 'Mehmet Demir' },
+      customer: { id: 3, email: 'john.doe@example.com', full_name: 'Richard Roe' },
     })
     vi.spyOn(api, 'get').mockResolvedValue(ordersPage([order(), shipped]))
     renderList()
     const table = await screen.findByRole('table')
     const link = within(table).getByRole('link', { name: t('adminorders.order_number', { id: 5 }) })
     expect(link).toHaveAttribute('href', '/admin/orders/5')
-    expect(within(table).getByText('Ayşe Yılmaz')).toBeInTheDocument()
-    expect(within(table).getByText('Mehmet Demir')).toBeInTheDocument()
+    expect(within(table).getByText('Jane Doe')).toBeInTheDocument()
+    expect(within(table).getByText('Richard Roe')).toBeInTheDocument()
     expect(within(table).getByText(t('common.status_shipped'))).toBeInTheDocument()
     expect(within(table).getByText(price('2599.80'))).toBeInTheDocument()
     expect(within(table).getByText(price('250.00'))).toBeInTheDocument()

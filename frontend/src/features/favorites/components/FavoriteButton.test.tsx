@@ -6,7 +6,7 @@ import { api, ApiError } from '@/lib/api'
 import { t } from '@/lib/i18n'
 import { renderWithProviders, testCustomer } from '@/test/utils'
 
-const name = 'Mekanik Klavye'
+const name = 'Mechanical Keyboard'
 const addLabel = t('favorites.add', { name })
 const removeLabel = t('favorites.remove', { name })
 
@@ -57,7 +57,7 @@ describe('FavoriteButton', () => {
     renderWithProviders(
       <>
         <FavoriteButton productId={7} name={name} />
-        <FavoriteButton productId={3} name="Kablo" />
+        <FavoriteButton productId={3} name="Cable" />
       </>,
       { user: testCustomer },
     )
@@ -65,8 +65,8 @@ describe('FavoriteButton', () => {
       'aria-pressed',
       'true',
     )
-    const kablo = screen.getByRole('button', { name: t('favorites.add', { name: 'Kablo' }) })
-    expect(kablo).toHaveAttribute('aria-pressed', 'false')
+    const cable = screen.getByRole('button', { name: t('favorites.add', { name: 'Cable' }) })
+    expect(cable).toHaveAttribute('aria-pressed', 'false')
   })
 
   it('adds with PUT and removes with DELETE, and shows each change at once', async () => {

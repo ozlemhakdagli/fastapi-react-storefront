@@ -11,7 +11,7 @@ test('a password change ends the other sessions and keeps this one signed in', a
   // A customer registers through the API.
   const email = uniqueEmail()
   const register = await request.post(apiUrl('/api/auth/register'), {
-    data: { email, password: OLD_PASSWORD, full_name: 'E2E Oturum' },
+    data: { email, password: OLD_PASSWORD, full_name: 'E2E Session' },
   })
   expect(register.status()).toBe(201)
 

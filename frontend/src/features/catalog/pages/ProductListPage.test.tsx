@@ -10,13 +10,13 @@ import { renderWithProviders } from '@/test/utils'
 const product: ProductListItem = {
   id: 1,
   sku: 'KL-100',
-  name: 'Mekanik Klavye',
-  short_description: 'Kırmızı anahtarlı',
+  name: 'Mechanical Keyboard',
+  short_description: 'Red switches',
   price: '1299.90',
   stock: 4,
   is_new: true,
   brand: { id: 7, name: 'Logitech' },
-  category: { id: 1, name: 'Klavyeler' },
+  category: { id: 1, name: 'Keyboards' },
   image_url: '/api/media/placeholder.svg',
   rating_avg: null,
   rating_count: 0,
@@ -24,8 +24,8 @@ const product: ProductListItem = {
 
 const products: Page<ProductListItem> = { items: [product], total: 45, page: 3, page_size: 20 }
 const categories: Taxonomy[] = [
-  { id: 1, name: 'Klavyeler', description: '' },
-  { id: 2, name: 'Fareler', description: '' },
+  { id: 1, name: 'Keyboards', description: '' },
+  { id: 2, name: 'Mice', description: '' },
 ]
 const brands: Taxonomy[] = [{ id: 7, name: 'Logitech', description: '' }]
 
@@ -61,7 +61,7 @@ describe('ProductListPage', () => {
   it('renders the products returned by the API', async () => {
     mockGet({ '/products': products, '/categories': categories, '/brands': brands })
     renderList('/products')
-    expect(await screen.findByText('Mekanik Klavye')).toBeInTheDocument()
+    expect(await screen.findByText('Mechanical Keyboard')).toBeInTheDocument()
   })
 
   it('shows how many products match the filters', async () => {
@@ -87,7 +87,7 @@ describe('ProductListPage', () => {
   it('test_changing_category_updates_url_and_resets_page', async () => {
     const get = mockGet({ '/products': products, '/categories': categories, '/brands': brands })
     renderList('/products?category_id=1&page=3')
-    await screen.findByRole('option', { name: 'Fareler' })
+    await screen.findByRole('option', { name: 'Mice' })
     await userEvent.selectOptions(screen.getByLabelText(t('catalog.filter_category')), '2')
     await waitFor(() =>
       expect(screen.getByTestId('location').textContent).toBe('/products?category_id=2'),

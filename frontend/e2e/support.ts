@@ -51,7 +51,7 @@ export async function registerAndLogin(page: Page): Promise<Account> {
   await page.getByLabel('E-posta', { exact: true }).fill(account.email)
   await page.getByLabel('Şifre', { exact: true }).fill(account.password)
   await page.getByLabel('Şifre (tekrar)', { exact: true }).fill(account.password)
-  await page.getByLabel('Ad soyad', { exact: true }).fill('E2E Müşteri')
+  await page.getByLabel('Ad soyad', { exact: true }).fill('E2E Customer')
   await page.getByRole('button', { name: 'Kayıt ol', exact: true }).click()
   await page.waitForURL((url) => url.pathname === '/')
   return account
@@ -88,9 +88,9 @@ export async function placeOrder(
     await request.post(apiUrl('/api/orders'), {
       headers,
       data: {
-        ship_name: 'E2E Alıcı',
-        ship_phone: '0555 000 00 00',
-        ship_address: 'E2E Mahallesi, Test Sokak No: 1, İstanbul',
+        ship_name: 'E2E Buyer',
+        ship_phone: '+1 555 010 0300',
+        ship_address: '1 Test Street, E2E District, Test City',
       },
     }),
   )
@@ -115,7 +115,7 @@ export async function advanceOrder(
 export async function registerCustomer(request: APIRequestContext): Promise<Account> {
   const account = { email: uniqueEmail(), password: 'E2e-Customer-2026!' }
   const response = await request.post(apiUrl('/api/auth/register'), {
-    data: { ...account, full_name: 'E2E Müşteri' },
+    data: { ...account, full_name: 'E2E Customer' },
   })
   expect(response.status()).toBe(201)
   return account

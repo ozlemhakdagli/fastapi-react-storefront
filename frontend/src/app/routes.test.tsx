@@ -8,7 +8,7 @@ import { renderWithProviders, testAdmin, testCustomer } from '@/test/utils'
 import type { User } from '@/lib/types'
 
 const site: SiteSettings = {
-  site_name: 'Örnek Mağaza',
+  site_name: 'Sample Shop',
   description: '',
   address: '',
   phone: '',
@@ -51,12 +51,12 @@ describe('AppRoutes', () => {
   it('serves the home page to an anonymous visitor inside the store layout', async () => {
     renderAt('/')
     expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/$/)
-    expect(await screen.findAllByText('Örnek Mağaza')).toHaveLength(2) // header and footer
+    expect(await screen.findAllByText('Sample Shop')).toHaveLength(2) // header and footer
   })
 
   it('puts the page title before the shop name in the tab, also on pages in the first download', async () => {
     renderAt('/products')
-    await screen.findAllByText('Örnek Mağaza') // the site settings have arrived
+    await screen.findAllByText('Sample Shop') // the site settings have arrived
     await waitFor(() =>
       expect(document.title).toBe(`${t('catalog.list_title')} | ${site.site_name}`),
     )
@@ -131,6 +131,6 @@ describe('AppRoutes', () => {
   it('keeps an unknown URL where it is and still shows the store layout', async () => {
     renderAt('/no/such/page')
     expect(screen.getByTestId('pathname')).toHaveTextContent('/no/such/page')
-    expect(await screen.findAllByText('Örnek Mağaza')).toHaveLength(2) // header and footer
+    expect(await screen.findAllByText('Sample Shop')).toHaveLength(2) // header and footer
   })
 })

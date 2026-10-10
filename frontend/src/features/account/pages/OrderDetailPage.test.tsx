@@ -13,16 +13,16 @@ function order(overrides: Partial<Order> = {}): Order {
     total: '2599.80',
     item_count: 2,
     created_at: '2026-10-08T12:00:00Z',
-    ship_name: 'Ayşe Yılmaz',
-    ship_phone: '05320000000',
-    ship_address: 'Moda Cad. 1, Kadıköy, İstanbul',
+    ship_name: 'Jane Doe',
+    ship_phone: '+1 555 010 0100',
+    ship_address: '12 Example Street, Springfield',
     cargo_company: null,
     tracking_no: null,
     updated_at: '2026-10-08T12:00:00Z',
     items: [
       {
         product_id: 5,
-        product_name: 'Mekanik Klavye',
+        product_name: 'Mechanical Keyboard',
         unit_price: '1299.90',
         quantity: 2,
         line_total: '2599.80',
@@ -53,20 +53,20 @@ describe('OrderDetailPage', () => {
   it('renders the items, shipping data and status from the API', async () => {
     const get = vi
       .spyOn(api, 'get')
-      .mockResolvedValue(order({ cargo_company: 'Yurtiçi Kargo', tracking_no: 'YK123456' }))
+      .mockResolvedValue(order({ cargo_company: 'Example Cargo', tracking_no: 'YK123456' }))
     renderDetail()
     await findTitle()
-    expect(screen.getByText('Mekanik Klavye')).toBeInTheDocument()
-    expect(screen.getByText('Ayşe Yılmaz')).toBeInTheDocument()
-    expect(screen.getByText('05320000000')).toBeInTheDocument()
-    expect(screen.getByText('Moda Cad. 1, Kadıköy, İstanbul')).toBeInTheDocument()
+    expect(screen.getByText('Mechanical Keyboard')).toBeInTheDocument()
+    expect(screen.getByText('Jane Doe')).toBeInTheDocument()
+    expect(screen.getByText('+1 555 010 0100')).toBeInTheDocument()
+    expect(screen.getByText('12 Example Street, Springfield')).toBeInTheDocument()
     // The status shows in the badge and as the first step of the timeline.
     expect(screen.getAllByText(t('common.status_new'))).toHaveLength(2)
     const progress = screen.getByRole('list', { name: t('account.order_progress') })
     expect(within(progress).getByRole('listitem', { current: 'step' })).toHaveTextContent(
       t('common.status_new'),
     )
-    expect(screen.getByText('Yurtiçi Kargo')).toBeInTheDocument()
+    expect(screen.getByText('Example Cargo')).toBeInTheDocument()
     expect(screen.getByText('YK123456')).toBeInTheDocument()
     // The total and the line total are both 2599.80, so the amount appears more than once.
     expect(screen.getAllByText(price('2599.80'))).toHaveLength(2)

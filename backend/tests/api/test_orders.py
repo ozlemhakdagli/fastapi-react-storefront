@@ -1,6 +1,10 @@
 """Customer order endpoints: placing, listing, viewing and cancelling orders."""
 
-SHIP = {"ship_name": "Ayşe Yılmaz", "ship_phone": "05320000000", "ship_address": "Moda Cad. 1"}
+SHIP = {
+    "ship_name": "Jane Doe",
+    "ship_phone": "+1 555 010 0100",
+    "ship_address": "12 Example Street",
+}
 
 
 def _stock(conn, product_id: int) -> int:
@@ -24,7 +28,7 @@ def test_place_order_happy_path(
 ) -> None:
     user = make_user()
     first = make_product(price="100.00", stock=10, name="Disk")
-    second = make_product(price="19.99", stock=5, name="Kablo")
+    second = make_product(price="19.99", stock=5, name="Cable")
     make_cart_item(user["id"], first["id"], 2)
     make_cart_item(user["id"], second["id"], 3)
 
@@ -40,7 +44,7 @@ def test_place_order_happy_path(
         (i["product_name"], i["unit_price"], i["quantity"], i["line_total"]) for i in body["items"]
     ] == [
         ("Disk", "100.00", 2, "200.00"),
-        ("Kablo", "19.99", 3, "59.97"),
+        ("Cable", "19.99", 3, "59.97"),
     ]
     assert _stock(conn, first["id"]) == 8
     assert _stock(conn, second["id"]) == 2

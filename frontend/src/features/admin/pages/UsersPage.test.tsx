@@ -64,12 +64,12 @@ describe('UsersPage', () => {
     await userEvent.type(within(dialog).getByLabelText(t('adminusers.field_password')), 'Gizli1234')
     await userEvent.type(
       within(dialog).getByLabelText(t('adminusers.field_full_name')),
-      'Mehmet Kaya',
+      'John Doe',
     )
-    await userEvent.type(within(dialog).getByLabelText(t('adminusers.field_phone')), '05321112233')
+    await userEvent.type(within(dialog).getByLabelText(t('adminusers.field_phone')), '+1 555 010 0200')
     await userEvent.type(
       within(dialog).getByLabelText(t('adminusers.field_address')),
-      'Moda Cad. 2, Kadıköy',
+      '14 Example Street, Springfield',
     )
     await userEvent.selectOptions(within(dialog).getByLabelText(t('adminusers.field_role')), 'admin')
     await userEvent.click(within(dialog).getByRole('button', { name: t('common.create') }))
@@ -77,10 +77,10 @@ describe('UsersPage', () => {
       expect(post).toHaveBeenCalledWith('/admin/users', {
         email: 'yeni@example.com',
         password: 'Gizli1234',
-        full_name: 'Mehmet Kaya',
+        full_name: 'John Doe',
         role: 'admin',
-        phone: '05321112233',
-        address: 'Moda Cad. 2, Kadıköy',
+        phone: '+1 555 010 0200',
+        address: '14 Example Street, Springfield',
       }),
     )
   })
@@ -98,7 +98,7 @@ describe('UsersPage', () => {
     await userEvent.type(within(dialog).getByLabelText(t('adminusers.field_password')), 'kisa')
     await userEvent.type(
       within(dialog).getByLabelText(t('adminusers.field_full_name')),
-      'Mehmet Kaya',
+      'John Doe',
     )
     await userEvent.click(within(dialog).getByRole('button', { name: t('common.create') }))
     expect(await within(dialog).findByText(t('adminusers.password_too_short'))).toBeInTheDocument()
@@ -119,7 +119,7 @@ describe('UsersPage', () => {
     await userEvent.type(within(dialog).getByLabelText(t('adminusers.field_password')), 'Gizli1234')
     await userEvent.type(
       within(dialog).getByLabelText(t('adminusers.field_full_name')),
-      'Mehmet Kaya',
+      'John Doe',
     )
     await userEvent.click(within(dialog).getByRole('button', { name: t('common.create') }))
     expect(await within(dialog).findByRole('alert')).toHaveTextContent(errorMessage(error))
@@ -134,11 +134,11 @@ describe('UsersPage', () => {
     const name = within(dialog).getByLabelText(t('adminusers.field_full_name'))
     expect(name).toHaveValue(testCustomer.full_name)
     await userEvent.clear(name)
-    await userEvent.type(name, 'Ayşe Demir')
+    await userEvent.type(name, 'Jane Roe')
     await userEvent.click(within(dialog).getByRole('button', { name: t('common.save') }))
     await waitFor(() =>
       expect(patch).toHaveBeenCalledWith('/admin/users/2', {
-        full_name: 'Ayşe Demir',
+        full_name: 'Jane Roe',
         phone: testCustomer.phone,
         address: testCustomer.address,
         role: 'customer',

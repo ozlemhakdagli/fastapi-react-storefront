@@ -16,7 +16,7 @@ function SetProbe() {
 
 function RemoveProbe() {
   const removeRating = useRemoveRating(7)
-  return <button onClick={() => removeRating.mutate()}>Kaldır</button>
+  return <button onClick={() => removeRating.mutate()}>Remove</button>
 }
 
 afterEach(() => {
@@ -56,7 +56,7 @@ describe('useRemoveRating', () => {
     const del = vi.spyOn(api, 'delete').mockResolvedValue(undefined)
     const { queryClient } = renderWithProviders(<RemoveProbe />)
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
-    await userEvent.click(screen.getByRole('button', { name: 'Kaldır' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Remove' }))
     await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(2))
     expect(del).toHaveBeenCalledWith('/me/ratings/7')
   })

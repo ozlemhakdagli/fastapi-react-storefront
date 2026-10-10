@@ -10,8 +10,8 @@ import { renderWithProviders, testAdmin } from '@/test/utils'
 const product: AdminProduct = {
   id: 5,
   sku: 'KL-100',
-  name: 'Mekanik Klavye',
-  short_description: 'Kırmızı anahtarlı',
+  name: 'Mechanical Keyboard',
+  short_description: 'Red switches',
   description: 'Tam boyut klavye.',
   price: '1299.90',
   cost_price: '800.00',
@@ -19,7 +19,7 @@ const product: AdminProduct = {
   is_new: true,
   is_active: true,
   brand: { id: 7, name: 'Logitech' },
-  category: { id: 1, name: 'Klavyeler' },
+  category: { id: 1, name: 'Keyboards' },
   image_url: '/api/media/placeholder.svg',
   rating_avg: null,
   rating_count: 0,
@@ -30,8 +30,8 @@ const product: AdminProduct = {
 
 const listing: Page<AdminProduct> = { items: [product], total: 1, page: 1, page_size: 20 }
 const categories: Taxonomy[] = [
-  { id: 1, name: 'Klavyeler', description: '' },
-  { id: 2, name: 'Fareler', description: '' },
+  { id: 1, name: 'Keyboards', description: '' },
+  { id: 2, name: 'Mice', description: '' },
 ]
 const brands: Taxonomy[] = [{ id: 7, name: 'Logitech', description: '' }]
 
@@ -71,7 +71,7 @@ describe('ProductsPage', () => {
       '/admin/brands': brands,
     })
     renderList('/admin/products')
-    expect(await screen.findByText('Mekanik Klavye')).toBeInTheDocument()
+    expect(await screen.findByText('Mechanical Keyboard')).toBeInTheDocument()
     expect(screen.getByText('KL-100')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: t('common.edit') })).toHaveAttribute(
       'href',
@@ -104,7 +104,7 @@ describe('ProductsPage', () => {
       '/admin/brands': brands,
     })
     renderList('/admin/products?page=3')
-    await screen.findByRole('option', { name: 'Fareler' })
+    await screen.findByRole('option', { name: 'Mice' })
     await userEvent.selectOptions(screen.getByLabelText(t('adminproducts.filter_active')), 'false')
     await waitFor(() =>
       expect(screen.getByTestId('location').textContent).toBe('/admin/products?is_active=false'),

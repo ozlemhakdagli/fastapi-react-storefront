@@ -121,21 +121,21 @@ def test_patch_saves_cargo_tracking_and_note(
         client,
         admin_headers(),
         order["id"],
-        cargo_company="Yurtiçi",
+        cargo_company="Acme Shipping",
         tracking_no="YT123",
         admin_note="fragile",
     )
     assert response.status_code == 200
     body = response.json()
     assert (body["cargo_company"], body["tracking_no"], body["admin_note"]) == (
-        "Yurtiçi",
+        "Acme Shipping",
         "YT123",
         "fragile",
     )
     assert body["status"] == "new"
     # The customer sees cargo data but never the internal note.
     mine = client.get(f"/api/orders/{order['id']}", headers=auth_headers(buyer)).json()
-    assert (mine["cargo_company"], mine["tracking_no"]) == ("Yurtiçi", "YT123")
+    assert (mine["cargo_company"], mine["tracking_no"]) == ("Acme Shipping", "YT123")
     assert "admin_note" not in mine
 
 

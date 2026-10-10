@@ -21,7 +21,7 @@ describe('PagedTable', () => {
         query={query}
         columns={columns}
         rowKey={(row) => row.id}
-        emptyText="Boş"
+        emptyText="Empty"
         page={1}
         onPageChange={vi.fn()}
       />
@@ -37,7 +37,7 @@ describe('PagedTable', () => {
         query={query}
         columns={columns}
         rowKey={(row) => row.id}
-        emptyText="Boş"
+        emptyText="Empty"
         page={1}
         onPageChange={vi.fn()}
       />
@@ -57,7 +57,7 @@ describe('PagedTable', () => {
         query={query}
         columns={columns}
         rowKey={(row) => row.id}
-        emptyText="Boş"
+        emptyText="Empty"
         page={1}
         onPageChange={onPageChange}
       />

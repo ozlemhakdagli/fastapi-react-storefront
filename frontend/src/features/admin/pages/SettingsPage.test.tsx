@@ -8,16 +8,16 @@ import type { SiteSettings } from '@/lib/types'
 import { renderWithProviders, testAdmin } from '@/test/utils'
 
 const site: SiteSettings = {
-  site_name: 'Örnek Mağaza',
-  description: 'Elle yapılmış ürünler',
-  address: 'Moda Cad. 1, Kadıköy, İstanbul',
-  phone: '02160000000',
-  email: 'destek@example.com',
+  site_name: 'Sample Shop',
+  description: 'Handmade products',
+  address: '12 Example Street, Springfield',
+  phone: '+1 555 010 0400',
+  email: 'support@example.com',
   facebook: 'https://facebook.com/ornek-magaza',
   instagram: 'https://instagram.com/ornek-magaza',
   pinterest: 'https://pinterest.com/ornek-magaza',
-  about_text: 'Mağazamız 2010 yılında kuruldu.',
-  contact_text: 'Bize her gün ulaşabilirsiniz.',
+  about_text: 'Our shop opened in 2010.',
+  contact_text: 'You can reach us every day.',
 }
 
 function renderSettings() {
@@ -55,16 +55,16 @@ describe('SettingsPage', () => {
 
   it('test_settings_save_puts_full_object', async () => {
     vi.spyOn(api, 'get').mockResolvedValue(site)
-    const put = vi.spyOn(api, 'put').mockResolvedValue({ ...site, site_name: 'Yeni Mağaza' })
+    const put = vi.spyOn(api, 'put').mockResolvedValue({ ...site, site_name: 'New Shop' })
     const { queryClient } = renderSettings()
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
     const name = await screen.findByLabelText(t('adminsettings.site_name'))
     await userEvent.clear(name)
-    await userEvent.type(name, 'Yeni Mağaza')
+    await userEvent.type(name, 'New Shop')
     await userEvent.click(screen.getByRole('button', { name: t('common.save') }))
     // One PUT with every field, including the tabs the admin did not touch.
     await waitFor(() =>
-      expect(put).toHaveBeenCalledWith('/admin/site', { ...site, site_name: 'Yeni Mağaza' }),
+      expect(put).toHaveBeenCalledWith('/admin/site', { ...site, site_name: 'New Shop' }),
     )
     expect(await screen.findByRole('status')).toHaveTextContent(t('adminsettings.saved'))
     // The storefront reads the public settings under ["site"].
@@ -83,7 +83,7 @@ describe('SettingsPage', () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
     vi.spyOn(api, 'get')
       .mockResolvedValueOnce(site)
-      .mockResolvedValue({ ...site, site_name: 'Yeni Mağaza' })
+      .mockResolvedValue({ ...site, site_name: 'New Shop' })
     const first = render(
       <QueryClientProvider client={queryClient}>
         <SettingsPage />
@@ -98,6 +98,6 @@ describe('SettingsPage', () => {
         <SettingsPage />
       </QueryClientProvider>,
     )
-    expect(await screen.findByLabelText(t('adminsettings.site_name'))).toHaveValue('Yeni Mağaza')
+    expect(await screen.findByLabelText(t('adminsettings.site_name'))).toHaveValue('New Shop')
   })
 })

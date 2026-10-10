@@ -8,16 +8,16 @@ import type { SiteSettings, User } from '@/lib/types'
 import { renderWithProviders, testCustomer } from '@/test/utils'
 
 const site: SiteSettings = {
-  site_name: 'Örnek Mağaza',
+  site_name: 'Sample Shop',
   description: '',
-  address: 'Moda Cad. 1, Kadıköy, İstanbul',
-  phone: '02160000000',
+  address: '12 Example Street, Springfield',
+  phone: '+1 555 010 0400',
   email: 'info@example.com',
   facebook: 'https://www.facebook.com/ornekmagaza',
   instagram: '@ornekmagaza',
   pinterest: '',
   about_text: '',
-  contact_text: 'Hafta içi 09:00 - 18:00 arasında yanıt veriyoruz.',
+  contact_text: 'We answer on weekdays between 09:00 and 18:00.',
 }
 
 function renderContact(user: User | null = null, auth?: Partial<AuthValue>) {
@@ -55,22 +55,22 @@ describe('ContactPage', () => {
   it('test_contact_posts_exact_body', async () => {
     const post = vi.spyOn(api, 'post').mockResolvedValue({ id: 7 })
     renderContact()
-    await userEvent.type(screen.getByLabelText(t('pages.form_name')), 'Ayşe Yılmaz')
-    await userEvent.type(screen.getByLabelText(t('pages.form_email')), 'ayse@example.com')
-    await userEvent.type(screen.getByLabelText(t('pages.form_phone')), '05320000000')
-    await userEvent.type(screen.getByLabelText(t('pages.form_subject')), 'Sipariş hakkında')
+    await userEvent.type(screen.getByLabelText(t('pages.form_name')), 'Jane Doe')
+    await userEvent.type(screen.getByLabelText(t('pages.form_email')), 'jane.doe@example.com')
+    await userEvent.type(screen.getByLabelText(t('pages.form_phone')), '+1 555 010 0100')
+    await userEvent.type(screen.getByLabelText(t('pages.form_subject')), 'About an order')
     await userEvent.type(
       screen.getByLabelText(t('pages.form_body')),
-      'Siparişim hakkında bilgi almak istiyorum.',
+      'I would like some information about my order.',
     )
     await userEvent.click(submitButton())
     await waitFor(() =>
       expect(post).toHaveBeenCalledWith('/contact', {
-        name: 'Ayşe Yılmaz',
-        email: 'ayse@example.com',
-        phone: '05320000000',
-        subject: 'Sipariş hakkında',
-        body: 'Siparişim hakkında bilgi almak istiyorum.',
+        name: 'Jane Doe',
+        email: 'jane.doe@example.com',
+        phone: '+1 555 010 0100',
+        subject: 'About an order',
+        body: 'I would like some information about my order.',
       }),
     )
     expect(post).toHaveBeenCalledTimes(1)
@@ -85,7 +85,7 @@ describe('ContactPage', () => {
   it('test_contact_shows_thanks_after_success', async () => {
     vi.spyOn(api, 'post').mockResolvedValue({ id: 7 })
     renderContact(testCustomer)
-    await userEvent.type(screen.getByLabelText(t('pages.form_subject')), 'Sipariş hakkında')
+    await userEvent.type(screen.getByLabelText(t('pages.form_subject')), 'About an order')
     await userEvent.type(screen.getByLabelText(t('pages.form_body')), 'Teşekkürler.')
     await userEvent.click(submitButton())
     expect(await screen.findByRole('status')).toHaveTextContent(t('pages.form_thanks'))
@@ -96,7 +96,7 @@ describe('ContactPage', () => {
     const error = new ApiError(422, 'validation_error', { errors: [] })
     vi.spyOn(api, 'post').mockRejectedValue(error)
     renderContact(testCustomer)
-    await userEvent.type(screen.getByLabelText(t('pages.form_subject')), 'Sipariş hakkında')
+    await userEvent.type(screen.getByLabelText(t('pages.form_subject')), 'About an order')
     await userEvent.type(screen.getByLabelText(t('pages.form_body')), 'Teşekkürler.')
     await userEvent.click(submitButton())
     expect(await screen.findByRole('alert')).toHaveTextContent(errorMessage(error))

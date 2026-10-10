@@ -11,12 +11,12 @@ import { renderWithProviders, testCustomer } from '@/test/utils'
 const password = 'Passw0rd!x'
 const tokenOut: TokenOut = { access_token: 'new-token', token_type: 'bearer', user: testCustomer }
 const complete = {
-  email: 'ayse@example.com',
+  email: 'jane.doe@example.com',
   password,
   confirm: password,
-  full_name: 'Ayşe Yılmaz',
-  phone: '05320000000',
-  address: 'Moda Cad. 1, Kadıköy, İstanbul',
+  full_name: 'Jane Doe',
+  phone: '+1 555 010 0100',
+  address: '12 Example Street, Springfield',
 }
 
 type Field = keyof typeof complete

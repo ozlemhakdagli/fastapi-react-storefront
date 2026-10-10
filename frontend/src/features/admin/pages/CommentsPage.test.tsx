@@ -10,11 +10,11 @@ const comment: AdminComment = {
   id: 101,
   product_id: 5,
   user_id: 2,
-  author_name: 'Ayşe Yılmaz',
-  author_email: 'ayse@example.com',
-  body: 'Klavye çok rahat, tavsiye ederim.',
+  author_name: 'Jane Doe',
+  author_email: 'jane.doe@example.com',
+  body: 'The keyboard is very comfortable, I recommend it.',
   created_at: '2026-10-08T12:00:00Z',
-  product_name: 'Mekanik Klavye',
+  product_name: 'Mechanical Keyboard',
   rating: null,
 }
 
@@ -23,10 +23,10 @@ const second: AdminComment = {
   id: 102,
   product_id: 6,
   user_id: 3,
-  author_name: 'Mehmet Kaya',
-  author_email: 'mehmet@example.com',
-  body: 'Kargo hızlıydı.',
-  product_name: 'Kablosuz Mouse',
+  author_name: 'John Doe',
+  author_email: 'john.doe@example.com',
+  body: 'The delivery was fast.',
+  product_name: 'Wireless Mouse',
 }
 
 function page(items: AdminComment[], total = items.length): Page<AdminComment> {

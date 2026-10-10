@@ -7,8 +7,8 @@ import type { TokenOut, User } from '@/lib/types'
 
 const user: User = {
   id: 2,
-  email: 'ayse@example.com',
-  full_name: 'Ayşe Yılmaz',
+  email: 'jane.doe@example.com',
+  full_name: 'Jane Doe',
   phone: null,
   address: null,
   role: 'customer',
@@ -21,7 +21,7 @@ function Probe() {
   return (
     <div>
       <span data-testid="state">{loading ? 'loading' : (current?.email ?? 'anonymous')}</span>
-      <button onClick={() => void login('ayse@example.com', 'secret123')}>login</button>
+      <button onClick={() => void login('jane.doe@example.com', 'secret123')}>login</button>
       <button onClick={logout}>logout</button>
     </div>
   )
@@ -49,7 +49,7 @@ describe('AuthProvider', () => {
     const get = vi.spyOn(api, 'get').mockResolvedValue(user)
     setup()
     expect(screen.getByTestId('state')).toHaveTextContent('loading')
-    await waitFor(() => expect(screen.getByTestId('state')).toHaveTextContent('ayse@example.com'))
+    await waitFor(() => expect(screen.getByTestId('state')).toHaveTextContent('jane.doe@example.com'))
     expect(get).toHaveBeenCalledWith('/auth/me')
   })
 
@@ -73,9 +73,9 @@ describe('AuthProvider', () => {
     setup()
     await waitFor(() => expect(screen.getByTestId('state')).toHaveTextContent('anonymous'))
     await userEvent.click(screen.getByText('login'))
-    await waitFor(() => expect(screen.getByTestId('state')).toHaveTextContent('ayse@example.com'))
+    await waitFor(() => expect(screen.getByTestId('state')).toHaveTextContent('jane.doe@example.com'))
     expect(post).toHaveBeenCalledWith('/auth/login', {
-      email: 'ayse@example.com',
+      email: 'jane.doe@example.com',
       password: 'secret123',
     })
     expect(localStorage.getItem('ecommerce.token')).toBe('new-token')
@@ -86,7 +86,7 @@ describe('AuthProvider', () => {
     vi.spyOn(api, 'get').mockResolvedValue(user)
     const queryClient = setup()
     queryClient.setQueryData(['cart'], { items: [] })
-    await waitFor(() => expect(screen.getByTestId('state')).toHaveTextContent('ayse@example.com'))
+    await waitFor(() => expect(screen.getByTestId('state')).toHaveTextContent('jane.doe@example.com'))
     await userEvent.click(screen.getByText('logout'))
     expect(screen.getByTestId('state')).toHaveTextContent('anonymous')
     expect(localStorage.getItem('ecommerce.token')).toBeNull()

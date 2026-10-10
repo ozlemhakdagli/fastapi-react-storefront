@@ -10,8 +10,8 @@ function message(overrides: Partial<Message> = {}): Message {
   return {
     id: 1,
     direction: 'inbound',
-    subject: 'Kargo hakkında',
-    body: 'Siparişim ne zaman gelir?',
+    subject: 'About my delivery',
+    body: 'When will my order arrive?',
     status: 'read',
     name: testCustomer.full_name,
     email: testCustomer.email,
@@ -40,13 +40,13 @@ describe('MyMessagesPage', () => {
     const get = vi.spyOn(api, 'get').mockResolvedValue(
       messagesPage([
         message(),
-        message({ id: 2, direction: 'outbound', subject: 'Sipariş onayı', body: 'Onaylandı.' }),
+        message({ id: 2, direction: 'outbound', subject: 'Order confirmation', body: 'Approved.' }),
       ]),
     )
     renderMessages()
-    const inboundRow = (await screen.findByText('Kargo hakkında')).closest('tr')!
+    const inboundRow = (await screen.findByText('About my delivery')).closest('tr')!
     expect(within(inboundRow).getByText(t('account.direction_inbound'))).toBeInTheDocument()
-    const outboundRow = screen.getByText('Sipariş onayı').closest('tr')!
+    const outboundRow = screen.getByText('Order confirmation').closest('tr')!
     expect(within(outboundRow).getByText(t('account.direction_outbound'))).toBeInTheDocument()
     expect(get).toHaveBeenCalledWith('/me/messages', { page: 1 })
   })

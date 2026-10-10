@@ -9,7 +9,7 @@ import { price, renderWithProviders, testCustomer } from '@/test/utils'
 function line(overrides: Partial<CartItem> = {}): CartItem {
   return {
     product_id: 5,
-    name: 'Mekanik Klavye',
+    name: 'Mechanical Keyboard',
     unit_price: '1299.90',
     quantity: 2,
     line_total: '2599.80',
@@ -30,8 +30,8 @@ describe('CartPage', () => {
   it('test_cart_renders_lines_from_api', async () => {
     vi.spyOn(api, 'get').mockResolvedValue(cart)
     renderWithProviders(<CartPage />, { user: testCustomer })
-    expect(await screen.findByText('Mekanik Klavye')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: 'Mekanik Klavye' })).toHaveAttribute(
+    expect(await screen.findByText('Mechanical Keyboard')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Mechanical Keyboard' })).toHaveAttribute(
       'src',
       '/api/media/klavye.jpg',
     )
@@ -67,7 +67,7 @@ describe('CartPage', () => {
         line({ unit_price: '1299.90', quantity: 1, line_total: '1299.90' }),
         line({
           product_id: 6,
-          name: 'Kablo',
+          name: 'Cable',
           unit_price: '100.00',
           quantity: 1,
           line_total: '100.00',
@@ -104,7 +104,7 @@ describe('CartPage', () => {
         line({ quantity: 3, stock: 2, line_total: '3899.70' }),
         line({
           product_id: 6,
-          name: 'Kablo',
+          name: 'Cable',
           unit_price: '100.00',
           quantity: 1,
           stock: 5,
@@ -120,11 +120,11 @@ describe('CartPage', () => {
 
   it('test_cart_flags_unavailable_lines_and_blocks_checkout', async () => {
     vi.spyOn(api, 'get').mockResolvedValue({
-      items: [line(), line({ product_id: 6, name: 'Eski Fare', available: false })],
+      items: [line(), line({ product_id: 6, name: 'Old Mouse', available: false })],
       total: '3899.70',
     })
     renderWithProviders(<CartPage />, { user: testCustomer })
-    expect(await screen.findByText('Eski Fare')).toBeInTheDocument()
+    expect(await screen.findByText('Old Mouse')).toBeInTheDocument()
     expect(screen.getAllByText(t('cart.unavailable_warning'))).toHaveLength(1)
     // The checkout link is replaced by an explanation until the line is removed.
     expect(screen.queryByRole('link', { name: t('cart.checkout') })).not.toBeInTheDocument()

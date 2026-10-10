@@ -8,7 +8,7 @@ import { t } from '@/lib/i18n'
 import type { TokenOut } from '@/lib/types'
 import { renderWithProviders, testCustomer } from '@/test/utils'
 
-const email = 'ayse@example.com'
+const email = 'jane.doe@example.com'
 const password = 'Passw0rd!x'
 const tokenOut: TokenOut = { access_token: 'new-token', token_type: 'bearer', user: testCustomer }
 

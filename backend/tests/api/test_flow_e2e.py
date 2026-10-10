@@ -2,12 +2,16 @@
 
 from fastapi.testclient import TestClient
 
-SHIP = {"ship_name": "Ayşe Yılmaz", "ship_phone": "05320000000", "ship_address": "Moda Cad. 1"}
+SHIP = {
+    "ship_name": "Jane Doe",
+    "ship_phone": "+1 555 010 0100",
+    "ship_address": "12 Example Street",
+}
 
 
 def _register_and_login(client: TestClient) -> dict[str, str]:
-    credentials = {"email": "ayse@example.com", "password": "Passw0rd!x"}
-    registered = client.post("/api/auth/register", json={**credentials, "full_name": "Ayşe Yılmaz"})
+    credentials = {"email": "jane.doe@example.com", "password": "Passw0rd!x"}
+    registered = client.post("/api/auth/register", json={**credentials, "full_name": "Jane Doe"})
     assert registered.status_code == 201
     login = client.post("/api/auth/login", json=credentials)
     assert login.status_code == 200
@@ -55,7 +59,7 @@ def test_full_purchase_flow(client: TestClient, make_category, make_product, adm
     assert approved.status_code == 200
     shipped = client.patch(
         url,
-        json={"status": "shipped", "cargo_company": "Yurtiçi", "tracking_no": "YT-123"},
+        json={"status": "shipped", "cargo_company": "Acme Shipping", "tracking_no": "YT-123"},
         headers=admin,
     )
     assert shipped.status_code == 200
@@ -65,7 +69,7 @@ def test_full_purchase_flow(client: TestClient, make_category, make_product, adm
     seen = client.get(f"/api/orders/{order['id']}", headers=headers).json()
     assert seen["status"] == "completed"
     assert seen["tracking_no"] == "YT-123"
-    assert seen["cargo_company"] == "Yurtiçi"
+    assert seen["cargo_company"] == "Acme Shipping"
     assert "admin_note" not in seen
     assert _stock(client, disk["id"]) == 8  # completing does not give stock back
     assert _stock(client, cable["id"]) == 2

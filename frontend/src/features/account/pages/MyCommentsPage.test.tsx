@@ -12,9 +12,9 @@ function comment(overrides: Partial<MyComment> = {}): MyComment {
     product_id: 5,
     user_id: testCustomer.id,
     author_name: testCustomer.full_name,
-    body: 'Çok memnun kaldım',
+    body: 'Very happy with it',
     created_at: '2026-10-08T12:00:00Z',
-    product_name: 'Mekanik Klavye',
+    product_name: 'Mechanical Keyboard',
     rating: null,
     ...overrides,
   }
@@ -42,17 +42,17 @@ describe('MyCommentsPage', () => {
       .mockResolvedValue(
         commentsPage([
           comment(),
-          comment({ id: 2, product_id: 6, product_name: 'Kablo', body: 'Kaliteli bir kablo' }),
+          comment({ id: 2, product_id: 6, product_name: 'Cable', body: 'A good cable' }),
         ]),
       )
     renderComments()
-    expect(await screen.findByText('Çok memnun kaldım')).toBeInTheDocument()
-    expect(screen.getByText('Kaliteli bir kablo')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Mekanik Klavye' })).toHaveAttribute(
+    expect(await screen.findByText('Very happy with it')).toBeInTheDocument()
+    expect(screen.getByText('A good cable')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Mechanical Keyboard' })).toHaveAttribute(
       'href',
       '/products/5',
     )
-    expect(screen.getByRole('link', { name: 'Kablo' })).toHaveAttribute('href', '/products/6')
+    expect(screen.getByRole('link', { name: 'Cable' })).toHaveAttribute('href', '/products/6')
     expect(get).toHaveBeenCalledWith('/me/comments', { page: 1 })
   })
 
@@ -63,7 +63,7 @@ describe('MyCommentsPage', () => {
       .mockResolvedValue(commentsPage([]))
     const del = vi.spyOn(api, 'delete').mockResolvedValue(undefined)
     renderComments()
-    const row = (await screen.findByText('Çok memnun kaldım')).closest('tr')!
+    const row = (await screen.findByText('Very happy with it')).closest('tr')!
     await userEvent.click(within(row).getByRole('button', { name: t('common.delete') }))
     const dialog = await screen.findByRole('dialog')
     await userEvent.click(within(dialog).getByRole('button', { name: t('common.delete') }))

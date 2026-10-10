@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 import type { APIRequestContext } from '@playwright/test'
 import { apiUrl, registerAndLogin, seededSsd } from './support'
 
-const SSD_NAME = 'Samsung T7 500 GB Taşınabilir SSD'
+const SSD_NAME = 'Samsung T7 500 GB Portable SSD'
 
 /** The stock of a product, as the API reports it now. */
 async function stockOf(request: APIRequestContext, productId: number): Promise<number> {
@@ -33,11 +33,11 @@ test('a customer buys the SSD, sees the order as new and cancels it', async ({ p
 
   // Checkout: the delivery form, then the confirmation.
   await page.getByRole('link', { name: 'Siparişi tamamla', exact: true }).click()
-  await page.getByLabel('Ad soyad', { exact: true }).fill('E2E Müşteri')
-  await page.getByLabel('Telefon', { exact: true }).fill('0555 000 00 00')
+  await page.getByLabel('Ad soyad', { exact: true }).fill('E2E Customer')
+  await page.getByLabel('Telefon', { exact: true }).fill('+1 555 010 0300')
   await page
     .getByLabel('Teslimat adresi', { exact: true })
-    .fill('E2E Mahallesi, Test Sokak No: 1, İstanbul')
+    .fill('1 Test Street, E2E District, Test City')
   await page.getByRole('button', { name: 'Siparişi onayla', exact: true }).click()
 
   // The order page opens, and the order has taken one unit of stock.

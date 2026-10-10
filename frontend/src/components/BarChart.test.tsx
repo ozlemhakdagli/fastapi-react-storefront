@@ -17,8 +17,8 @@ function allAttributeValues(container: HTMLElement): string[] {
 
 describe('BarChart', () => {
   it('is an image named by its aria label', () => {
-    render(<BarChart data={days} ariaLabel="Son 4 günde 7 sipariş" />)
-    expect(screen.getByRole('img', { name: 'Son 4 günde 7 sipariş' })).toBeInTheDocument()
+    render(<BarChart data={days} ariaLabel="7 orders in the last 4 days" />)
+    expect(screen.getByRole('img', { name: '7 orders in the last 4 days' })).toBeInTheDocument()
   })
 
   it('draws one bar per data point', () => {
@@ -61,10 +61,10 @@ describe('BarChart', () => {
       <BarChart
         data={[{ label: '1 Eki', value: 3 }]}
         ariaLabel="Grafik"
-        formatValue={(value) => `${value} sipariş`}
+        formatValue={(value) => `${value} orders`}
       />,
     )
-    expect(screen.getByText('3 sipariş')).toBeInTheDocument()
+    expect(screen.getByText('3 orders')).toBeInTheDocument()
   })
 
   it('shows the plain value above each bar that is not zero', () => {

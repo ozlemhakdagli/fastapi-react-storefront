@@ -32,14 +32,14 @@ const dashboard: AdminDashboard = {
   recent_orders: [
     {
       id: 7,
-      customer_name: 'Ayşe Yılmaz',
+      customer_name: 'Jane Doe',
       status: 'new',
       total: '1299.90',
       created_at: '2026-10-09T12:00:00Z',
     },
     {
       id: 6,
-      customer_name: 'Mehmet Demir',
+      customer_name: 'Richard Roe',
       status: 'completed',
       total: '50.50',
       created_at: '2026-09-30T09:30:00Z',
@@ -47,7 +47,7 @@ const dashboard: AdminDashboard = {
   ],
   low_stock: [
     { id: 3, sku: 'SEED-007', name: 'Samsung T7 1 TB Taşınabilir SSD', stock: 4 },
-    { id: 9, sku: 'SEED-021', name: 'Kablosuz Kulaklık', stock: 0 },
+    { id: 9, sku: 'SEED-021', name: 'Wireless Headphones', stock: 0 },
   ],
 }
 
@@ -157,7 +157,7 @@ describe('DashboardPage', () => {
     expect(
       within(table).getByRole('link', { name: t('adminorders.order_number', { id: 6 }) }),
     ).toHaveAttribute('href', '/admin/orders/6')
-    expect(within(table).getByText('Mehmet Demir')).toBeInTheDocument()
+    expect(within(table).getByText('Richard Roe')).toBeInTheDocument()
   })
 
   it('links the low-stock products to their admin pages and shows the SKU', async () => {
@@ -167,7 +167,7 @@ describe('DashboardPage', () => {
     expect(link).toHaveAttribute('href', '/admin/products/3')
     expect(within(link).getByText('SEED-007')).toBeInTheDocument()
     expect(within(link).getByText(t('common.stock_low', { count: 4 }))).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Kablosuz Kulaklık/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /Wireless Headphones/ })).toHaveAttribute(
       'href',
       '/admin/products/9',
     )

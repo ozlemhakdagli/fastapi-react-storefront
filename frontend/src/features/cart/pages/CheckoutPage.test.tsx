@@ -10,7 +10,7 @@ import { price, renderWithProviders, testCustomer } from '@/test/utils'
 function cartLine(overrides: Partial<CartItem> = {}): CartItem {
   return {
     product_id: 5,
-    name: 'Mekanik Klavye',
+    name: 'Mechanical Keyboard',
     unit_price: '1299.90',
     quantity: 2,
     line_total: '2599.80',
@@ -49,8 +49,8 @@ function makeOrder(id: number): Order {
     item_count: 2,
     created_at: '2026-10-08T12:00:00Z',
     ship_name: testCustomer.full_name,
-    ship_phone: '05320000000',
-    ship_address: 'Moda Cad. 1, Kadıköy, İstanbul',
+    ship_phone: '+1 555 010 0100',
+    ship_address: '12 Example Street, Springfield',
     cargo_company: null,
     tracking_no: null,
     updated_at: '2026-10-08T12:00:00Z',
@@ -158,7 +158,7 @@ describe('CheckoutPage', () => {
         cartLine(),
         cartLine({
           product_id: 6,
-          name: 'Kablo',
+          name: 'Cable',
           unit_price: '100.00',
           quantity: 1,
           line_total: '100.00',
@@ -167,12 +167,12 @@ describe('CheckoutPage', () => {
       total: '2699.80',
     })
     renderCheckout()
-    expect(await screen.findByText('Mekanik Klavye')).toBeInTheDocument()
+    expect(await screen.findByText('Mechanical Keyboard')).toBeInTheDocument()
     const items = within(
       screen.getByRole('list', { name: t('cart.column_product') }),
     ).getAllByRole('listitem')
     expect(items[0]).toHaveTextContent(`${t('cart.column_quantity')}: 2`)
-    expect(items[1]).toHaveTextContent('Kablo')
+    expect(items[1]).toHaveTextContent('Cable')
     expect(screen.getByText(price('2699.80'))).toBeInTheDocument()
   })
 })

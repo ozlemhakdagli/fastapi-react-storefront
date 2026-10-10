@@ -6,11 +6,11 @@ import type { AdminOrder, SiteSettings } from '@/lib/types'
 import { renderWithProviders, testAdmin } from '@/test/utils'
 
 const site: SiteSettings = {
-  site_name: 'Örnek Mağaza',
+  site_name: 'Sample Shop',
   description: '',
-  address: 'Bağdat Cad. 22, Kadıköy, İstanbul',
-  phone: '02120000000',
-  email: 'destek@example.com',
+  address: '1 Sample Street, Sample City',
+  phone: '+1 555 010 0100',
+  email: 'support@example.com',
   facebook: '',
   instagram: '',
   pinterest: '',
@@ -25,10 +25,10 @@ function order(): AdminOrder {
     total: '2599.80',
     item_count: 1,
     created_at: '2026-10-08T12:00:00Z',
-    customer: { id: 2, email: 'ayse@example.com', full_name: 'Ayşe Yılmaz' },
-    ship_name: 'Zeynep Kaya',
-    ship_phone: '05320000000',
-    ship_address: 'Moda Cad. 1, Kadıköy, İstanbul',
+    customer: { id: 2, email: 'jane.doe@example.com', full_name: 'Jane Doe' },
+    ship_name: 'Mary Major',
+    ship_phone: '+1 555 010 0100',
+    ship_address: '12 Example Street, Springfield',
     cargo_company: null,
     tracking_no: null,
     admin_note: null,
@@ -36,7 +36,7 @@ function order(): AdminOrder {
     items: [
       {
         product_id: 5,
-        product_name: 'Mekanik Klavye',
+        product_name: 'Mechanical Keyboard',
         unit_price: '1299.90',
         quantity: 2,
         line_total: '2599.80',
@@ -69,8 +69,8 @@ describe('AdminInvoicePage', () => {
     const get = mockApi()
     renderPage()
     expect(await screen.findByRole('heading', { name: t('invoice.title') })).toBeInTheDocument()
-    expect(screen.getByText('Örnek Mağaza')).toBeInTheDocument()
-    expect(screen.getByText('Zeynep Kaya')).toBeInTheDocument()
+    expect(screen.getByText('Sample Shop')).toBeInTheDocument()
+    expect(screen.getByText('Mary Major')).toBeInTheDocument()
     expect(get).toHaveBeenCalledWith('/admin/orders/5')
     expect(get).toHaveBeenCalledWith('/site')
   })

@@ -79,8 +79,8 @@ describe('DataTable', () => {
   ]
 
   it('shows emptyText when there are no rows', () => {
-    render(<DataTable columns={columns} rows={[]} rowKey={(r) => r.id} emptyText="Hiç kayıt yok" />)
-    expect(screen.getByText('Hiç kayıt yok')).toBeInTheDocument()
+    render(<DataTable columns={columns} rows={[]} rowKey={(r) => r.id} emptyText="No records" />)
+    expect(screen.getByText('No records')).toBeInTheDocument()
   })
 
   it('renders headers and one line per row', () => {
@@ -88,16 +88,16 @@ describe('DataTable', () => {
       <DataTable
         columns={columns}
         rows={[
-          { id: 1, name: 'Klavye' },
-          { id: 2, name: 'Fare' },
+          { id: 1, name: 'Keyboard' },
+          { id: 2, name: 'Mouse' },
         ]}
         rowKey={(r) => r.id}
         emptyText="-"
       />,
     )
     expect(screen.getByText('Ad')).toBeInTheDocument()
-    expect(screen.getByText('Klavye')).toBeInTheDocument()
-    expect(screen.getByText('Fare')).toBeInTheDocument()
+    expect(screen.getByText('Keyboard')).toBeInTheDocument()
+    expect(screen.getByText('Mouse')).toBeInTheDocument()
   })
 })
 
@@ -123,12 +123,12 @@ describe('Money', () => {
 describe('FormField', () => {
   it('links the label to the control and shows the error text', () => {
     render(
-      <FormField label="E-posta" htmlFor="email" error="Geçersiz e-posta">
+      <FormField label="Email" htmlFor="email" error="Invalid email">
         <Input id="email" />
       </FormField>,
     )
-    expect(screen.getByLabelText('E-posta')).toBeInTheDocument()
-    expect(screen.getByText('Geçersiz e-posta')).toBeInTheDocument()
+    expect(screen.getByLabelText('Email')).toBeInTheDocument()
+    expect(screen.getByText('Invalid email')).toBeInTheDocument()
   })
 })
 

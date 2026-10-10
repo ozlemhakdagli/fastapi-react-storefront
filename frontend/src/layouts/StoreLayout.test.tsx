@@ -9,7 +9,7 @@ import type { Cart, CartItem, SiteSettings, User } from '@/lib/types'
 import { renderWithProviders, testCustomer } from '@/test/utils'
 
 const site: SiteSettings = {
-  site_name: 'Örnek Mağaza',
+  site_name: 'Sample Shop',
   description: '',
   address: '',
   phone: '',
@@ -24,7 +24,7 @@ const site: SiteSettings = {
 function cartItem(productId: number, quantity: number): CartItem {
   return {
     product_id: productId,
-    name: `Ürün ${productId}`,
+    name: `Product ${productId}`,
     unit_price: '100.00',
     quantity,
     line_total: (100 * quantity).toFixed(2),
@@ -67,7 +67,7 @@ describe('StoreLayout', () => {
   it('shows the site name in the header and the footer', async () => {
     vi.spyOn(api, 'get').mockResolvedValue(site)
     renderLayout()
-    expect(await screen.findAllByText('Örnek Mağaza')).toHaveLength(2) // header and footer
+    expect(await screen.findAllByText('Sample Shop')).toHaveLength(2) // header and footer
   })
 
   it('shows the number of items on the cart link for a logged-in customer', async () => {
@@ -82,7 +82,7 @@ describe('StoreLayout', () => {
   it('does not load the cart for an anonymous visitor', async () => {
     const get = mockApi(cartWith([cartItem(1, 2)]))
     renderLayout()
-    expect(await screen.findAllByText('Örnek Mağaza')).toHaveLength(2) // the site has loaded
+    expect(await screen.findAllByText('Sample Shop')).toHaveLength(2) // the site has loaded
     expect(get).not.toHaveBeenCalledWith('/cart')
     expect(screen.getByRole('link', { name: 'Sepetim' })).toBeInTheDocument()
   })

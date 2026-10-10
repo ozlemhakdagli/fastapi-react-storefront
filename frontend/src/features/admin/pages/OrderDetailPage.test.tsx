@@ -22,18 +22,18 @@ function order(overrides: Partial<AdminOrder> = {}): AdminOrder {
     total: '2599.80',
     item_count: 2,
     created_at: '2026-10-08T12:00:00Z',
-    customer: { id: 2, email: 'ayse@example.com', full_name: 'Ayşe Yılmaz' },
-    ship_name: 'Zeynep Kaya',
-    ship_phone: '05320000000',
-    ship_address: 'Moda Cad. 1\nKadıköy, İstanbul',
-    cargo_company: 'Yurtiçi Kargo',
+    customer: { id: 2, email: 'jane.doe@example.com', full_name: 'Jane Doe' },
+    ship_name: 'Mary Major',
+    ship_phone: '+1 555 010 0100',
+    ship_address: '12 Example Street\nSpringfield',
+    cargo_company: 'Example Cargo',
     tracking_no: null,
     admin_note: null,
     updated_at: '2026-10-08T12:00:00Z',
     items: [
       {
         product_id: 5,
-        product_name: 'Mekanik Klavye',
+        product_name: 'Mechanical Keyboard',
         unit_price: '1299.90',
         quantity: 2,
         line_total: '2599.80',
@@ -71,15 +71,15 @@ describe('OrderDetailPage', () => {
     expect(
       await screen.findByRole('heading', { name: t('adminorders.detail_title', { id: 5 }) }),
     ).toBeInTheDocument()
-    expect(screen.getByText('ayse@example.com')).toBeInTheDocument()
-    expect(screen.getByText('Zeynep Kaya')).toBeInTheDocument()
-    expect(screen.getByText('05320000000')).toBeInTheDocument()
-    expect(screen.getByText('Moda Cad. 1 Kadıköy, İstanbul')).toBeInTheDocument()
-    expect(screen.getByText('Mekanik Klavye')).toBeInTheDocument()
+    expect(screen.getByText('jane.doe@example.com')).toBeInTheDocument()
+    expect(screen.getByText('Mary Major')).toBeInTheDocument()
+    expect(screen.getByText('+1 555 010 0100')).toBeInTheDocument()
+    expect(screen.getByText('12 Example Street Springfield')).toBeInTheDocument()
+    expect(screen.getByText('Mechanical Keyboard')).toBeInTheDocument()
     // The total and the line total are both 2599.80, so the amount appears more than once.
     expect(screen.getAllByText(price('2599.80'))).not.toHaveLength(0)
     expect(await findStatusSelect()).toHaveValue('new')
-    expect(screen.getByLabelText(t('adminorders.cargo_company_label'))).toHaveValue('Yurtiçi Kargo')
+    expect(screen.getByLabelText(t('adminorders.cargo_company_label'))).toHaveValue('Example Cargo')
     expect(get).toHaveBeenCalledWith('/admin/orders/5')
   })
 

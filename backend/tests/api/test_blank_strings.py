@@ -8,13 +8,13 @@ BLANK = "   "
 def test_register_refuses_a_blank_name_and_trims_a_padded_one(client: TestClient) -> None:
     body = {"email": "blank@example.com", "password": "Passw0rd!x", "full_name": BLANK}
     assert client.post("/api/auth/register", json=body).status_code == 422
-    padded = client.post("/api/auth/register", json={**body, "full_name": "  Ayşe Yılmaz  "})
+    padded = client.post("/api/auth/register", json={**body, "full_name": "  Jane Doe  "})
     assert padded.status_code == 201
-    assert padded.json()["full_name"] == "Ayşe Yılmaz"
+    assert padded.json()["full_name"] == "Jane Doe"
 
 
 def test_contact_refuses_blank_fields(client: TestClient) -> None:
-    body = {"name": "Ayşe", "email": "a@example.com", "subject": "Hello", "body": "Text"}
+    body = {"name": "Jane", "email": "a@example.com", "subject": "Hello", "body": "Text"}
     for field in ("name", "subject", "body"):
         assert client.post("/api/contact", json={**body, field: BLANK}).status_code == 422, field
     assert client.post("/api/contact", json=body).status_code == 201
@@ -33,7 +33,7 @@ def test_comments_refuse_a_blank_body(
 
 
 def test_orders_refuse_blank_shipping_fields(client: TestClient, make_user, auth_headers) -> None:
-    body = {"ship_name": "Ayşe", "ship_phone": "555", "ship_address": "Moda Cad. 1"}
+    body = {"ship_name": "Jane", "ship_phone": "555", "ship_address": "12 Example Street"}
     headers = auth_headers(make_user())
     for field in body:
         response = client.post("/api/orders", json={**body, field: BLANK}, headers=headers)
