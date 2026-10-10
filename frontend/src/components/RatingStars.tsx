@@ -1,4 +1,5 @@
 import { Star } from 'lucide-react'
+import { formatRating } from '@/lib/format'
 import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
@@ -13,7 +14,7 @@ export function RatingStars({ value, count, className }: RatingStarsProps) {
   if (value === null) {
     return <span className={cn('text-sm text-muted-foreground', className)}>{t('catalog.rating_none')}</span>
   }
-  const shown = value.toLocaleString('tr-TR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+  const shown = formatRating(value)
   const label =
     count === undefined
       ? t('catalog.rating_value', { value: shown })

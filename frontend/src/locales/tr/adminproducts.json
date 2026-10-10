@@ -27,7 +27,7 @@
   "field_category": "Kategori",
   "field_short_description": "Kısa açıklama",
   "field_description": "Açıklama",
-  "field_price": "Fiyat (TRY)",
+  "field_price": "Fiyat (USD)",
   "field_cost_price": "Maliyet fiyatı (isteğe bağlı)",
   "field_stock": "Stok",
   "field_is_new": "Yeni ürün olarak işaretle",

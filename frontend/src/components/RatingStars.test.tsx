@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { RatingStars } from '@/components/RatingStars'
+import { setLocale } from '@/lib/i18n'
 
 describe('RatingStars', () => {
   it('names the average with a decimal comma and the count', () => {
@@ -29,5 +30,11 @@ describe('RatingStars', () => {
     expect(screen.getByText('Henüz puan yok')).toBeInTheDocument()
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
     expect(container.querySelector('[data-filled]')).toBeNull()
+  })
+
+  it('writes the average with a decimal point on an English screen', () => {
+    setLocale('en')
+    render(<RatingStars value={4.3} count={12} />)
+    expect(screen.getByText('4.3 (12)')).toBeInTheDocument()
   })
 })

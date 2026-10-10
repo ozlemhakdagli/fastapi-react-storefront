@@ -10,7 +10,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { StatusBadge } from '@/components/StatusBadge'
 import { StockBadge } from '@/components/StockBadge'
 import { type AdminDashboard, useAdminDashboard } from '@/features/admin/hooks/useAdminDashboard'
-import { formatDate, formatMoney } from '@/lib/format'
+import { formatDate, formatDay, formatMoney } from '@/lib/format'
 import { t } from '@/lib/i18n'
 import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { OrderStatus } from '@/lib/types'
@@ -77,14 +77,6 @@ function countCards(counts: AdminDashboard): CountCard[] {
   ]
 }
 
-const dayFormat = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'short' })
-
-/** "2026-09-26" becomes "26 Eyl". The date is read as a calendar day, not as UTC midnight. */
-function dayLabel(date: string): string {
-  const [year, month, day] = date.split('-').map(Number)
-  return dayFormat.format(new Date(year, month - 1, day))
-}
-
 /** Adds money strings in whole cents, so that the sum has no rounding noise. */
 function sumMoney(values: string[]): string {
   const cents = values.reduce((sum, value) => sum + Math.round(Number(value) * 100), 0)
@@ -103,7 +95,7 @@ function OrdersChart({ days }: { days: Day[] }) {
         </p>
       </div>
       <BarChart
-        data={days.map((day) => ({ label: dayLabel(day.date), value: day.orders }))}
+        data={days.map((day) => ({ label: formatDay(day.date), value: day.orders }))}
         ariaLabel={t('admindashboard.chart_aria', { orders })}
       />
     </section>

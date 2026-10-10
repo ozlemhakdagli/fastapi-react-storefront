@@ -27,7 +27,7 @@
   "field_category": "Category",
   "field_short_description": "Short description",
   "field_description": "Description",
-  "field_price": "Price (TRY)",
+  "field_price": "Price (USD)",
   "field_cost_price": "Cost price (optional)",
   "field_stock": "Stock",
   "field_is_new": "Mark as new product",

@@ -22,8 +22,20 @@ describe('i18n', () => {
     localStorage.clear()
   })
 
-  it('returns the Turkish string for a known key by default', () => {
-    expect(t('common.save')).toBe('Kaydet')
+  it('starts in English when no language is stored', async () => {
+    localStorage.clear()
+    vi.resetModules()
+    const fresh = await import('@/lib/i18n')
+    expect(fresh.getLocale()).toBe('en')
+    expect(fresh.t('common.save')).toBe('Save')
+  })
+
+  it('starts in Turkish when Turkish is stored', async () => {
+    localStorage.setItem('ecommerce.lang', 'tr')
+    vi.resetModules()
+    const fresh = await import('@/lib/i18n')
+    expect(fresh.getLocale()).toBe('tr')
+    expect(fresh.t('common.save')).toBe('Kaydet')
   })
 
   it('returns the English string when locale is switched to en', () => {

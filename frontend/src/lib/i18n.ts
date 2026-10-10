@@ -47,7 +47,7 @@ function getInitialLocale(): Locale {
   } catch {
     // Ignore storage errors in restricted environments
   }
-  return 'tr'
+  return 'en'
 }
 
 let activeLocale: Locale = getInitialLocale()
@@ -85,7 +85,7 @@ export function useLocale(): {
   setLocale: (loc: Locale) => void
   t: typeof t
 } {
-  const locale = useSyncExternalStore<Locale>(subscribe, getLocale, () => 'tr')
+  const locale = useSyncExternalStore<Locale>(subscribe, getLocale, () => 'en')
   return {
     locale,
     setLocale,
@@ -95,7 +95,7 @@ export function useLocale(): {
 
 export function t(key: string, params?: Record<string, string | number>): string {
   const currentDict = dictionaries[activeLocale]
-  let text = currentDict?.[key] ?? dictionaries.tr?.[key] ?? key
+  let text = currentDict?.[key] ?? dictionaries.en?.[key] ?? key
   for (const [name, value] of Object.entries(params ?? {})) {
     text = text.replaceAll(`{${name}}`, String(value))
   }
@@ -105,7 +105,7 @@ export function t(key: string, params?: Record<string, string | number>): string
 export function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     const key = `errors.${error.code}`
-    if (key in dictionaries.tr || key in dictionaries[activeLocale]) return t(key)
+    if (key in dictionaries.en || key in dictionaries[activeLocale]) return t(key)
   }
   return t('errors.unknown')
 }

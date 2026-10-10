@@ -1,4 +1,4 @@
-import { formatDate, formatMoney } from '@/lib/format'
+import { formatDate, formatDay, formatMoney, formatRating } from '@/lib/format'
 import { setLocale } from '@/lib/i18n'
 
 describe('format', () => {
@@ -10,10 +10,10 @@ describe('format', () => {
     setLocale('tr')
   })
 
-  it('formats money in Turkish lira with Turkish separators', () => {
+  it('formats money in dollars with Turkish separators', () => {
     const text = formatMoney('1299.90')
     expect(text).toContain('1.299,90')
-    expect(text).toContain('₺')
+    expect(text).toContain('$')
   })
 
   it('keeps two decimals for whole amounts', () => {
@@ -27,11 +27,11 @@ describe('format', () => {
     expect(text).toContain('Eki')
   })
 
-  it('formats money in English with US separators and TRY currency', () => {
+  it('formats money in dollars with English separators', () => {
     setLocale('en')
     const text = formatMoney('1299.90')
     expect(text).toContain('1,299.90')
-    expect(text).toContain('TRY')
+    expect(text).toContain('$')
   })
 
   it('formats an ISO date in English locale', () => {
@@ -40,5 +40,15 @@ describe('format', () => {
     expect(text.length).toBeGreaterThan(0)
     expect(text).toContain('2026')
     expect(text).toContain('Oct')
+  })
+
+  it('writes a calendar day and a rating in the language that is shown', () => {
+    expect(formatDay('2026-09-26')).toBe('26 Eyl')
+    expect(formatRating(4.3)).toBe('4,3')
+    expect(formatRating(4)).toBe('4,0')
+
+    setLocale('en')
+    expect(formatDay('2026-09-26')).toBe('Sep 26')
+    expect(formatRating(4.3)).toBe('4.3')
   })
 })

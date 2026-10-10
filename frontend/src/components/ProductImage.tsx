@@ -12,14 +12,16 @@ const TONES = [
   'from-rose-100 to-rose-200 text-rose-600',
 ]
 
-// Turkish rules for lower-casing, so that a capital "İ" still becomes "i" and matches the keys.
+// Matches Turkish and English words in the category name. The order matters: an SSD or USB name
+// also contains "drive". Lower-casing uses Turkish rules, so that a capital "İ" still becomes "i"
+// and matches the keys.
 export function categoryIcon(categoryName?: string | null): LucideIcon {
   const name = (categoryName ?? '').toLocaleLowerCase('tr')
   if (name.includes('ssd')) return Zap
   if (name.includes('usb')) return Usb
-  if (name.includes('kart')) return MemoryStick
-  if (name.includes('disk')) return HardDrive
-  if (name.includes('aksesuar')) return Cable
+  if (name.includes('kart') || name.includes('card')) return MemoryStick
+  if (name.includes('disk') || name.includes('drive')) return HardDrive
+  if (name.includes('aksesuar') || name.includes('accessor')) return Cable
   return Package
 }
 

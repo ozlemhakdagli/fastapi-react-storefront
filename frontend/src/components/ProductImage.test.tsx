@@ -51,6 +51,11 @@ describe('categoryIcon', () => {
     ['USB Bellekler', Usb],
     ['Aksesuarlar', Cable],
     ['Bilinmeyen', Package],
+    ['External Drives', HardDrive],
+    ['SSD Drives', Zap],
+    ['Memory Cards', MemoryStick],
+    ['USB Flash Drives', Usb],
+    ['Accessories', Cable],
   ])('maps the category "%s" to its icon', (categoryName, icon) => {
     expect(categoryIcon(categoryName)).toBe(icon)
   })

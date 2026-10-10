@@ -23,17 +23,20 @@ describe('theme-init.js', () => {
   })
 
   it('applies the stored theme and language before the app starts', () => {
+    document.documentElement.lang = 'en'
     localStorage.setItem(THEME_STORAGE_KEY, 'dark')
-    localStorage.setItem(LOCALE_STORAGE_KEY, 'en')
+    localStorage.setItem(LOCALE_STORAGE_KEY, 'tr')
     new Function(themeInit)()
     expect(document.documentElement).toHaveClass('dark')
-    expect(document.documentElement.lang).toBe('en')
+    expect(document.documentElement.lang).toBe('tr')
   })
 
-  it('stays light and Turkish when nothing is stored', () => {
+  it('stays light and English when nothing is stored', () => {
     document.documentElement.classList.add('dark')
+    document.documentElement.lang = 'tr'
+    localStorage.clear()
     new Function(themeInit)()
     expect(document.documentElement).not.toHaveClass('dark')
-    expect(document.documentElement.lang).toBe('tr')
+    expect(document.documentElement.lang).toBe('en')
   })
 })

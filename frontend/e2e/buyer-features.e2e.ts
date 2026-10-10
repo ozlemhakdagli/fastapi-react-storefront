@@ -10,9 +10,9 @@ import {
   seededSsd,
 } from './support'
 
-/** A price the way the shop shows it, for example 1.899,90 TL with the lira sign. */
+/** A price the way the shop shows it, for example $1,899.90 with the dollar sign. */
 function formatTry(price: string): string {
-  const money = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' })
+  const money = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'USD' })
   return money.format(Number(price))
 }
 
