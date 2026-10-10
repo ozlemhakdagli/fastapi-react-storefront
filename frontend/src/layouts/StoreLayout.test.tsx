@@ -108,8 +108,7 @@ describe('StoreLayout', () => {
     renderLayout()
     expect(screen.getByRole('link', { name: 'Ürünler' })).toBeInTheDocument()
 
-    const switchBtn = screen.getByTestId('language-switcher')
-    await userEvent.click(switchBtn)
+    await userEvent.click(screen.getByRole('button', { name: 'Dili değiştir: English' }))
 
     expect(screen.getByRole('link', { name: 'Products' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'About Us' })).toBeInTheDocument()

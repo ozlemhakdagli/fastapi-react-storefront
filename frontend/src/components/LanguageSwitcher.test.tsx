@@ -4,73 +4,69 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { getLocale, setLocale, useLocale } from '@/lib/i18n'
 
 describe('LanguageSwitcher', () => {
-  beforeEach(() => {
-    setLocale('tr')
-    localStorage.clear()
+  beforeEach(() => setLocale('tr'))
+  afterEach(() => setLocale('tr'))
+
+  it('names the language it switches to, in the language that is shown', async () => {
+    render(<LanguageSwitcher />)
+    expect(screen.getByRole('button', { name: 'Dili değiştir: English' })).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button'))
+    expect(screen.getByRole('button', { name: 'Switch language: Türkçe' })).toBeInTheDocument()
   })
 
-  it('renders correctly with TR as initial active language', () => {
+  it('switches the language with every click and remembers it', async () => {
     render(<LanguageSwitcher />)
 
-    const button = screen.getByRole('button')
-    expect(button).toBeInTheDocument()
-    expect(button).toHaveAttribute('data-locale', 'tr')
-    expect(screen.getByText('TR')).toBeInTheDocument()
-    expect(screen.getByText('EN')).toBeInTheDocument()
-  })
-
-  it('switches language from TR to EN when clicked', async () => {
-    render(<LanguageSwitcher />)
-
-    const button = screen.getByRole('button')
-    expect(getLocale()).toBe('tr')
-
-    await userEvent.click(button)
-
+    await userEvent.click(screen.getByRole('button'))
     expect(getLocale()).toBe('en')
-    expect(button).toHaveAttribute('data-locale', 'en')
     expect(localStorage.getItem('ecommerce.lang')).toBe('en')
-  })
 
-  it('toggles back to TR when clicked again', async () => {
-    render(<LanguageSwitcher />)
-
-    const button = screen.getByRole('button')
-    await userEvent.click(button)
-    expect(getLocale()).toBe('en')
-
-    await userEvent.click(button)
+    await userEvent.click(screen.getByRole('button'))
     expect(getLocale()).toBe('tr')
-    expect(button).toHaveAttribute('data-locale', 'tr')
+    expect(localStorage.getItem('ecommerce.lang')).toBe('tr')
   })
 
-  it('switches to target language when clicking specific language labels', async () => {
-    render(<LanguageSwitcher />)
-
-    await userEvent.click(screen.getByText('EN'))
-    expect(getLocale()).toBe('en')
-
-    await userEvent.click(screen.getByText('TR'))
-    expect(getLocale()).toBe('tr')
-  })
-
-  it('causes instant re-rendering of components using useLocale', async () => {
-    function TestConsumer() {
+  it('translates the components that are on the screen at once', async () => {
+    function Consumer() {
       const { t } = useLocale()
       return <span data-testid="translated">{t('common.save')}</span>
     }
-
     render(
-      <div>
+      <>
         <LanguageSwitcher />
-        <TestConsumer />
-      </div>,
+        <Consumer />
+      </>,
     )
-
     expect(screen.getByTestId('translated')).toHaveTextContent('Kaydet')
 
     await userEvent.click(screen.getByRole('button'))
-
     expect(screen.getByTestId('translated')).toHaveTextContent('Save')
+  })
+
+  it('keeps what is typed in a form', async () => {
+    function Form() {
+      const { t } = useLocale()
+      return (
+        <form>
+          <label htmlFor="draft">{t('common.save')}</label>
+          <input id="draft" />
+        </form>
+      )
+    }
+    render(
+      <>
+        <LanguageSwitcher />
+        <Form />
+      </>,
+    )
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'Draft text value')
+
+    await userEvent.click(screen.getByRole('button'))
+
+    expect(getLocale()).toBe('en')
+    expect(screen.getByLabelText('Save')).toBe(input)
+    expect(input).toHaveValue('Draft text value')
   })
 })

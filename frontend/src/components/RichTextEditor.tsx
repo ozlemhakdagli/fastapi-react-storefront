@@ -16,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
-export interface RichTextEditorProps {
+interface RichTextEditorProps {
   id?: string
   name?: string
   value: string
@@ -28,6 +28,11 @@ export interface RichTextEditorProps {
   error?: string
   className?: string
 }
+
+const TABS = [
+  ['write', 'common.editor_write'],
+  ['preview', 'common.editor_preview'],
+] as const
 
 export function RichTextEditor({
   id,
@@ -134,6 +139,22 @@ export function RichTextEditor({
     }
   }
 
+  const toolbar = [
+    { label: 'common.editor_bold', icon: Bold, run: () => applyWrap('**', '**', 'bold text') },
+    { label: 'common.editor_italic', icon: Italic, run: () => applyWrap('*', '*', 'italic text') },
+    { label: 'common.editor_h2', icon: Heading2, run: () => applyLinePrefix('## ', 'Heading 2') },
+    { label: 'common.editor_h3', icon: Heading3, run: () => applyLinePrefix('### ', 'Heading 3') },
+    { label: 'common.editor_bullet_list', icon: List, run: () => applyLinePrefix('- ', 'List item') },
+    {
+      label: 'common.editor_numbered_list',
+      icon: ListOrdered,
+      run: () => applyLinePrefix('1. ', 'List item'),
+    },
+    { label: 'common.editor_quote', icon: Quote, run: () => applyLinePrefix('> ', 'Quote') },
+    { label: 'common.editor_code', icon: Code, run: insertCodeBlock },
+    { label: 'common.editor_link', icon: LinkIcon, run: insertLink },
+  ]
+
   const remaining = maxLength !== undefined ? maxLength - value.length : null
 
   return (
@@ -163,140 +184,43 @@ export function RichTextEditor({
       ) : null}
 
       <div className="rounded-lg border bg-card shadow-xs">
-        {/* Header toolbar & mode tabs */}
         <div className="flex flex-wrap items-center justify-between gap-1 border-b bg-muted/40 p-1.5">
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'write'}
-              onClick={() => setActiveTab('write')}
-              className={cn(
-                'rounded-md px-3 py-1 text-xs font-medium transition-colors',
-                activeTab === 'write'
-                  ? 'bg-background text-foreground shadow-xs'
-                  : 'text-muted-foreground hover:bg-background/50 hover:text-foreground',
-              )}
-            >
-              {t('common.editor_write')}
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'preview'}
-              onClick={() => setActiveTab('preview')}
-              className={cn(
-                'rounded-md px-3 py-1 text-xs font-medium transition-colors',
-                activeTab === 'preview'
-                  ? 'bg-background text-foreground shadow-xs'
-                  : 'text-muted-foreground hover:bg-background/50 hover:text-foreground',
-              )}
-            >
-              {t('common.editor_preview')}
-            </button>
+          <div role="tablist" className="flex items-center gap-1">
+            {TABS.map(([tab, label]) => (
+              <button
+                key={tab}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  'rounded-md px-3 py-1 text-xs font-medium transition-colors',
+                  activeTab === tab
+                    ? 'bg-background text-foreground shadow-xs'
+                    : 'text-muted-foreground hover:bg-background/50 hover:text-foreground',
+                )}
+              >
+                {t(label)}
+              </button>
+            ))}
           </div>
 
           {activeTab === 'write' ? (
             <div className="flex flex-wrap items-center gap-0.5">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                title={t('common.editor_bold')}
-                aria-label={t('common.editor_bold')}
-                onClick={() => applyWrap('**', '**', 'bold text')}
-              >
-                <Bold className="size-3.5" aria-hidden="true" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                title={t('common.editor_italic')}
-                aria-label={t('common.editor_italic')}
-                onClick={() => applyWrap('*', '*', 'italic text')}
-              >
-                <Italic className="size-3.5" aria-hidden="true" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                title={t('common.editor_h2')}
-                aria-label={t('common.editor_h2')}
-                onClick={() => applyLinePrefix('## ', 'Heading 2')}
-              >
-                <Heading2 className="size-3.5" aria-hidden="true" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                title={t('common.editor_h3')}
-                aria-label={t('common.editor_h3')}
-                onClick={() => applyLinePrefix('### ', 'Heading 3')}
-              >
-                <Heading3 className="size-3.5" aria-hidden="true" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                title={t('common.editor_bullet_list')}
-                aria-label={t('common.editor_bullet_list')}
-                onClick={() => applyLinePrefix('- ', 'List item')}
-              >
-                <List className="size-3.5" aria-hidden="true" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                title={t('common.editor_numbered_list')}
-                aria-label={t('common.editor_numbered_list')}
-                onClick={() => applyLinePrefix('1. ', 'List item')}
-              >
-                <ListOrdered className="size-3.5" aria-hidden="true" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                title={t('common.editor_quote')}
-                aria-label={t('common.editor_quote')}
-                onClick={() => applyLinePrefix('> ', 'Quote')}
-              >
-                <Quote className="size-3.5" aria-hidden="true" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                title={t('common.editor_code')}
-                aria-label={t('common.editor_code')}
-                onClick={insertCodeBlock}
-              >
-                <Code className="size-3.5" aria-hidden="true" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                title={t('common.editor_link')}
-                aria-label={t('common.editor_link')}
-                onClick={insertLink}
-              >
-                <LinkIcon className="size-3.5" aria-hidden="true" />
-              </Button>
+              {toolbar.map(({ label, icon: Icon, run }) => (
+                <Button
+                  key={label}
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-7"
+                  title={t(label)}
+                  aria-label={t(label)}
+                  onClick={run}
+                >
+                  <Icon className="size-3.5" aria-hidden="true" />
+                </Button>
+              ))}
             </div>
           ) : null}
         </div>

@@ -1,199 +1,92 @@
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { mockSystemTheme } from '@/test/matchMedia'
 import { THEME_STORAGE_KEY, ThemeProvider, useTheme } from './theme'
 
-function setupMatchMedia(initialMatches = false) {
-  let matches = initialMatches
-  const listeners = new Set<(event: MediaQueryListEvent) => void>()
-
-  const mql = {
-    get matches() {
-      return matches
-    },
-    media: '(prefers-color-scheme: dark)',
-    onchange: null,
-    addListener: vi.fn((cb: (e: MediaQueryListEvent) => void) => listeners.add(cb)),
-    removeListener: vi.fn((cb: (e: MediaQueryListEvent) => void) => listeners.delete(cb)),
-    addEventListener: vi.fn((_event: string, cb: (e: MediaQueryListEvent) => void) =>
-      listeners.add(cb)
-    ),
-    removeEventListener: vi.fn((_event: string, cb: (e: MediaQueryListEvent) => void) =>
-      listeners.delete(cb)
-    ),
-    dispatchEvent: vi.fn(),
-  }
-
-  const setMatches = (newMatches: boolean) => {
-    matches = newMatches
-    listeners.forEach((cb) => {
-      cb({ matches: newMatches } as MediaQueryListEvent)
-    })
-  }
-
-  const matchMedia = vi.fn().mockImplementation(() => mql)
-  window.matchMedia = matchMedia as unknown as typeof window.matchMedia
-
-  return { matchMedia, setMatches, listeners }
-}
-
 function Consumer() {
-  const { theme, resolvedTheme, setTheme, toggleTheme } = useTheme()
+  const { theme, resolvedTheme, setTheme } = useTheme()
   return (
     <div>
       <span data-testid="theme">{theme}</span>
       <span data-testid="resolved">{resolvedTheme}</span>
       <button onClick={() => setTheme('light')}>Set Light</button>
       <button onClick={() => setTheme('dark')}>Set Dark</button>
-      <button onClick={() => setTheme('system')}>Set System</button>
-      <button onClick={toggleTheme}>Toggle</button>
     </div>
   )
 }
 
-describe('Theme Context and Provider', () => {
-  let mmHelper: ReturnType<typeof setupMatchMedia>
+function renderConsumer() {
+  render(
+    <ThemeProvider>
+      <Consumer />
+    </ThemeProvider>,
+  )
+}
 
-  beforeEach(() => {
-    mmHelper = setupMatchMedia(false)
-    document.documentElement.classList.remove('dark')
-    localStorage.clear()
+const isDark = () => document.documentElement.classList.contains('dark')
+
+describe('ThemeProvider', () => {
+  it('follows a light system when nothing is stored', () => {
+    mockSystemTheme(false)
+    renderConsumer()
+    expect(screen.getByTestId('theme')).toHaveTextContent('system')
+    expect(screen.getByTestId('resolved')).toHaveTextContent('light')
+    expect(isDark()).toBe(false)
   })
 
-  afterEach(() => {
-    document.documentElement.classList.remove('dark')
-    localStorage.clear()
-    vi.restoreAllMocks()
+  it('follows a dark system when nothing is stored', () => {
+    mockSystemTheme(true)
+    renderConsumer()
+    expect(screen.getByTestId('resolved')).toHaveTextContent('dark')
+    expect(isDark()).toBe(true)
   })
 
-  it('defaults to system theme when localStorage is empty', () => {
-    render(
-      <ThemeProvider>
-        <Consumer />
-      </ThemeProvider>
-    )
-
-    expect(screen.getByTestId('theme').textContent).toBe('system')
-    expect(screen.getByTestId('resolved').textContent).toBe('light')
-    expect(document.documentElement.classList.contains('dark')).toBe(false)
-  })
-
-  it('defaults to system dark when system prefers dark and localStorage is empty', () => {
-    mmHelper = setupMatchMedia(true)
-
-    render(
-      <ThemeProvider>
-        <Consumer />
-      </ThemeProvider>
-    )
-
-    expect(screen.getByTestId('theme').textContent).toBe('system')
-    expect(screen.getByTestId('resolved').textContent).toBe('dark')
-    expect(document.documentElement.classList.contains('dark')).toBe(true)
-  })
-
-  it('defaults to stored value from localStorage', () => {
+  it('starts from the stored choice', () => {
+    mockSystemTheme(false)
     localStorage.setItem(THEME_STORAGE_KEY, 'dark')
-
-    render(
-      <ThemeProvider>
-        <Consumer />
-      </ThemeProvider>
-    )
-
-    expect(screen.getByTestId('theme').textContent).toBe('dark')
-    expect(screen.getByTestId('resolved').textContent).toBe('dark')
-    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    renderConsumer()
+    expect(screen.getByTestId('theme')).toHaveTextContent('dark')
+    expect(isDark()).toBe(true)
   })
 
-  it('toggling theme updates documentElement classList and localStorage', async () => {
-    const user = userEvent.setup()
+  it('stores a choice and sets the dark class on the page', async () => {
+    mockSystemTheme(false)
+    renderConsumer()
 
-    render(
-      <ThemeProvider>
-        <Consumer />
-      </ThemeProvider>
-    )
-
-    expect(document.documentElement.classList.contains('dark')).toBe(false)
-
-    // Set to dark
-    await user.click(screen.getByRole('button', { name: 'Set Dark' }))
-    expect(screen.getByTestId('theme').textContent).toBe('dark')
-    expect(screen.getByTestId('resolved').textContent).toBe('dark')
-    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    await userEvent.click(screen.getByRole('button', { name: 'Set Dark' }))
+    expect(isDark()).toBe(true)
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark')
 
-    // Set to light
-    await user.click(screen.getByRole('button', { name: 'Set Light' }))
-    expect(screen.getByTestId('theme').textContent).toBe('light')
-    expect(screen.getByTestId('resolved').textContent).toBe('light')
-    expect(document.documentElement.classList.contains('dark')).toBe(false)
+    await userEvent.click(screen.getByRole('button', { name: 'Set Light' }))
+    expect(isDark()).toBe(false)
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('light')
-
-    // Use toggleTheme
-    await user.click(screen.getByRole('button', { name: 'Toggle' }))
-    expect(screen.getByTestId('theme').textContent).toBe('dark')
-    expect(screen.getByTestId('resolved').textContent).toBe('dark')
-    expect(document.documentElement.classList.contains('dark')).toBe(true)
-    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark')
   })
 
-  it('system listener responds to media query changes when theme is system', () => {
-    render(
-      <ThemeProvider>
-        <Consumer />
-      </ThemeProvider>
-    )
+  it('follows the system while the theme is system', () => {
+    const system = mockSystemTheme(false)
+    renderConsumer()
 
-    expect(screen.getByTestId('theme').textContent).toBe('system')
-    expect(document.documentElement.classList.contains('dark')).toBe(false)
-    expect(mmHelper.listeners.size).toBe(1)
+    act(() => system.change(true))
+    expect(screen.getByTestId('resolved')).toHaveTextContent('dark')
+    expect(isDark()).toBe(true)
 
-    // Simulate system preference change to dark
-    act(() => {
-      mmHelper.setMatches(true)
-    })
-
-    expect(screen.getByTestId('resolved').textContent).toBe('dark')
-    expect(document.documentElement.classList.contains('dark')).toBe(true)
-
-    // Simulate system preference change back to light
-    act(() => {
-      mmHelper.setMatches(false)
-    })
-
-    expect(screen.getByTestId('resolved').textContent).toBe('light')
-    expect(document.documentElement.classList.contains('dark')).toBe(false)
+    act(() => system.change(false))
+    expect(screen.getByTestId('resolved')).toHaveTextContent('light')
+    expect(isDark()).toBe(false)
   })
 
-  it('removes system change listener when theme switches to explicit dark/light', async () => {
-    const user = userEvent.setup()
+  it('ignores the system after an explicit choice', async () => {
+    const system = mockSystemTheme(false)
+    renderConsumer()
+    await userEvent.click(screen.getByRole('button', { name: 'Set Dark' }))
 
-    render(
-      <ThemeProvider>
-        <Consumer />
-      </ThemeProvider>
-    )
-
-    expect(mmHelper.listeners.size).toBe(1)
-
-    await user.click(screen.getByRole('button', { name: 'Set Dark' }))
-    expect(mmHelper.listeners.size).toBe(0)
-
-    // System changes should no longer affect documentElement
-    act(() => {
-      mmHelper.setMatches(false)
-    })
-    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    act(() => system.change(false))
+    expect(isDark()).toBe(true)
   })
 
-  it('throws an error when useTheme is called outside ThemeProvider', () => {
-    // Suppress console.error for expected react error boundary / exception
+  it('throws outside a ThemeProvider', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    expect(() => render(<Consumer />)).toThrow(
-      'useTheme must be used within a ThemeProvider'
-    )
+    expect(() => render(<Consumer />)).toThrow('useTheme must be used within a ThemeProvider')
     spy.mockRestore()
   })
 })

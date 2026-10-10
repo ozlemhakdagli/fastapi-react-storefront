@@ -3,135 +3,75 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from 'react'
 
 export type Theme = 'light' | 'dark' | 'system'
-export type ResolvedTheme = 'light' | 'dark'
+type ResolvedTheme = 'light' | 'dark'
 
-export interface ThemeContextValue {
+interface ThemeValue {
   theme: Theme
+  /** What the page shows: `system` is resolved to the preference of the browser. */
   resolvedTheme: ResolvedTheme
   setTheme: (theme: Theme) => void
-  toggleTheme: () => void
 }
 
-export interface ThemeProviderProps {
-  children: ReactNode
-  defaultTheme?: Theme
-  storageKey?: string
-}
-
+// public/theme-init.js reads the same key before the first paint.
 export const THEME_STORAGE_KEY = 'ecommerce.theme'
-const MEDIA_QUERY = '(prefers-color-scheme: dark)'
 
-function getSystemTheme(): ResolvedTheme {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return 'light'
+const ThemeContext = createContext<ThemeValue | undefined>(undefined)
+
+function storedTheme(): Theme {
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY)
+    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored
+  } catch {
+    // Storage can be blocked; the choice then lasts until the page is closed.
   }
-  return window.matchMedia(MEDIA_QUERY).matches ? 'dark' : 'light'
+  return 'system'
 }
 
-const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
+function darkQuery(): MediaQueryList | null {
+  return typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-color-scheme: dark)')
+    : null
+}
 
-export function ThemeProvider({
-  children,
-  defaultTheme = 'system',
-  storageKey = THEME_STORAGE_KEY,
-}: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return defaultTheme
-    try {
-      const stored = localStorage.getItem(storageKey)
-      if (stored === 'light' || stored === 'dark' || stored === 'system') {
-        return stored
-      }
-    } catch {
-      // Storage might be unavailable or disabled
-    }
-    return defaultTheme
-  })
-
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => {
-    return theme === 'system' ? getSystemTheme() : theme
-  })
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setThemeState] = useState<Theme>(storedTheme)
+  const [systemDark, setSystemDark] = useState(() => darkQuery()?.matches ?? false)
 
   useEffect(() => {
-    const root = document.documentElement
+    const query = darkQuery()
+    if (!query) return
+    const onChange = (event: MediaQueryListEvent) => setSystemDark(event.matches)
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+  }, [])
 
-    const applyTheme = (resolved: ResolvedTheme) => {
-      setResolvedTheme(resolved)
-      if (resolved === 'dark') {
-        root.classList.add('dark')
-      } else {
-        root.classList.remove('dark')
-      }
+  const resolvedTheme: ResolvedTheme = theme === 'system' ? (systemDark ? 'dark' : 'light') : theme
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', resolvedTheme === 'dark')
+  }, [resolvedTheme])
+
+  const setTheme = useCallback((next: Theme) => {
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next)
+    } catch {
+      // See storedTheme.
     }
+    setThemeState(next)
+  }, [])
 
-    if (theme !== 'system') {
-      applyTheme(theme)
-      return
-    }
-
-    // When theme === 'system'
-    applyTheme(getSystemTheme())
-
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-      return
-    }
-
-    const mediaQuery = window.matchMedia(MEDIA_QUERY)
-    const handleChange = (event?: MediaQueryListEvent | MediaQueryList) => {
-      const isDark = typeof event?.matches === 'boolean' ? event.matches : mediaQuery.matches
-      applyTheme(isDark ? 'dark' : 'light')
-    }
-
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleChange)
-    } else if ('addListener' in mediaQuery) {
-      ;(mediaQuery as any).addListener(handleChange)
-    }
-
-    return () => {
-      if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener('change', handleChange)
-      } else if ('removeListener' in mediaQuery) {
-        ;(mediaQuery as any).removeListener(handleChange)
-      }
-    }
-  }, [theme])
-
-  const setTheme = useCallback(
-    (newTheme: Theme) => {
-      try {
-        localStorage.setItem(storageKey, newTheme)
-      } catch {
-        // Storage might be unavailable
-      }
-      setThemeState(newTheme)
-    },
-    [storageKey]
-  )
-
-  const toggleTheme = useCallback(() => {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
-  }, [resolvedTheme, setTheme])
-
-  const value: ThemeContextValue = {
-    theme,
-    resolvedTheme,
-    setTheme,
-    toggleTheme,
-  }
-
+  const value = useMemo(() => ({ theme, resolvedTheme, setTheme }), [theme, resolvedTheme, setTheme])
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }
 
-export function useTheme(): ThemeContextValue {
+export function useTheme(): ThemeValue {
   const context = useContext(ThemeContext)
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider')
-  }
+  if (!context) throw new Error('useTheme must be used within a ThemeProvider')
   return context
 }

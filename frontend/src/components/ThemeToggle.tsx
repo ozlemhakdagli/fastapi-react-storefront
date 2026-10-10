@@ -1,51 +1,24 @@
-import * as React from 'react'
 import { Moon, Sun } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useTheme } from '@/lib/theme'
 import { t } from '@/lib/i18n'
+import { useTheme } from '@/lib/theme'
 
-export interface ThemeToggleProps extends React.ComponentProps<typeof Button> {}
-
-export function ThemeToggle({
-  variant = 'ghost',
-  size = 'icon',
-  className,
-  children,
-  onClick,
-  ...props
-}: ThemeToggleProps) {
+export function ThemeToggle({ className }: { className?: string }) {
   const { resolvedTheme, setTheme } = useTheme()
   const isDark = resolvedTheme === 'dark'
-
-  const handleToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onClick?.(event)
-    if (!event.defaultPrevented) {
-      setTheme(isDark ? 'light' : 'dark')
-    }
-  }
-
   const label = isDark ? t('common.theme_light') : t('common.theme_dark')
+  const Icon = isDark ? Sun : Moon
 
   return (
     <Button
-      variant={variant}
-      size={size}
+      variant="ghost"
+      size="icon"
       className={className}
-      aria-label={props['aria-label'] ?? label}
-      title={props.title ?? label}
-      onClick={handleToggle}
-      {...props}
+      aria-label={label}
+      title={label}
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
     >
-      {children ?? (
-        <>
-          {isDark ? (
-            <Sun className="size-4" aria-hidden="true" data-testid="sun-icon" />
-          ) : (
-            <Moon className="size-4" aria-hidden="true" data-testid="moon-icon" />
-          )}
-          <span className="sr-only">{label}</span>
-        </>
-      )}
+      <Icon className="size-4" aria-hidden="true" />
     </Button>
   )
 }
