@@ -7,6 +7,10 @@ from fastapi import Request
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
+# PostgreSQL cancels a statement that runs longer, so one slow query cannot hold a pooled
+# connection for ever.
+STATEMENT_TIMEOUT_MS = 15_000
+
 
 def create_pool(dsn: str, *, min_size: int = 1, max_size: int = 10) -> ConnectionPool:
     """Return an unopened pool. The application opens it in its lifespan handler."""
@@ -14,7 +18,11 @@ def create_pool(dsn: str, *, min_size: int = 1, max_size: int = 10) -> Connectio
         dsn,
         min_size=min_size,
         max_size=max_size,
-        kwargs={"autocommit": True, "row_factory": dict_row},
+        kwargs={
+            "autocommit": True,
+            "row_factory": dict_row,
+            "options": f"-c statement_timeout={STATEMENT_TIMEOUT_MS}",
+        },
         open=False,
     )
 
