@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import { useLocation } from 'react-router'
 import { AppRoutes } from '@/app/routes'
 import { api } from '@/lib/api'
@@ -54,19 +54,32 @@ describe('AppRoutes', () => {
     expect(await screen.findAllByText('Örnek Mağaza')).toHaveLength(2) // header and footer
   })
 
+  it('puts the page title before the shop name in the tab, also on pages in the first download', async () => {
+    renderAt('/products')
+    await screen.findAllByText('Örnek Mağaza') // the site settings have arrived
+    await waitFor(() =>
+      expect(document.title).toBe(`${t('catalog.list_title')} | ${site.site_name}`),
+    )
+  })
+
+  it('shows only the shop name in the tab on the home page', async () => {
+    renderAt('/')
+    await waitFor(() => expect(document.title).toBe(site.site_name))
+  })
+
   it('sends an anonymous visitor of /admin/products to /login', () => {
     renderAt('/admin/products')
     expect(screen.getByTestId('pathname')).toHaveTextContent('/login')
   })
 
-  it('sends an anonymous visitor of /account to /login', () => {
+  it('sends an anonymous visitor of /account to /login', async () => {
     renderAt('/account')
-    expect(screen.getByTestId('pathname')).toHaveTextContent('/login')
+    await waitFor(() => expect(screen.getByTestId('pathname')).toHaveTextContent('/login'))
   })
 
-  it('sends an anonymous visitor of /cart to /login', () => {
+  it('sends an anonymous visitor of /cart to /login', async () => {
     renderAt('/cart')
-    expect(screen.getByTestId('pathname')).toHaveTextContent('/login')
+    await waitFor(() => expect(screen.getByTestId('pathname')).toHaveTextContent('/login'))
   })
 
   it('sends a customer who opens /admin to the home page', () => {

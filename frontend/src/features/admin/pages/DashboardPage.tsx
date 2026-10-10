@@ -12,6 +12,7 @@ import { StockBadge } from '@/components/StockBadge'
 import { type AdminDashboard, useAdminDashboard } from '@/features/admin/hooks/useAdminDashboard'
 import { formatDate, formatMoney } from '@/lib/format'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { OrderStatus } from '@/lib/types'
 
 type Day = AdminDashboard['orders_per_day'][number]
@@ -215,6 +216,7 @@ function LowStock({ products }: { products: LowStockProduct[] }) {
 }
 
 export default function DashboardPage() {
+  useDocumentTitle(t('admindashboard.title'))
   const dashboard = useAdminDashboard()
   const data = dashboard.data
 

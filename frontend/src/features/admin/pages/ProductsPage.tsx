@@ -13,6 +13,7 @@ import { type AdminProductQuery, useAdminProducts } from '@/features/admin/hooks
 import { useAdminTaxonomyOptions } from '@/features/admin/hooks/useAdminTaxonomyOptions'
 import { t } from '@/lib/i18n'
 import { parseId } from '@/lib/searchParams'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { AdminProduct } from '@/lib/types'
 import { usePageParam } from '@/lib/usePageParam'
 
@@ -36,6 +37,7 @@ function readFilters(params: URLSearchParams): AdminProductQuery {
 }
 
 export default function ProductsPage() {
+  useDocumentTitle(t('adminproducts.list_title'))
   const [searchParams, setSearchParams] = useSearchParams()
   const filters = readFilters(searchParams)
   const [page, changePage] = usePageParam()

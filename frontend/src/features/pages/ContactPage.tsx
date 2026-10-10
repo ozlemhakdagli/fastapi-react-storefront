@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/features/auth/AuthContext'
 import { type ContactInput, useSendContact, useSite } from '@/features/pages/hooks/useSite'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { SiteSettings, User } from '@/lib/types'
 
 // Same limits as the messages table and the ContactIn schema (docs/api.md).
@@ -29,6 +30,7 @@ function isWebAddress(value: string): boolean {
 }
 
 export default function ContactPage() {
+  useDocumentTitle(t('pages.contact_title'))
   const { user, loading } = useAuth()
   const site = useSite()
 

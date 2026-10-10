@@ -11,12 +11,14 @@ import { Textarea } from '@/components/ui/textarea'
 import { RichTextEditor } from '@/components/RichTextEditor'
 import { useAdminSite, useSaveAdminSite } from '@/features/admin/hooks/useAdminSite'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { SiteSettings } from '@/lib/types'
 
 // Each settings tab is one bordered card.
 const PANEL = 'grid gap-4 rounded-xl border bg-card p-4'
 
 export default function SettingsPage() {
+  useDocumentTitle(t('adminsettings.title'))
   const site = useAdminSite()
   return (
     <div className="grid grid-cols-1 gap-6">

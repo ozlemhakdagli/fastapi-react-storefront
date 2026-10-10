@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { useProducts } from '@/features/catalog/hooks/useProducts'
 import { useBrands, useCategories } from '@/features/catalog/hooks/useTaxonomy'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import { t } from '@/lib/i18n'
 import { CHIP_LINK_CLASS } from '@/lib/styles'
 
 const NEW_PRODUCTS_COUNT = 8
 
 export default function HomePage() {
+  useDocumentTitle()
   const newProducts = useProducts({ is_new: true, page_size: NEW_PRODUCTS_COUNT })
   const categories = useCategories()
   const brands = useBrands()

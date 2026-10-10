@@ -4,10 +4,12 @@ import { PagedTable } from '@/components/PagedTable'
 import { useMyMessages } from '@/features/account/hooks/useMyMessages'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { Message } from '@/lib/types'
 import { usePageParam } from '@/lib/usePageParam'
 
 export default function MyMessagesPage() {
+  useDocumentTitle(t('account.messages_title'))
   const [page, changePage] = usePageParam()
   // The page number lives in the URL, so that Back from another page returns to the same page.
   const messages = useMyMessages(page)

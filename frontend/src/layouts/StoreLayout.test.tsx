@@ -64,12 +64,6 @@ describe('StoreLayout', () => {
     document.title = ''
   })
 
-  it('puts the shop name into the browser tab title', async () => {
-    vi.spyOn(api, 'get').mockResolvedValue(site)
-    renderLayout()
-    await waitFor(() => expect(document.title).toBe('Örnek Mağaza'))
-  })
-
   it('shows the site name in the header and the footer', async () => {
     vi.spyOn(api, 'get').mockResolvedValue(site)
     renderLayout()

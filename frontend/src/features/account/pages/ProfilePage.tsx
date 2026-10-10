@@ -9,9 +9,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useChangePassword, useUpdateProfile } from '@/features/account/hooks/useProfile'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { User } from '@/lib/types'
 
 export default function ProfilePage() {
+  useDocumentTitle(t('profile.title'))
   const { user } = useAuth()
   if (!user) return null
   return (

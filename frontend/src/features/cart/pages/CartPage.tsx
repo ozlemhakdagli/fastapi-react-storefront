@@ -8,11 +8,13 @@ import { ProductImage } from '@/components/ProductImage'
 import { Button } from '@/components/ui/button'
 import { useCart, useRemoveCartItem, useSetCartQuantity } from '@/features/cart/hooks/useCart'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 
 // The API accepts quantities 1..99, and never more than the stock (docs/api.md).
 const MAX_QUANTITY = 99
 
 export default function CartPage() {
+  useDocumentTitle(t('cart.title'))
   const cart = useCart()
   const setQuantity = useSetCartQuantity()
   const removeItem = useRemoveCartItem()

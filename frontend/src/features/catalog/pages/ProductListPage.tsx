@@ -10,6 +10,7 @@ import { type ProductQuery, type ProductSort, useProducts } from '@/features/cat
 import { useBrands, useCategories } from '@/features/catalog/hooks/useTaxonomy'
 import { t } from '@/lib/i18n'
 import { parseId } from '@/lib/searchParams'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import { usePageParam } from '@/lib/usePageParam'
 
 const SORTS: readonly ProductSort[] = ['newest', 'price_asc', 'price_desc']
@@ -25,6 +26,7 @@ function readFilters(params: URLSearchParams): ProductQuery {
 }
 
 export default function ProductListPage() {
+  useDocumentTitle(t('catalog.list_title'))
   const [searchParams, setSearchParams] = useSearchParams()
   const filters = readFilters(searchParams)
   const [page, changePage] = usePageParam()

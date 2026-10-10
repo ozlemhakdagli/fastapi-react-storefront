@@ -28,10 +28,12 @@ import {
 } from '@/features/admin/hooks/useAdminUsers'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { User } from '@/lib/types'
 
 // Native selects: they behave the same in browsers and in jsdom tests, and match ui/input.
 export default function UsersPage() {
+  useDocumentTitle(t('adminusers.title'))
   const [role, setRole] = useState<'' | UserRole>('')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)

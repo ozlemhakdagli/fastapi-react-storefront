@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAdminOrders } from '@/features/admin/hooks/useAdminOrders'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import { type AdminOrderListItem, ORDER_STATUSES, type OrderStatus } from '@/lib/types'
 import { usePageParam } from '@/lib/usePageParam'
 
@@ -20,6 +21,7 @@ function parseStatus(value: string | null): OrderStatus | undefined {
 }
 
 export default function OrdersPage() {
+  useDocumentTitle(t('adminorders.title'))
   const [searchParams, setSearchParams] = useSearchParams()
   // The tab and the page live in the URL, so that Back from an order returns to the same list.
   const status = parseStatus(searchParams.get('status'))

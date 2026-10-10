@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/button'
 import { useDeleteMyComment, useMyComments } from '@/features/account/hooks/useMyComments'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { MyComment } from '@/lib/types'
 import { usePageParam } from '@/lib/usePageParam'
 
 export default function MyCommentsPage() {
+  useDocumentTitle(t('account.comments_title'))
   const [page, changePage] = usePageParam()
   // The page number lives in the URL, so that Back from a product returns to the same page.
   const comments = useMyComments(page)

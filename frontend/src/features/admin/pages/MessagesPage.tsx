@@ -22,10 +22,12 @@ import {
 } from '@/features/admin/hooks/useAdminMessages'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { AdminMessage, Message } from '@/lib/types'
 
 // Native selects: they behave the same in browsers and in jsdom tests, and match ui/input.
 export default function MessagesPage() {
+  useDocumentTitle(t('adminmessages.title'))
   const [status, setStatus] = useState<'' | Message['status']>('')
   const [direction, setDirection] = useState<'' | Message['direction']>('')
   const [page, setPage] = useState(1)

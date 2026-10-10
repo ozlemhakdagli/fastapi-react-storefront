@@ -6,9 +6,11 @@ import { Pagination } from '@/components/Pagination'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { useFavoriteProducts } from '@/features/favorites/hooks/useFavorites'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import { usePageParam } from '@/lib/usePageParam'
 
 export default function FavoritesPage() {
+  useDocumentTitle(t('favorites.title'))
   const [page, changePage] = usePageParam()
   const favorites = useFavoriteProducts(page)
   return (

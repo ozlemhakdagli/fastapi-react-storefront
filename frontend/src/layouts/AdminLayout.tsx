@@ -14,6 +14,7 @@ import { Link, NavLink, Outlet } from 'react-router'
 import { LoadingNotice } from '@/components/LoadingNotice'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { useSite } from '@/features/pages/hooks/useSite'
 import { t, useLocale } from '@/lib/i18n'
 
 const links = [
@@ -34,6 +35,7 @@ const LINK_BASE =
 
 export default function AdminLayout() {
   useLocale()
+  useSite() // loads the shop name that the tab title shows (see useDocumentTitle)
   return (
     <div className="grid min-h-screen grid-cols-1 grid-rows-[auto_1fr] md:grid-cols-[15rem_minmax(0,1fr)] md:grid-rows-1">
       {/* Below md the sidebar is a top bar: its links wrap, so the page never scrolls sideways. */}

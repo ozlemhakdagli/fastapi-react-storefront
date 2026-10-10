@@ -4,8 +4,10 @@ import { PageHeader } from '@/components/PageHeader'
 import { RichTextViewer } from '@/components/RichTextViewer'
 import { useSite } from '@/features/pages/hooks/useSite'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 
 export default function AboutPage() {
+  useDocumentTitle(t('pages.about_title'))
   const site = useSite()
 
   return (

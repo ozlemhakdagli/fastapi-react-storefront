@@ -7,10 +7,12 @@ import { StatusBadge } from '@/components/StatusBadge'
 import { useOrders } from '@/features/account/hooks/useOrders'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { OrderListItem } from '@/lib/types'
 import { usePageParam } from '@/lib/usePageParam'
 
 export default function OrdersPage() {
+  useDocumentTitle(t('account.orders_title'))
   const [page, changePage] = usePageParam()
   // The page number lives in the URL, so that Back from an order returns to the same page.
   const orders = useOrders(page)

@@ -21,6 +21,7 @@ import {
 import { useAdminTaxonomyOptions } from '@/features/admin/hooks/useAdminTaxonomyOptions'
 import { ApiError } from '@/lib/api'
 import { errorMessage, t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { AdminProduct, Taxonomy } from '@/lib/types'
 
 // Same limits as the API (docs/api.md). The database is the final check.
@@ -131,6 +132,7 @@ export default function ProductFormPage() {
   // undefined on /admin/products/new, a number on /admin/products/:id.
   const productId = id === undefined ? undefined : Number(id)
   const isNew = productId === undefined
+  useDocumentTitle(isNew ? t('adminproducts.new_title') : t('adminproducts.edit_title'))
   const product = useAdminProduct(productId)
   const taxonomies = useAdminTaxonomyOptions()
 

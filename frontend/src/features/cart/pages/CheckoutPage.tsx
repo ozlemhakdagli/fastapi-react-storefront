@@ -14,6 +14,7 @@ import { useCart } from '@/features/cart/hooks/useCart'
 import { type ShippingDetails, useCheckout } from '@/features/cart/hooks/useCheckout'
 import { ApiError } from '@/lib/api'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 
 type Field = keyof ShippingDetails
 type FieldErrors = Partial<Record<Field, string>>
@@ -32,6 +33,7 @@ function validate(values: ShippingDetails): FieldErrors {
 }
 
 export default function CheckoutPage() {
+  useDocumentTitle(t('cart.checkout_title'))
   const { user } = useAuth()
   const navigate = useNavigate()
   const checkout = useCheckout()

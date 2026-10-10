@@ -21,12 +21,14 @@ import {
 import { ALLOWED_NEXT } from '@/features/admin/orderTransitions'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { AdminOrder, OrderItem, OrderStatus } from '@/lib/types'
 
 export default function OrderDetailPage() {
   const { id } = useParams()
   const orderId = Number(id)
   const order = useAdminOrder(orderId)
+  useDocumentTitle(order.data ? t('adminorders.detail_title', { id: order.data.id }) : t('adminorders.title'))
   const update = useUpdateAdminOrder(orderId)
 
   if (order.isPending) return <LoadingNotice />

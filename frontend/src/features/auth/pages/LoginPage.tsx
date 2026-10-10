@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/features/auth/AuthContext'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 
 // RequireAuth stores the location the visitor asked for in `state.from`.
 interface LoginLocationState {
@@ -16,6 +17,7 @@ interface LoginLocationState {
 }
 
 export default function LoginPage() {
+  useDocumentTitle(t('auth.login_title'))
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()

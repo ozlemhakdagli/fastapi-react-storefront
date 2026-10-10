@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import { ShoppingCart, Store } from 'lucide-react'
-import { Suspense, useEffect } from 'react'
+import { Suspense } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router'
 import { LoadingNotice } from '@/components/LoadingNotice'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
@@ -27,11 +27,6 @@ export default function StoreLayout() {
   const { data: cartCount = 0 } = useCartCount(Boolean(user))
   // Only a logged-in customer sees a count (the cart cache is also cleared on logout).
   const itemsInCart = user ? cartCount : 0
-
-  // The browser tab shows the shop name from the site settings.
-  useEffect(() => {
-    if (site?.site_name) document.title = site.site_name
-  }, [site?.site_name])
 
   return (
     <div className="flex min-h-screen flex-col">

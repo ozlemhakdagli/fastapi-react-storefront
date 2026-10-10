@@ -11,6 +11,7 @@ import { useAuth } from '@/features/auth/AuthContext'
 import { useRegister } from '@/features/auth/hooks/useRegister'
 import type { RegisterInput } from '@/features/auth/hooks/useRegister'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 
 const EMPTY_FORM = {
   email: '',
@@ -24,6 +25,7 @@ const EMPTY_FORM = {
 type FormValues = typeof EMPTY_FORM
 
 export default function RegisterPage() {
+  useDocumentTitle(t('auth.register_title'))
   const { login } = useAuth()
   const navigate = useNavigate()
   const register = useRegister()

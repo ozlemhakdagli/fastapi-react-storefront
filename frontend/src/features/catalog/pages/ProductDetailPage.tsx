@@ -17,6 +17,7 @@ import { useAddToCart, useProduct } from '@/features/catalog/hooks/useProduct'
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton'
 import { ApiError } from '@/lib/api'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import { CHIP_LINK_CLASS } from '@/lib/styles'
 
 // The API holds at most 99 units in a cart line.
@@ -47,6 +48,7 @@ function ProductContent({ productId }: { productId: number }) {
   const addToCart = useAddToCart()
   const [activeImage, setActiveImage] = useState(0)
   const [quantityText, setQuantityText] = useState('1')
+  useDocumentTitle(product.data?.name)
 
   if (product.error) return <ErrorNotice error={product.error} />
   if (!product.data) return <LoadingNotice />

@@ -9,9 +9,11 @@ import { Button } from '@/components/ui/button'
 import { useAdminComments, useDeleteAdminComment } from '@/features/admin/hooks/useAdminComments'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { AdminComment } from '@/lib/types'
 
 export default function CommentsPage() {
+  useDocumentTitle(t('admincomments.title'))
   const [page, setPage] = useState(1)
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null)
   const comments = useAdminComments(page)

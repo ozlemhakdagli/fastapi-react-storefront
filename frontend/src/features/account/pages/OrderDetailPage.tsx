@@ -13,6 +13,7 @@ import { OrderTimeline } from '@/features/account/components/OrderTimeline'
 import { useCancelOrder, useOrder } from '@/features/account/hooks/useOrders'
 import { formatDate } from '@/lib/format'
 import { t } from '@/lib/i18n'
+import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { OrderItem } from '@/lib/types'
 
 export default function OrderDetailPage() {
@@ -20,6 +21,7 @@ export default function OrderDetailPage() {
   const orderId = Number(id)
   const [searchParams] = useSearchParams()
   const order = useOrder(orderId)
+  useDocumentTitle(order.data ? t('account.order_number', { id: order.data.id }) : t('account.orders_title'))
   const cancel = useCancelOrder(orderId)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
