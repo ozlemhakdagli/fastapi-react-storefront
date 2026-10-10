@@ -34,12 +34,12 @@ function loadDictionary(
 loadDictionary(dictionaries.tr, trFiles)
 loadDictionary(dictionaries.en, enFiles)
 
-const STORAGE_KEY = 'ecommerce.lang'
+export const LOCALE_STORAGE_KEY = 'ecommerce.lang'
 
 function getInitialLocale(): Locale {
   try {
     if (typeof localStorage !== 'undefined') {
-      const stored = localStorage.getItem(STORAGE_KEY)
+      const stored = localStorage.getItem(LOCALE_STORAGE_KEY)
       if (stored === 'tr' || stored === 'en') {
         return stored
       }
@@ -60,7 +60,7 @@ export function getLocale(): Locale {
 export function setLocale(locale: Locale): void {
   try {
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, locale)
+      localStorage.setItem(LOCALE_STORAGE_KEY, locale)
     }
   } catch {
     // Ignore storage errors
