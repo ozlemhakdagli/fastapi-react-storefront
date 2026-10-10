@@ -36,7 +36,7 @@
 }
 @import "@fontsource-variable/geist";
 
-/* Dark mode is off; this keeps the ui components' dark: classes inactive. */
+/* Dark mode variant */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -121,7 +121,7 @@
     --popover: oklch(0.28 0.02 260);
     --popover-foreground: oklch(0.95 0.005 260);
     --primary: oklch(0.65 0.22 277);
-    --primary-foreground: oklch(0.985 0 0);
+    --primary-foreground: oklch(0.16 0.02 260);
     --secondary: oklch(0.32 0.02 260);
     --secondary-foreground: oklch(0.95 0.005 260);
     --muted: oklch(0.30 0.015 260);
@@ -129,7 +129,6 @@
     --accent: oklch(0.33 0.025 260);
     --accent-foreground: oklch(0.95 0.005 260);
     --destructive: oklch(0.62 0.22 25);
-    --destructive-foreground: oklch(0.985 0 0);
     --success: oklch(0.62 0.15 166);
     --success-foreground: oklch(0.985 0 0);
     --warning: oklch(0.75 0.16 70);
