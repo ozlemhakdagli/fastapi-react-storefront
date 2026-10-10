@@ -19,6 +19,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    pool: 'threads',
     // The browser tests in e2e/ run with Playwright (npm run e2e), not with Vitest.
     exclude: [...configDefaults.exclude, 'e2e/**'],
   },

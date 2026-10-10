@@ -2,18 +2,18 @@ import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router'
 import { RequireAdmin, RequireAuth } from '@/components/guards'
 import { LoadingNotice } from '@/components/LoadingNotice'
-import LoginPage from '@/features/auth/pages/LoginPage'
-import RegisterPage from '@/features/auth/pages/RegisterPage'
 import HomePage from '@/features/catalog/pages/HomePage'
 import ProductDetailPage from '@/features/catalog/pages/ProductDetailPage'
 import ProductListPage from '@/features/catalog/pages/ProductListPage'
 import StoreLayout from '@/layouts/StoreLayout'
-import AboutPage from '@/features/pages/AboutPage'
-import ContactPage from '@/features/pages/ContactPage'
-import NotFoundPage from '@/features/pages/NotFoundPage'
 
-// The storefront pages are in the first download. The account, cart, checkout and admin screens are
-// loaded the first time someone opens them, so visitors who only browse do not pay for them.
+// The storefront core pages are in the first download. Secondary public pages, account,
+// cart, checkout and admin screens are loaded on demand to minimize the initial bundle.
+const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'))
+const RegisterPage = lazy(() => import('@/features/auth/pages/RegisterPage'))
+const AboutPage = lazy(() => import('@/features/pages/AboutPage'))
+const ContactPage = lazy(() => import('@/features/pages/ContactPage'))
+const NotFoundPage = lazy(() => import('@/features/pages/NotFoundPage'))
 const MyCommentsPage = lazy(() => import('@/features/account/pages/MyCommentsPage'))
 const MyMessagesPage = lazy(() => import('@/features/account/pages/MyMessagesPage'))
 const AccountOrderDetailPage = lazy(() => import('@/features/account/pages/OrderDetailPage'))
