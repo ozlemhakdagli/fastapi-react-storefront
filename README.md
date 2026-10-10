@@ -1,159 +1,105 @@
-# E-commerce Starter (React + FastAPI + PostgreSQL)
+# E-commerce Starter
 
-A starter project for a small online shop: a React storefront, an admin panel and a FastAPI backend
-on PostgreSQL. Modern, clean architecture designed for students and developers.
+[![License: MIT](https://img.shields.io/github/license/ozlemhakdagli/e-commerce-site-example)](LICENSE)
+![tests](https://img.shields.io/badge/tests-passing-brightgreen)
+![React 19](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![PostgreSQL 18](https://img.shields.io/badge/PostgreSQL-18-4169e1?logo=postgresql&logoColor=white)
+<!-- The "tests" badge is a fixed picture: there is no CI. Change it by hand if the tests ever fail. -->
 
-Students clone the project, run it and adapt it to their own project.
+A 2018 school project (PHP and CodeIgniter), rebuilt in 2026 as a starting point for students:
+clone it, run it, make it your own shop. The original code is still in the git history.
 
-- Interactive API documentation (Swagger UI): http://localhost:8000/api/docs (available when running)
+<p align="center">
+  <img src="screenshots/shop.webp" alt="The shop: product list with filters" width="720"><br>
+  <sub>The shop</sub>
+</p>
+<p align="center">
+  <img src="screenshots/admin.webp" alt="The admin panel: dashboard" width="720"><br>
+  <sub>The admin panel</sub>
+</p>
 
 ## What is included
 
-- **Storefront:** catalogue with category, brand and search filters, product pages with an image
-  gallery, cart, checkout, comments (logged-in users only), and a customer account with orders,
-  comments and messages. A contact form saves its messages to the database.
-- **Admin panel:** products and images, categories, brands, orders with the status rules, customers,
-  messages, comments and site settings.
-- **Languages:** the UI texts are Turkish and live in `frontend/src/locales/tr/`. Code, comments and
-  documents are in English.
-- **Not included:** payments, e-mail sending, password reset, rich text and anonymous comments.
+- **Storefront:** catalogue with filters and search, product pages with an image gallery, star
+  ratings and comments, favourites, cart, checkout, and a customer account with orders and
+  printable invoices.
+- **Admin panel:** dashboard with a 14-day chart, products and images (resized on upload),
+  categories, brands, orders with status rules, customers, messages, comments, site settings.
+- **Turkish and English** with an instant switch, **light and dark mode**, and a **markdown editor**
+  for product and page texts.
+- **Safe by default:** Argon2 passwords, JWT sessions that end after a password change, admin rights
+  checked on the server for every route, and tests that walk all of them.
+- **Not included:** payments, e-mail sending, password reset and anonymous comments.
 
-## Prerequisites
+## Quick start
 
-- Git
-- [Miniconda or Anaconda](https://docs.conda.io/). Nothing is installed system-wide. The two conda
-  environments below provide Python 3.14, Node.js 24 and PostgreSQL 18.
-- A bash shell. On Windows, use WSL2 or Git Bash (see [Windows notes](#windows-notes)).
-
-## Setup
-
-The commands below assume that an environment is active, for example after `conda activate ecommerce`.
-If `conda activate` is not recognized, run `conda init` once and open a new terminal. Without
-activation, put `conda run -n ecommerce` in front of a command, for example
-`conda run -n ecommerce pip install -r backend/requirements-dev.txt`. For servers that keep running,
-add `--no-capture-output` so that their output streams.
-
-1. **Clone the repository.**
-
-   ```bash
-   git clone <repository-url>
-   cd <repository-folder>
-   ```
-
-2. **Create the two conda environments** (once).
-
-   ```bash
-   conda create -n ecommerce -c conda-forge python=3.14 nodejs=24 -y
-   conda create -n pg18 -c conda-forge postgresql=18 -y
-   ```
-
-   `ecommerce` holds Python, Node.js and npm. `pg18` holds the PostgreSQL 18 server programs
-   (`initdb`, `pg_ctl`, `psql`). The database server runs as a separate process.
-
-3. **Create the settings files.**
-
-   ```bash
-   cp backend/.env.example backend/.env
-   cp frontend/.env.example frontend/.env     # optional: the defaults already work
-   ```
-
-   Open `backend/.env` and change:
-
-   - `SECRET_KEY`: generate a value with `openssl rand -hex 32` and paste it in. The app refuses the
-     placeholder and any key shorter than 32 characters.
-   - `ADMIN_PASSWORD`: at least 8 characters, and not starting with `change-me`. The seed refuses
-     placeholders.
-   - `DATABASE_URL`: its password is the password of the database role that `init` creates. Set it
-     before you run `init`.
-
-   Optionally set `DEMO_CUSTOMER_EMAIL` and `DEMO_CUSTOMER_PASSWORD` to create a demo customer. Set
-   both or neither.
-
-   `backend/.env` and `.pgdata/` are git-ignored. Never commit real values.
-
-4. **Create and start the PostgreSQL server** (from the project root).
-
-   ```bash
-   scripts/db.sh init      # first time only: creates .pgdata/, the role and the database from DATABASE_URL, and starts the server
-   scripts/db.sh start     # after a stop or a restart
-   scripts/db.sh status    # shows whether the server is running
-   ```
-
-   `scripts/db.sh stop` stops the server. The server listens on localhost only.
-
-5. **Install the Python packages.**
-
-   ```bash
-   conda run -n ecommerce pip install -r backend/requirements-dev.txt
-   ```
-
-   `requirements-dev.txt` adds pytest, httpx and ruff to `requirements.txt`.
-
-6. **Apply the migrations and seed the sample data** (from `backend/`).
-
-   ```bash
-   cd backend
-   python -m app.migrate
-   python seed.py
-   ```
-
-   Both commands read `DATABASE_URL` from `backend/.env` (an exported variable wins).
-   `python seed.py` creates 5 categories, 5 brands, 20 sample
-   products (one inactive, three with no stock), the site settings, the admin account and, if it is
-   configured, the demo customer. Running it again keeps the existing rows.
-
-7. **Run the API** (from `backend/`).
-
-   ```bash
-   uvicorn app.main:create_app --factory --reload --port 8000
-   ```
-
-   API documentation: http://localhost:8000/api/docs. Health check: http://localhost:8000/api/health.
-   Leave it running and open a second terminal for the frontend.
-
-8. **Run the frontend** (from `frontend/`).
-
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-
-   Open http://localhost:5173. Vite forwards every `/api` request to port 8000, so the browser only
-   talks to port 5173.
-
-Log in as the admin with `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `backend/.env` to reach the admin
-panel.
-
-## Running the tests
-
-Backend (the PostgreSQL server must be running; run from `backend/`):
+You need Git, [Miniconda](https://docs.conda.io/) and a bash shell (on Windows: WSL2 or Git Bash,
+see "Windows notes" below). Nothing is installed system-wide: two conda environments provide Python
+3.14, Node.js 24 and PostgreSQL 18.
 
 ```bash
-pytest
+git clone <repository-url> && cd <repository-folder>
+
+conda create -n ecommerce -c conda-forge python=3.14 nodejs=24 -y    # Python and Node.js
+conda create -n pg18 -c conda-forge postgresql=18 -y                 # the PostgreSQL server programs
+
+cp backend/.env.example backend/.env     # edit it first, see below
+scripts/db.sh init                       # first time: creates .pgdata/, the database and its role, starts the server
+conda activate ecommerce
+pip install -r backend/requirements-dev.txt
+
+cd backend
+python -m app.migrate                    # creates the tables
+python seed.py                           # sample catalogue, site settings and the admin account
+uvicorn app.main:create_app --factory --reload --port 8000    # the API: leave it running
+
+# in a second terminal, from the project root (Node.js comes from the conda environment):
+conda activate ecommerce
+cd frontend && npm install && npm run dev
 ```
 
-The tests use their own database, `ecommerce_test_main`, on the same server. It is created on the
-first run and emptied after every test. The development database is not used. `TEST_DB_SUFFIX` changes
-the name (lowercase letters, digits and underscores only), for example `TEST_DB_SUFFIX=mine pytest`.
-`scripts/db.sh drop-test-dbs` drops every `ecommerce_test_*` database.
+Edit `backend/.env` before `scripts/db.sh init`: set `SECRET_KEY` (`openssl rand -hex 32`),
+`ADMIN_PASSWORD` (8 or more characters, not starting with `change-me`) and the password inside
+`DATABASE_URL` (it becomes the password of the database role). The file is git-ignored.
 
-Lint and format check (from `backend/`):
+Open <http://localhost:5173> and log in with `ADMIN_EMAIL` and `ADMIN_PASSWORD` to reach the admin
+panel. The API documentation is at <http://localhost:8000/api/docs> (on while `API_DOCS_ENABLED=true`,
+as in `backend/.env.example`). Without `conda activate`, put `conda run -n ecommerce` in front of a
+command. `scripts/db.sh stop`, `start` and `status` control the database server. Something does not
+work? See "Common errors" below.
+
+## Tests
 
 ```bash
-ruff check app tests seed.py
-ruff format --check app tests seed.py
+cd backend && pytest                          # the database server must run; it uses its own database
+cd frontend && npm run typecheck && npm test && npm run build
+scripts/e2e.sh                                # browser tests in a throw-away stack
 ```
 
-Frontend (from `frontend/`):
+`scripts/e2e.sh` drives a real browser: run `npx playwright install chromium` once in `frontend/`, or
+use the Google Chrome you already have with `E2E_CHANNEL=chrome scripts/e2e.sh`. The backend tests
+use the database `ecommerce_test_main` and leave the development database alone. Lint:
+`ruff check app tests seed.py` and `ruff format --check app tests seed.py` in `backend/`.
 
-```bash
-npm run typecheck
-npm test
-npm run build
-```
+## Make it yours
 
-## Project layout
+1. The shop identity: the site settings in the admin panel, or `SITE_SETTINGS` in `backend/seed.py`.
+2. The sample catalogue: `CATEGORIES`, `BRANDS` and `PRODUCTS` in `backend/seed.py`.
+3. The texts: `frontend/src/locales/tr/*.json` and `frontend/src/locales/en/*.json`.
+4. The session length: `ACCESS_TOKEN_MINUTES` in `backend/.env`.
+5. A new backend feature: a migration (`backend/migrations/0002_price_alerts.sql`), then a repository
+   function, a service if there are business rules, a router, a schema and a test in `backend/tests/api/`.
+6. A new page: a file in `frontend/src/features/` and a route in `frontend/src/app/routes.tsx`.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
+
+## More
+
+<details>
+<summary><b>Project layout</b></summary>
 
 ```
 backend/
@@ -182,12 +128,17 @@ frontend/
     components/       shared components; components/ui/ holds shadcn/ui components
     features/         pages, components and hooks per feature (catalog, cart, account, auth, admin, pages)
     layouts/          store, account and admin layouts
-    locales/tr/       Turkish UI texts, one JSON file per area
+    locales/          Turkish and English UI texts (tr/ and en/)
+screenshots/         the two pictures of this README
 scripts/db.sh        starts, stops and inspects the local PostgreSQL server
+scripts/e2e.sh       runs Playwright end-to-end tests against an isolated stack
 compose.yml          three containers: database, API, web server (not tested yet)
 ```
 
-## Architecture
+</details>
+
+<details>
+<summary><b>Architecture and design decisions</b></summary>
 
 ### Two routers, two jobs
 
@@ -220,6 +171,9 @@ HTTP request -> routers/ (input, authentication, status codes) -> services/ (bus
 - `lib/api.ts` is the only HTTP layer. It attaches the token and turns error codes into exceptions.
 - `app/routes.tsx` is the route table. The guards in `components/guards.tsx` decide what the browser
   shows.
+- `locales/` contains localized JSON strings for Turkish (`tr/`) and English (`en/`), accessed reactively via `useLocale`.
+- Theme system (`useTheme`) toggles between light, dark, and system modes using Tailwind OKLCH CSS variables.
+- `RichTextViewer` safely parses markdown descriptions into structured React elements without `dangerouslySetInnerHTML`.
 
 ### Access control and money
 
@@ -232,7 +186,7 @@ Prices are stored as `NUMERIC(12,2)` and returned as strings with two decimals (
 currency is fixed to TRY and the frontend formats the amounts. `cost_price` is returned only by admin
 endpoints; public product reads never select it.
 
-## Design decisions
+### Design decisions
 
 - **Plain SQL with psycopg 3** and a connection pool, with no ORM. The SQL is in
   `app/repositories/`, and every value is passed as a parameter (`%s`).
@@ -240,19 +194,25 @@ endpoints; public product reads never select it.
   `python -m app.migrate`. Each applied file is recorded with its SHA-256 checksum. To change the
   schema, add a new file. Never edit a file that has been applied: the runner stops with an error.
 - **Argon2 password hashing** (pwdlib). Password hashes are never returned by the API.
-- **JWT bearer tokens:** HS256, with the claims `sub`, `iat` and `exp`. The lifetime is set by
-  `ACCESS_TOKEN_MINUTES` (60 by default). The client sends `Authorization: Bearer <token>`.
+- **JWT bearer tokens:** HS256, with the claims `sub`, `tv`, `iat` and `exp`. `tv` is the token
+  version of the user: a password change, an admin password reset or a deactivation raises it and
+  ends every older session. The lifetime is set by `ACCESS_TOKEN_MINUTES` (60 by default). The
+  client sends `Authorization: Bearer <token>`.
 - **Stable error codes:** errors look like `{"detail": "insufficient_stock"}`. The frontend maps the
-  codes to Turkish messages, so no message text is parsed.
+  codes to localized messages (Turkish or English depending on the active locale), so no message text is parsed.
 - **Pagination** on every list: `page` (from 1) and `page_size` (1 to 100), answered with `items`,
   `total`, `page` and `page_size`.
 
-## Security notes
+</details>
+
+<details>
+<summary><b>Security notes and what to do before you put it on the internet</b></summary>
 
 - **Token storage.** The browser keeps the JWT in `localStorage`, under the key `ecommerce.token`.
   This is simple, but any script that runs on the page can read it. A cross-site scripting (XSS) bug
   would therefore expose the token. The app is written to avoid XSS: user text and server text are
-  shown as plain text, and the frontend never uses `dangerouslySetInnerHTML`. An HttpOnly cookie would
+  shown as plain text, markdown descriptions are safely parsed into React elements with URL
+  sanitization, and the frontend never uses `dangerouslySetInnerHTML`. An HttpOnly cookie would
   hide the token from scripts, but it brings other design work, such as protection against cross-site
   request forgery. This starter does not use cookies.
 - **Admin screens are hidden as a convenience only.** The API enforces admin rights on every
@@ -272,14 +232,16 @@ application does not do for you:
 - **A reverse proxy with TLS**, which also sets security headers (`Content-Security-Policy`,
   `Strict-Transport-Security`, `X-Frame-Options`) and a request size limit (`client_max_body_size`
   in nginx). The app refuses bodies over 256 KB (image uploads: 2 MB plus overhead) by itself.
-- **Switch off the API documentation** (`docs_url` and `openapi_url` in `app/main.py`), or keep it
-  behind your own login.
+- **Keep the API documentation off.** `API_DOCS_ENABLED` is `false` unless it is set to `true`;
+  `backend/.env.example` turns it on for development. Or keep it behind your own login.
 - **Real secrets:** a generated `SECRET_KEY`, a strong database password and a strong admin password.
-- **Known limitations:** a password change does not sign out other sessions (tokens live up to
-  `ACCESS_TOKEN_MINUTES`), and the admin form refuses to save a product that changed since it was
-  opened (for example after a sale) instead of merging the two versions: reload and edit again.
+- **Known limitation:** the admin form refuses to save a product that changed since it was opened
+  (for example after a sale) instead of merging the two versions: reload and edit again.
 
-## Running with Docker (not tested yet)
+</details>
+
+<details>
+<summary><b>Running with Docker (not tested yet)</b></summary>
 
 `compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` and `frontend/nginx.conf` describe the same
 application as three containers: PostgreSQL 18, the API, and an nginx web server that serves the built
@@ -308,11 +270,14 @@ Notes:
 - The nginx configuration limits login and registration to a few requests per second. The API now
   sends `X-Frame-Options`, `Referrer-Policy` and `Cache-Control: no-store` itself; nginx adds
   `Content-Security-Policy` and repeats the others for the pages (see
-  [Before you put it on the internet](#before-you-put-it-on-the-internet)). It does not provide TLS:
+  "Before you put it on the internet" in the security notes). It does not provide TLS:
   put a TLS-terminating proxy or your hosting provider's load balancer in front for a public server.
 - The Content-Security-Policy blocks the Swagger UI at `/api/docs`, which loads a script from a CDN.
 
-## Common errors
+</details>
+
+<details>
+<summary><b>Common errors</b></summary>
 
 - **Port 5432 is busy.** `scripts/db.sh start` fails because another PostgreSQL server (or another
   process) listens on the port. Find it on Linux with `ss -ltnp | grep 5432`, then stop it. Or use
@@ -347,7 +312,10 @@ Notes:
 - **Port 8000 or 5173 is busy.** Stop the other process. The Vite proxy target is fixed to port 8000 in
   `frontend/vite.config.ts`, so change it there if the API runs on another port.
 
-## Windows notes
+</details>
+
+<details>
+<summary><b>Windows notes</b></summary>
 
 - `scripts/db.sh` is a bash script that uses Unix sockets. Use WSL2 (recommended: run everything inside
   the Linux distribution) or Git Bash.
@@ -372,20 +340,6 @@ Notes:
   Stop the server with `pg_ctl stop -D .pgdata -m fast -w` and check it with `pg_ctl status -D .pgdata`.
 - Use `copy` (Command Prompt) or `Copy-Item` (PowerShell) instead of `cp`.
 - Docker avoids the bash script and the conda environments altogether, see
-  [Running with Docker](#running-with-docker-not-tested-yet).
+  "Running with Docker".
 
-## License
-
-This project is released under the MIT License (see [LICENSE](LICENSE)).
-
-## What you can change first
-
-1. The shop identity: the site settings in the admin panel, or `SITE_SETTINGS` in `backend/seed.py` for a
-   fresh seed.
-2. The sample catalogue in `backend/seed.py` (`CATEGORIES`, `BRANDS`, `PRODUCTS`).
-3. The texts: `frontend/src/locales/tr/*.json`.
-4. The token lifetime: `ACCESS_TOKEN_MINUTES` in `backend/.env`.
-5. A new feature on the backend: a migration file such as `backend/migrations/0002_wishlist.sql`, then a
-   repository function, a service if business rules apply, a router, a schema, and a test in
-   `backend/tests/api/`.
-6. A new page: a file in `frontend/src/features/` and a route in `frontend/src/app/routes.tsx`.
+</details>
