@@ -67,4 +67,29 @@ describe('RichTextViewer', () => {
     expect(document.querySelector('script')).toBeNull()
     expect(screen.getByText('<script>window.__xss = true</script>')).toBeInTheDocument()
   })
+
+  it('does not treat non-flanking mathematical asterisks as italic', () => {
+    const { container } = render(<RichTextViewer content={'Dimensions: 5 * 10 * 20 cm'} />)
+    expect(container.querySelector('em')).toBeNull()
+    expect(screen.getByText(/5 \* 10 \* 20 cm/)).toBeInTheDocument()
+  })
+
+  it('supports URLs containing balanced parentheses like Wikipedia links', () => {
+    render(
+      <RichTextViewer
+        content={'Read more on [React](https://en.wikipedia.org/wiki/React_(software)) documentation.'}
+      />,
+    )
+    const link = screen.getByRole('link', { name: 'React' })
+    expect(link).toHaveAttribute('href', 'https://en.wikipedia.org/wiki/React_(software)')
+  })
+
+  it('does not freeze on a link that is not closed yet', () => {
+    // The editor preview renders while an address is being typed, before the ")" exists.
+    // A pattern that backtracks takes seconds for 28 characters and doubles with every two more.
+    const started = performance.now()
+    render(<RichTextViewer content={`[guide](${'a'.repeat(28)}`} />)
+    expect(performance.now() - started).toBeLessThan(250)
+    expect(screen.getByText(/^\[guide\]\(a+$/)).toBeInTheDocument()
+  })
 })

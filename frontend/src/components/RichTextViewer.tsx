@@ -53,8 +53,10 @@ function renderInline(text: string, baseKey = 'inline'): ReactNode[] {
       })
     }
 
-    // 2. Link: [text](url)
-    const linkMatch = remaining.match(/\[([^\]\n]+)\]\(([^)\s]+)\)/)
+    // 2. Link: [text](url). The address may hold balanced parentheses (Wikipedia). Every group
+    // starts with "(", so the pattern cannot split a run of characters in two ways and cannot
+    // backtrack without end on an address that is not closed yet.
+    const linkMatch = remaining.match(/\[([^\]\n]+)\]\(([^\s()]*(?:\([^\s()]*\)[^\s()]*)*)\)/)
     if (linkMatch && linkMatch.index !== undefined) {
       matches.push({
         index: linkMatch.index,
@@ -104,8 +106,10 @@ function renderInline(text: string, baseKey = 'inline'): ReactNode[] {
       })
     }
 
-    // 5. Italic: *text* or _text_
-    const italicMatch = remaining.match(/\*([^*\n]+)\*|(?<=\s|^)_([^_\n]+)_(?=\s|$|[.,!?;:])/)
+    // 5. Italic: *text* or _text_ - requires flanking non-whitespace for asterisks
+    const italicMatch = remaining.match(
+      /(?<!\*)\*(?!\s|\*)([^*\n]+?)(?<!\s|\*)\*(?!\*)|(?<=\s|^)_([^_\n]+)_(?=\s|$|[.,!?;:])/,
+    )
     if (italicMatch && italicMatch.index !== undefined) {
       const italicText = italicMatch[1] ?? italicMatch[2]
       matches.push({
@@ -141,7 +145,7 @@ function renderInline(text: string, baseKey = 'inline'): ReactNode[] {
 
 type Block =
   | { type: 'heading'; level: 2 | 3 | 4; text: string }
-  | { type: 'code_block'; language?: string; code: string }
+  | { type: 'code_block'; code: string }
   | { type: 'blockquote'; lines: string[] }
   | { type: 'unordered_list'; items: string[] }
   | { type: 'ordered_list'; items: string[] }
@@ -167,7 +171,6 @@ export function RichTextViewer({ content, className }: RichTextViewerProps) {
 
     // Fenced code block
     if (/^```/.test(line.trim())) {
-      const lang = line.trim().slice(3).trim()
       i++
       const codeLines: string[] = []
       while (i < lines.length && !/^```/.test(lines[i].trim())) {
@@ -177,11 +180,7 @@ export function RichTextViewer({ content, className }: RichTextViewerProps) {
       if (i < lines.length && /^```/.test(lines[i].trim())) {
         i++
       }
-      blocks.push({
-        type: 'code_block',
-        language: lang,
-        code: codeLines.join('\n'),
-      })
+      blocks.push({ type: 'code_block', code: codeLines.join('\n') })
       continue
     }
 
