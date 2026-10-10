@@ -24,7 +24,7 @@ import { errorMessage, t } from '@/lib/i18n'
 import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { AdminProduct, Taxonomy } from '@/lib/types'
 
-// Same limits as the API (docs/api.md). The database is the final check.
+// Same limits as the API (backend/app/schemas/products.py). The database is the final check.
 const SKU_PATTERN = /^[A-Za-z0-9._-]{1,64}$/
 // Up to 10 integer digits and 2 decimals: the NUMERIC(12,2) range.
 const MONEY_PATTERN = /^\d{1,10}(\.\d{1,2})?$/

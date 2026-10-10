@@ -8,7 +8,7 @@ from app.errors import ApiError
 from app.repositories import orders as repo
 from app.repositories import products
 
-# The order status machine (docs/api.md).
+# The order status machine. The frontend keeps a copy in features/admin/orderTransitions.ts.
 ALLOWED_TRANSITIONS: dict[str, frozenset[str]] = {
     "new": frozenset({"approved", "rejected", "cancelled"}),
     "approved": frozenset({"shipped", "cancelled"}),

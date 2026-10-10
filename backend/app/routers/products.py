@@ -1,4 +1,4 @@
-"""Public product catalogue and admin product and image endpoints (see docs/api.md)."""
+"""Public product catalogue and admin product and image endpoints."""
 
 from typing import Annotated, Literal
 

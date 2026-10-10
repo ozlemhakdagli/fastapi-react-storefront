@@ -1,4 +1,4 @@
-"""Star ratings of products (see docs/api.md)."""
+"""Star ratings of products."""
 
 from fastapi import APIRouter, Depends
 

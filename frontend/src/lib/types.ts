@@ -1,4 +1,5 @@
-// Mirrors the JSON shapes of the API (docs/api.md). Keep both in sync.
+// Mirrors the JSON shapes of the API (the schemas in backend/app/schemas, or /api/docs while
+// API_DOCS_ENABLED is true). Keep both in sync.
 
 export type Money = string // two-decimal string, for example "1299.90"
 export type Iso = string // ISO-8601 UTC timestamp

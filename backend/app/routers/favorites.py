@@ -1,4 +1,4 @@
-"""A customer's favourite products (see docs/api.md)."""
+"""A customer's favourite products."""
 
 from fastapi import APIRouter, Depends
 

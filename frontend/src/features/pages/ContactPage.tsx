@@ -15,7 +15,7 @@ import { t } from '@/lib/i18n'
 import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 import type { SiteSettings, User } from '@/lib/types'
 
-// Same limits as the messages table and the ContactIn schema (docs/api.md).
+// Same limits as the messages table and the ContactIn schema (backend/app/schemas/messages.py).
 const MAX_LENGTH = { name: 100, email: 254, phone: 30, subject: 200, body: 5000 } as const
 
 const SOCIAL_NETWORKS = [

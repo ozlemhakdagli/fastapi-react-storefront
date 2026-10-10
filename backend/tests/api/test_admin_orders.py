@@ -1,4 +1,4 @@
-"""Admin order endpoints and the order status machine (see docs/api.md)."""
+"""Admin order endpoints and the order status machine."""
 
 import pytest
 

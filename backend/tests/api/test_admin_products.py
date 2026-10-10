@@ -1,4 +1,4 @@
-"""Admin product management: admin-only access, CRUD and reference rules (see docs/api.md)."""
+"""Admin product management: admin-only access, CRUD and reference rules."""
 
 from fastapi.testclient import TestClient
 

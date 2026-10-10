@@ -4,7 +4,7 @@ import type { Page, ProductListItem } from '@/lib/types'
 
 export type ProductSort = 'newest' | 'price_asc' | 'price_desc'
 
-// Query parameters of GET /products (docs/api.md).
+// Query parameters of GET /products (backend/app/routers/products.py).
 // A type alias, not an interface, so that it is assignable to the api params type.
 export type ProductQuery = {
   page?: number

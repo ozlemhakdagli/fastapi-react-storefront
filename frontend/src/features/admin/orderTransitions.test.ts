@@ -1,7 +1,8 @@
 import { ALLOWED_NEXT } from '@/features/admin/orderTransitions'
 import { ORDER_STATUSES, type OrderStatus } from '@/lib/types'
 
-// Written out from docs/api.md, deliberately not derived from the implementation.
+// Written out from ALLOWED_TRANSITIONS in backend/app/services/orders.py, deliberately not derived
+// from the implementation.
 const STATUS_TABLE: [OrderStatus, OrderStatus[]][] = [
   ['new', ['approved', 'rejected', 'cancelled']],
   ['approved', ['shipped', 'cancelled']],

@@ -10,7 +10,7 @@ import { useCart, useRemoveCartItem, useSetCartQuantity } from '@/features/cart/
 import { t } from '@/lib/i18n'
 import { useDocumentTitle } from '@/features/pages/hooks/useDocumentTitle'
 
-// The API accepts quantities 1..99, and never more than the stock (docs/api.md).
+// The API accepts quantities 1..99, and never more than the stock (backend/app/schemas/cart.py).
 const MAX_QUANTITY = 99
 
 export default function CartPage() {
